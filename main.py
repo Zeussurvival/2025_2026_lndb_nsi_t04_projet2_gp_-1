@@ -10,6 +10,11 @@ assets_dir = os.path.join(main_dir,"assets")
 police_dir = os.path.join(assets_dir,"polices")
 sounds_dir = os.path.join(assets_dir, "sounds")
 
+
+font_1 = os.path.join(police_dir, "test_1.ttf")
+font_2 = os.path.join(police_dir, "test_2.ttf")
+
+
 # pygame setup
 pygame.init()
 pygame.font.init()
@@ -19,23 +24,25 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 
-# Variables fade
-FADE_BLACK = 0      
-FADE_TO_EARTH = 1  
-SHOW_EARTH = 2      
-FADE_TO_DIALOGUE = 3 
-SHOW_DIALOGUE = 4   
-GAME_PLAY = 5     
+# Variables ordre
+FADE_BLACK = 0  
+FADE_IN_TEXT_1 = 1
+SHOW_TEXT_1 = 2
+FADE_TEXT_1 = 3    
+FADE_TO_EARTH = 4  
+SHOW_EARTH = 5
+SHOW_TEXT_2 = 6   
+FADE_TO_DIALOGUE = 7 
+SHOW_DIALOGUE = 8
+GAME_PLAY = 9
 current_state = FADE_BLACK
 
 earth_timer = 180
 fade_alpha = 255 
 fade_speed = 1
-fade_active = True
 timer = 70
-fade2_active = False
-earth_active = False
-timer2= 180
+text_timer = 120
+
 
 # Variables dialogue
 
@@ -43,7 +50,7 @@ counter = 0
 speed = 4
 done = False
 active_message = 0
-dialogue_box = True
+
 
 # Chargement des assets
 
@@ -57,10 +64,6 @@ player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
 
 
-main_dir = os.path.split(os.path.abspath(__file__))[0]
-assets_dir = os.path.join(main_dir,"assets")
-police_dir = os.path.join(assets_dir,"polices")
-sounds_dir = os.path.join(assets_dir, "sounds")
 
 
 objects = C_D.objects
@@ -81,14 +84,15 @@ dialogue_box_width = 400
 dialogue_box_height = 200
 dialogue_box_x = (screen.get_width() - dialogue_box_width) // 2
 dialogue_box_y = (screen.get_height() - dialogue_box_height) // 2
-dialogue_box = True
+
 
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
-
-
-
-
+font = pygame.font.Font(font_1, 25)
+text_1 = font.render("Cela fait 732 années que les humains ont quitté cette planète", 1, (255, 255, 255))
+text_2 = font.render("Ils ont laissé derrière eux… ceci.", 1, (255, 255, 255))
+text_rect_1 = text_1.get_rect(center=(640, 360))
+text_rect_2 = text_2.get_rect(center=(640, 100))
 
 dialogue_1 = C_D.Dialogue( 640,600, 894, 200, ["Initialisation…", "Unité de nettoyage autonome : R-0.", "Statut de la planète : inhabitable.", "Mission prioritaire : nettoyer."], next)
 message = dialogue_1.dialogue_text[active_message]
@@ -119,7 +123,6 @@ while running:
                             text_sound.stop()
                         else :  
                             current_state = GAME_PLAY                                                 #elif len(active_message)> 75
-                            dialogue_box = False
                             text_sound.stop()                        
                     else:
                         counter = speed * len(message)
@@ -135,11 +138,35 @@ while running:
             timer -=1
 
         else :
+            current_state = FADE_IN_TEXT_1
+            fade_alpha = 255 
+    
+            print("fade1 finis")
+
+    elif current_state == FADE_IN_TEXT_1:
+
+        screen.blit(text_1, text_rect_1)
+        fade_alpha -= fade_speed 
+        if fade_alpha <= 0:
+            fade_alpha = 0
+            current_state = SHOW_TEXT_1
+            text_timer = 120
+            print("Texte 1 ")
+    elif current_state == SHOW_TEXT_1:
+        screen.blit(text_1, text_rect_1)
+        if text_timer > 0:
+            text_timer -= 1
+        else:
+            current_state = FADE_TEXT_1
+            fade_alpha = 0
+            
+    elif current_state == FADE_TEXT_1:
+        screen.blit(text_1, text_rect_1)
+        fade_alpha += fade_speed
+        if fade_alpha >= 255:
+            fade_alpha = 255
             current_state = FADE_TO_EARTH
-            fade_alpha -= fade_speed 
-            if fade_alpha <= 0:
-                fade_alpha = 255
-                print("fade1 finis")
+            print("vers la terre")
     elif current_state == FADE_TO_EARTH:
         screen.fill ((0,0,0))
         current_frame += animation_speed
@@ -147,28 +174,33 @@ while running:
             current_frame = 0
         earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
         screen.blit(frames[int(current_frame)], earth_rect) 
+        screen.blit(text_2, text_rect_2) 
         fade_alpha -= fade_speed 
         if fade_alpha <= 0:
             fade_alpha = 0
             current_state = SHOW_EARTH
             earth_timer = 180
-            print("fade2 finis")
+            print("terre visible")
     elif current_state == SHOW_EARTH:
         current_frame += animation_speed
         if current_frame >= len(frames):
             current_frame = 0
         earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
         screen.blit(frames[int(current_frame)], earth_rect) 
+        screen.blit(text_2, text_rect_2)  
         earth_timer -= 1
         if earth_timer <=0:
             current_state = FADE_TO_DIALOGUE
             fade_alpha = 0
+
+
     elif current_state == FADE_TO_DIALOGUE :
         current_frame += animation_speed
         if current_frame >= len(frames):
             current_frame = 0
         earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
-        screen.blit(frames[int(current_frame)], earth_rect) 
+        screen.blit(frames[int(current_frame)], earth_rect)
+        screen.blit(text_2, text_rect_2)  
         fade_alpha += fade_speed
         if fade_alpha >= 255 :
             fade_alpha = 255
@@ -189,7 +221,7 @@ while running:
         current_char = counter // speed
         previous_char = previous_counter // speed
 
-        if current_char == 1 and previous_char == 0 and not done and not fade_active and dialogue_box and not fade2_active:
+        if current_char == 1 and previous_char == 0 and not done :
             text_sound.play()
         
         dialogue_1.snip = message[0:counter//speed]

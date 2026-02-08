@@ -19,6 +19,7 @@ icons = os.path.join(hologram_dir,"Icons")
 robot = os.path.join(assets_dir,"Robot")
 
 
+
 # background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
 # background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
 # background = pygame.transform.scale(background_original,(screen.get_size()))
