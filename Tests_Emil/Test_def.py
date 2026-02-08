@@ -47,8 +47,8 @@ def pollution_creation_rond(Liste_pos,range_pollu,map): # pas forcement realiste
     for pos in Liste_pos:
         matrice_created = create_round_matrice(range_pollu)
         map_pollution = place_matrice_big_then_small_addition(map_pollution,matrice_created,(pos[0]-range_pollu,pos[1]-range_pollu)) # place_matrice_big_then_small(matrice,house_matrice,positions)
-    print(Liste_pos)
-    print(map_pollution)
+    # print(Liste_pos)
+    # print(map_pollution)
     return map_pollution
 
  

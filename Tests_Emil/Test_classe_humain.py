@@ -6,8 +6,9 @@ import os
 pygame.display.init()
 pygame.font.init()
 main_dir = os.path.split(os.path.abspath(__file__))[0]
-img_dir = os.path.join(main_dir,"Humanoid") 
-frames_image_dir = os.path.join(main_dir,"Tiles/frames")
+assets_dir = os.path.join(main_dir,"assets") 
+img_dir = os.path.join(assets_dir,"Humanoid") 
+frames_image_dir = os.path.join(assets_dir,"Tiles/frames")
 
 
 #         self.image = pygame.image.load(os.path.join(img_dir, image)).convert_alpha()

@@ -4,9 +4,10 @@ import os
 pygame.display.init()
 pygame.font.init()
 main_dir = os.path.split(os.path.abspath(__file__))[0]
-img_dir = os.path.join(main_dir,"Images") 
-bg_image_dir = os.path.join(main_dir,"Tiles/Background_images")
-tiles_dir = os.path.join(main_dir,"Tiles") 
+assets_dir = os.path.join(main_dir,"assets") 
+img_dir = os.path.join(assets_dir,"Images") 
+bg_image_dir = os.path.join(assets_dir,"Tiles/Background_images")
+tiles_dir = os.path.join(assets_dir,"Tiles") 
 
 class OBJET():
     def __init__(self,image_name,name,description,can_see):
@@ -14,7 +15,7 @@ class OBJET():
         self.description = description
         self.image = pygame.image.load(os.path.join(img_dir,image_name))
         self.image = pygame.transform.scale(self.image,(64,64))
-        self.higlights_tiles = can_see
+        self.can_see = can_see
     
 
 class Consumable(OBJET):
@@ -24,14 +25,14 @@ class Consumable(OBJET):
 
 class Tool(OBJET):
     def __init__(self, image_name, name, description, damage, tier):
-        super().__init__(image_name, name, description,can_see=False)
+        super().__init__(image_name, name, description,can_see=True)
         self.type = "tool"
         self.damage = damage
         self.tier = tier
 
 class Plant(OBJET):
-    def __init__(self, image_name, name, description, can_see,image_tile,indice_in_map):
-        super().__init__(image_name, name, description, can_see)
+    def __init__(self, image_name, name, description,image_tile,indice_in_map):
+        super().__init__(image_name, name, description, can_see=True)
         self.type = "Plant"
         self.image_tile = image_tile
         self.indice_in_map = indice_in_map
