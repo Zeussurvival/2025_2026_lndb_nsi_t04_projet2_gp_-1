@@ -55,6 +55,8 @@ bush = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",
 Arial_font = pygame.font.SysFont('Arial', 30)
 Surface_text_pickup = Arial_font.render('Press [E] to pick it up !', False, (255,255,255))
 can_pickup = True
+can_see_pollution = False
+cd_see_pollution = False
 
 
 hotbar = [bush,None,None,None,None]
@@ -77,12 +79,17 @@ while running:
         for x in range(max(coin_haut[0],0),min(coin_bas[0],Actual_map.shape[1])):
             List_tiles[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
             List_tiles[Actual_map_objects_layer[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
-            tile_surface = List_tiles[-2].image.copy()
-            tile_surface.set_alpha(Actual_map_pollution[x,y]*10)
-            screen.blit(tile_surface,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
+            if can_see_pollution:
+                tile_surface = List_tiles[-2].image.copy()
+                tile_surface.set_alpha(Actual_map_pollution[x,y]*10)
+                screen.blit(tile_surface,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
 
-                    
-
+    if keys[pygame.K_F3]:              
+        if cd_see_pollution == False:
+            can_see_pollution = not can_see_pollution
+            cd_see_pollution = True
+    else:
+        cd_see_pollution = False
 
     if keys[pygame.K_e]: #recuperer objets
         for obj in List_ground_objets:
@@ -110,13 +117,12 @@ while running:
     centre_tile = (tile_souris[0]+32,tile_souris[1]+32) # on prends dcp le centre de la tile, en gros c juste len_square /2 mais on va simplifier
     diff = (centre_tile[0]-Robot.pos[0],centre_tile[1]-Robot.pos[1]) # reconversion en pos ecran
     
-    if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
-        screen_pos=(W_2-(Robot.pos[0]-tile_souris[0]),H_2-(Robot.pos[1]-tile_souris[1]))
-        pygame.draw.rect(screen,"red",(screen_pos[0],screen_pos[1],LEN_SQUARE,LEN_SQUARE),2)
-        if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/64) < Actual_map.shape[0] and 0<= int(tile_souris[1]/64) < Actual_map.shape[1]:
-            if Robot.hotbar[Robot.held_item_indice]!= None:
+    if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True:
+        if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
+            screen_pos=(W_2-(Robot.pos[0]-tile_souris[0]),H_2-(Robot.pos[1]-tile_souris[1]))
+            pygame.draw.rect(screen,"red",(screen_pos[0],screen_pos[1],LEN_SQUARE,LEN_SQUARE),2)
+            if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/64) < Actual_map.shape[0] and 0 <= int(tile_souris[1]/64) < Actual_map.shape[1]:
                 if Robot.hotbar[Robot.held_item_indice].type == "Plant":
-                    print(tile_souris[0]/64,tile_souris[1]/64)
                     Actual_map_objects_layer[int(tile_souris[0]/64),int(tile_souris[1]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                     Robot.hotbar[Robot.held_item_indice] = None
 
@@ -127,6 +133,6 @@ while running:
     if time.time()-time_0 > dt:
         print(" OH SHIT", time.time()-time_0- dt)
     # print(time.time()-time_0- dt)
-    dt = clock.tick(200) / 1000
+    dt = clock.tick(120) / 1000
 
 pygame.quit()

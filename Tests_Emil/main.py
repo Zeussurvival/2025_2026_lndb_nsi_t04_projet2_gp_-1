@@ -143,6 +143,9 @@ bush = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",
 Arial_font = pygame.font.SysFont('Arial', 30)
 Surface_text_pickup = Arial_font.render('Press [E] to pick it up !', False, (255,255,255))
 can_pickup = True
+can_see_pollution = True
+cd_see_pollution = True
+
 
 hotbar = [bush,None,None,None,None]
 Robot = CH.Humanoid((15*LEN_SQUARE,15*LEN_SQUARE),100,5,5,"robot_front_wait.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
@@ -162,90 +165,91 @@ while running:
     mouse_pos = pygame.mouse.get_pos()
     keys = pygame.key.get_pressed()
 
-    if not see_animations:
-        current_state = GAME_PLAY
-        fade_alpha = 0
-    if see_animations:  
-        if current_state == FADE_BLACK:
-            if timer > 0:
-                timer -=1
-            else:
-                timer = 0
-                current_state = FADE_TO_EARTH
-                print("fade1 finis")
-
-        if current_state == FADE_TO_EARTH:
-            current_frame += animation_speed
-            if current_frame >= len(frames):
-                current_frame = 0
-            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
-            screen.blit(frames[int(current_frame)], earth_rect) 
-            fade_alpha -= fade_speed 
-            if fade_alpha <= 0:
-                fade_alpha = 0
-                current_state = SHOW_EARTH
-                print("fade2 finis")
-
-        if current_state == SHOW_EARTH:
-            current_frame += animation_speed
-            if current_frame >= len(frames):
-                current_frame = 0
-            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
-            screen.blit(frames[int(current_frame)], earth_rect) 
-            earth_timer -= 1
-            if earth_timer <=0:
-                current_state = FADE_TO_DIALOGUE
-                fade_alpha = 0
-                print('look at earth finis')
-
-        if current_state == FADE_TO_DIALOGUE:
-            current_frame += animation_speed
-            if current_frame >= len(frames):
-                current_frame = 0
-            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
-            screen.blit(frames[int(current_frame)], earth_rect) 
-            fade_alpha += fade_speed
-            if fade_alpha >= 255:
-                current_state = SHOW_DIALOGUE
-                fade_alpha = 0
-                print('fade3 finis')
-
-        if current_state == SHOW_DIALOGUE: 
-            for object in liste_dialoges:
-                object.process()   # ya une fonctions next qui fait directement changer le prochain current state
-                object.draw(screen) 
-            previous_counter = counter
-            if counter < speed * len(message) :
-                counter +=1
-            elif counter >= speed * len(message):
-                done = True
-                text_sound.stop()
-            current_char = counter // speed
-            previous_char = previous_counter // speed
-            if current_char == 1 and previous_char == 0 and not done and not fade_active and dialogue_box and not fade2_active:
-                text_sound.play()
-            dialogue_1.snip = message[0:counter//speed]
-
-            if (keys[pygame.K_SPACE] or keys[pygame.K_RETURN]) and cooldown_dialogue == False:
-                cooldown_dialogue = True
-                print(cooldown_dialogue)
-                if done:
-                    if active_message < len(dialogue_1.dialogue_text) - 1:
-                        active_message += 1
-                        done = False
-                        message = dialogue_1.dialogue_text[active_message]
-                        counter = 0
-                        text_sound.stop()
-                    else :  
-                        current_state = GAME_PLAY
-                        dialogue_box = False
-                        text_sound.stop()                        
+    if current_state != GAME_PLAY:
+        if not see_animations:
+            current_state = GAME_PLAY
+            fade_alpha = 0
+        if see_animations:  
+            if current_state == FADE_BLACK:
+                if timer > 0:
+                    timer -=1
                 else:
-                    counter = speed * len(message)
+                    timer = 0
+                    current_state = FADE_TO_EARTH
+                    print("fade1 finis")
+
+            if current_state == FADE_TO_EARTH:
+                current_frame += animation_speed
+                if current_frame >= len(frames):
+                    current_frame = 0
+                earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+                screen.blit(frames[int(current_frame)], earth_rect) 
+                fade_alpha -= fade_speed 
+                if fade_alpha <= 0:
+                    fade_alpha = 0
+                    current_state = SHOW_EARTH
+                    print("fade2 finis")
+
+            if current_state == SHOW_EARTH:
+                current_frame += animation_speed
+                if current_frame >= len(frames):
+                    current_frame = 0
+                earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+                screen.blit(frames[int(current_frame)], earth_rect) 
+                earth_timer -= 1
+                if earth_timer <=0:
+                    current_state = FADE_TO_DIALOGUE
+                    fade_alpha = 0
+                    print('look at earth finis')
+
+            if current_state == FADE_TO_DIALOGUE:
+                current_frame += animation_speed
+                if current_frame >= len(frames):
+                    current_frame = 0
+                earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+                screen.blit(frames[int(current_frame)], earth_rect) 
+                fade_alpha += fade_speed
+                if fade_alpha >= 255:
+                    current_state = SHOW_DIALOGUE
+                    fade_alpha = 0
+                    print('fade3 finis')
+
+            if current_state == SHOW_DIALOGUE: 
+                for object in liste_dialoges:
+                    object.process()   # ya une fonctions next qui fait directement changer le prochain current state
+                    object.draw(screen) 
+                previous_counter = counter
+                if counter < speed * len(message) :
+                    counter +=1
+                elif counter >= speed * len(message):
                     done = True
-                    text_sound.stop() 
-            if keys[pygame.K_SPACE] == False:
-                cooldown_dialogue = False
+                    text_sound.stop()
+                current_char = counter // speed
+                previous_char = previous_counter // speed
+                if current_char == 1 and previous_char == 0 and not done and not fade_active and dialogue_box and not fade2_active:
+                    text_sound.play()
+                dialogue_1.snip = message[0:counter//speed]
+
+                if (keys[pygame.K_SPACE] or keys[pygame.K_RETURN]) and cooldown_dialogue == False:
+                    cooldown_dialogue = True
+                    print(cooldown_dialogue)
+                    if done:
+                        if active_message < len(dialogue_1.dialogue_text) - 1:
+                            active_message += 1
+                            done = False
+                            message = dialogue_1.dialogue_text[active_message]
+                            counter = 0
+                            text_sound.stop()
+                        else :  
+                            current_state = GAME_PLAY
+                            dialogue_box = False
+                            text_sound.stop()                        
+                    else:
+                        counter = speed * len(message)
+                        done = True
+                        text_sound.stop() 
+                if keys[pygame.K_SPACE] == False:
+                    cooldown_dialogue = False
 
 
 
@@ -260,9 +264,10 @@ while running:
             for x in range(max(coin_haut[0],0),min(coin_bas[0],Actual_map.shape[1])):
                 List_tiles[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
                 List_tiles[Actual_map_objects_layer[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
-                tile_surface = List_tiles[-2].image.copy()
-                tile_surface.set_alpha(Actual_map_pollution[x,y]*10)
-                screen.blit(tile_surface,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
+                if can_see_pollution:
+                    tile_surface = List_tiles[-2].image.copy()
+                    tile_surface.set_alpha(Actual_map_pollution[x,y]*10)
+                    screen.blit(tile_surface,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
 
         if keys[pygame.K_e]: #recuperer objets
             for obj in List_ground_objets:
@@ -272,6 +277,13 @@ while running:
                         List_ground_objets.remove(obj)
         else:
             can_pickup = True               
+
+        if keys[pygame.K_F3]:              
+            if cd_see_pollution == False:
+                can_see_pollution = not can_see_pollution
+                cd_see_pollution = True
+        else:
+            cd_see_pollution = False
 
         if keys[pygame.K_n]:
             if Robot.hotbar[Robot.held_item_indice] != None:
@@ -295,9 +307,8 @@ while running:
             if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
                 screen_pos=(W_2-(Robot.pos[0]-tile_souris[0]),H_2-(Robot.pos[1]-tile_souris[1]))
                 pygame.draw.rect(screen,"red",(screen_pos[0],screen_pos[1],LEN_SQUARE,LEN_SQUARE),2)
-                if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/64) < Actual_map.shape[0] and 0<= int(tile_souris[1]/64) < Actual_map.shape[1]:
+                if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/64) < Actual_map.shape[0] and 0 <= int(tile_souris[1]/64) < Actual_map.shape[1]:
                     if Robot.hotbar[Robot.held_item_indice].type == "Plant":
-                        print(tile_souris[0]/64,tile_souris[1]/64)
                         Actual_map_objects_layer[int(tile_souris[0]/64),int(tile_souris[1]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
 
