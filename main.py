@@ -209,7 +209,6 @@ while running:
             if fade_alpha <= 0:
                 fade_alpha = 0
                 current_state = SHOW_TEXT_1
-                text_timer = 120
                 print("Texte 1 ")
         elif current_state == SHOW_TEXT_1:
             screen.blit(text_1, text_rect_1)
@@ -217,8 +216,7 @@ while running:
                 text_timer -= 1
             else:
                 current_state = FADE_TEXT_1
-                fade_alpha = 0
-                
+                fade_alpha = 0    
         elif current_state == FADE_TEXT_1:
             screen.blit(text_1, text_rect_1)
             fade_alpha += fade_speed
@@ -227,8 +225,6 @@ while running:
                 current_state = FADE_TO_EARTH
                 print("vers la terre")
         elif current_state == FADE_TO_EARTH:
-            screen.fill ((0,0,0))
-            
             current_frame += animation_speed
             if current_frame >= len(frames):
                 current_frame = 0
@@ -244,7 +240,6 @@ while running:
             if fade_alpha <= 0:
                 fade_alpha = 0
                 current_state = SHOW_EARTH
-                earth_timer = 180
                 print("terre visible")
         elif current_state == SHOW_EARTH:
             current_frame += animation_speed
@@ -277,13 +272,11 @@ while running:
             screen.blit(text_2, text_rect_2)  
             fade_alpha += fade_speed
             if fade_alpha >= 255 :
-                fade_alpha = 255
                 current_state = SHOW_DIALOGUE
                 fade_alpha = 0
                 
         elif current_state == SHOW_DIALOGUE: 
             for object in objects:
-
                 object.process()
                 object.draw(screen)
             previous_counter = counter 
@@ -292,30 +285,30 @@ while running:
             elif counter >= speed * len(message):
                 done = True
                 text_sound.stop()
-
             current_char = counter // speed
             previous_char = previous_counter // speed
-
-            if current_char == 1 and previous_char == 0 and not done :
+            if current_char == 1 and previous_char == 0 and not done:
                 text_sound.play()
-            
             dialogue_1.snip = message[0:counter//speed]
-                    
-            if keys[pygame.K_RETURN] or keys[pygame.K_SPACE]:
-                    if done:
-                        if active_message < len(dialogue_1.dialogue_text) - 1:
-                            active_message += 1
-                            done = False
-                            message = dialogue_1.dialogue_text[active_message]
-                            counter = 0
-                            text_sound.stop()
-                        else:  
-                            current_state = GAME_PLAY
-                            text_sound.stop()                        
-                    else:
-                        counter = speed * len(message)
-                        done = True
-                        text_sound.stop() 
+
+            if keys[pygame.K_RETURN] or keys[pygame.K_SPACE] and cooldown_dialogue == False:
+                cooldown_dialogue = True
+                if done:
+                    if active_message < len(dialogue_1.dialogue_text) - 1:
+                        active_message += 1
+                        done = False
+                        message = dialogue_1.dialogue_text[active_message]
+                        counter = 0
+                        text_sound.stop()
+                    else:  
+                        current_state = GAME_PLAY
+                        text_sound.stop()                        
+                else:
+                    counter = speed * len(message)
+                    done = True
+                    text_sound.stop()
+            if not keys[pygame.K_RETURN] and not keys[pygame.K_SPACE]:
+                cooldown_dialogue = False
 
 ##-------------------------------------------------------
 ### ------------- CODE EMIL
