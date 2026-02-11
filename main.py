@@ -1,7 +1,7 @@
 # Example file showing a circle moving on screen
 import pygame # python3 -m pip install -U pygame --user
 import os 
-import classe_dialogue as C_D
+import classes.classe_dialogue as C_D
 
 
 # Chemins

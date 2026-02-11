@@ -2,19 +2,14 @@ import pygame
 import os
 
 # Chemins
-main_dir = os.path.split(os.path.abspath(__file__))[0]
-assets_dir = os.path.join(main_dir,"assets")
-police_dir = os.path.join(assets_dir,"polices")
-sounds_dir = os.path.join(assets_dir, "sounds")
 
-# Chargement des assets
-dialogue_image = pygame.image.load(os.path.join(assets_dir, "dialogue_box.png"))
-police_dialogue_path = os.path.join(police_dir, "police_dialogue.ttf")
+
+
 
 objets = []
 
 class Dialogue():
-    def __init__(self, x, y, width, height, dialogue_text="hey", onlickFunction=None, one_press=False):
+    def __init__(self, x, y, width, height, dialogue_image, police_dialogue_path,  dialogue_text="hey", onlickFunction=None, one_press=False):
         self.x = x
         self.y = y
         self.width = width
