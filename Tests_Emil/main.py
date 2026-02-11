@@ -44,6 +44,8 @@ main_dir = os.path.split(os.path.abspath(__file__))[0]
 assets_dir = os.path.join(main_dir,"assets")
 police_dir = os.path.join(assets_dir,"polices")
 sounds_dir = os.path.join(assets_dir, "sounds")
+police_dir = os.path.join(assets_dir,"polices")
+police_dialogue_path = os.path.join(police_dir, "police_dialogue.ttf")
 if audio:
     dialogue_sounds_path = os.path.join(sounds_dir, "typewriter.mp3")
     text_sound = pygame.mixer.Sound(dialogue_sounds_path)
@@ -89,7 +91,10 @@ dialogue_box_height = 200
 dialogue_box_x = (screen.get_width() - dialogue_box_width) // 2
 dialogue_box_y = (screen.get_height() - dialogue_box_height) // 2
 dialogue_box = True
-dialogue_1 = C_D.Dialogue( 640,600, 894, 200, ["Initialisation…", "Unité de nettoyage autonome : R-0.", "Statut de la planète : inhabitable.", "Mission prioritaire : nettoyer."], next)
+dialogue_1 = C_D.Dialogue(640, 600, 894, 200, dialogue_image, police_dialogue_path, 
+                          ["Initialisation…", "Unité de nettoyage autonome : R-0.", 
+                           "Statut de la planète : inhabitable.", 
+                           "Mission prioritaire : nettoyer."], next)
 message = dialogue_1.dialogue_text[active_message]
 
 # Frames pour planète
