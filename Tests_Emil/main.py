@@ -50,6 +50,8 @@ if audio:
     dialogue_sounds_path = os.path.join(sounds_dir, "typewriter.mp3")
     text_sound = pygame.mixer.Sound(dialogue_sounds_path)
     text_sound.set_volume(0.5)
+font_1 = os.path.join(police_dir, "test_1.ttf")
+
 
 # pygame setup
 screen = pygame.display.set_mode((1280, 720))
@@ -122,7 +124,6 @@ Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
 Actual_map_pollution = D.set_pollution_map_rectangle(Taille_map,Taille_map,Actual_map,5)
 Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
 pollution_initiale = numpy.sum(Actual_map_pollution)
-pollution_max_possible = pollution_initiale
 
 
 Nom_image_list_tiles = ["background_1.png","background_2.png","Bush_tile.png","pollution_texture.png","transparent.png"]
@@ -140,7 +141,11 @@ for y in range(Actual_map.shape[0]):
 List_ground_objets = []
 pomme = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
 List_ground_objets.append((pomme,(300,200)))
-bush = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",List_tiles[2],8)
+Bush_basique = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",List_tiles[2],8)
+bush = Bush_basique
+Liste_bush_on_map = []
+last_timer = time.time()
+cooldown_check_bush_plant = 15
 
 
 Arial_font = pygame.font.SysFont('Arial', 30)
@@ -154,7 +159,7 @@ hotbar = [bush,None,None,None,None]
 Robot = CH.Humanoid((15*LEN_SQUARE,15*LEN_SQUARE),100,5,5,"robot_front_wait.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
 print("running now")
 
-
+random.seed = random.seed(None)
 
 ###-------------------------------------------------------
 ### ------------- CODE EUDOCIE + START UN PEU EMIL
@@ -281,23 +286,24 @@ while running:
         else:
             can_pickup = True               
 
-        if keys[pygame.K_F3]:              
+        if keys[pygame.K_F3]: #afficher pollution
             if cd_see_pollution == False:
                 can_see_pollution = not can_see_pollution
                 cd_see_pollution = True
         else:
             cd_see_pollution = False
 
-        if keys[pygame.K_n]:
+        if keys[pygame.K_n]: #drop item
             if Robot.hotbar[Robot.held_item_indice] != None:
                 List_ground_objets.append((Robot.hotbar[Robot.held_item_indice],Robot.pos))
                 Robot.hotbar[Robot.held_item_indice] = None
 
 
         for obj in List_ground_objets: # mettre le texte pick up
-            if (Robot.pos[0] - obj[1][0])**2 +(Robot.pos[1] - obj[1][1])**2 <= (LEN_SQUARE*Robot.range_pickup)**2:
-                screen.blit(Surface_text_pickup, (obj[1][0]-Robot.pos[0]+W_2-Surface_text_pickup.get_size()[0]/2, obj[1][1]-Robot.pos[1]+H_2-Surface_text_pickup.get_size()[1]/2 - 32 - 10 - 8*math.cos(time.time())))
-            screen.blit(pygame.transform.scale(obj[0].image,(32,32)),(obj[1][0]-Robot.pos[0]+W_2 - 16,obj[1][1]-Robot.pos[1]+H_2 - 16))
+            if coin_haut[0]-1 < obj[1][0]//64 < coin_bas[0]+1 and coin_haut[1]-1 < obj[1][1]//64 < coin_bas[1]+1:
+                if (Robot.pos[0] - obj[1][0])**2 +(Robot.pos[1] - obj[1][1])**2 <= (LEN_SQUARE*Robot.range_pickup)**2:
+                    screen.blit(Surface_text_pickup, (obj[1][0]-Robot.pos[0]+W_2-Surface_text_pickup.get_size()[0]/2, obj[1][1]-Robot.pos[1]+H_2-Surface_text_pickup.get_size()[1]/2 - 32 - 10 - 8*math.cos(time.time())))
+                screen.blit(pygame.transform.scale(obj[0].image,(32,32)),(obj[1][0]-Robot.pos[0]+W_2 - 16,obj[1][1]-Robot.pos[1]+H_2 - 16))
 
 
 
@@ -310,10 +316,46 @@ while running:
             if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
                 screen_pos=(W_2-(Robot.pos[0]-tile_souris[0]),H_2-(Robot.pos[1]-tile_souris[1]))
                 pygame.draw.rect(screen,"red",(screen_pos[0],screen_pos[1],LEN_SQUARE,LEN_SQUARE),2)
-                if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/64) < Actual_map.shape[0] and 0 <= int(tile_souris[1]/64) < Actual_map.shape[1]:
+                if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/LEN_SQUARE) < Actual_map.shape[0] and 0 <= int(tile_souris[1]/LEN_SQUARE) < Actual_map.shape[1]:
                     if Robot.hotbar[Robot.held_item_indice].type == "Plant":
-                        Actual_map_objects_layer[int(tile_souris[0]/64),int(tile_souris[1]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
+                        Actual_map_objects_layer[int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
+                        Liste_bush_on_map.append([(int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
+
+
+        for bush in Liste_bush_on_map:
+            if bush[1] <= math.floor(time.time()):
+                bush[1] = math.floor(time.time())+random.randint(30,50)
+                print("ya eu le bush")
+                List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1),
+                                                          bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1))])
+                # + random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1)
+
+        #AFFICHAGE INDICE POLLUTION
+        pollution_actuelle = numpy.sum(Actual_map_pollution)
+
+        if pollution_initiale > 0:
+            pourcentage_pollution = pollution_actuelle/pollution_initiale*100
+        else:
+            pourcentage_pollution = 0
+        indice_width = 200
+        indice_height = 30
+        indice_x = W - indice_width - 20
+        indice_y = 20
+        interface_padding = 12
+        interface_rect = pygame.Rect(indice_x - interface_padding, 
+                                     indice_y - interface_padding, 
+                                     indice_width + 2*interface_padding, 
+                                     indice_height + 50)
+        interface_surface = pygame.Surface((interface_rect.width, interface_rect.height))
+        interface_surface.set_alpha(200)
+        interface_surface.fill((20, 20, 20))
+        screen.blit(interface_surface, interface_rect.topleft)
+        pollution_value_font = pygame.font.Font(font_1, 20)
+        pollution_value_text = pollution_value_font.render(f"{pourcentage_pollution:.1f}%", 1, (255, 255, 255))
+        value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
+        screen.blit(pollution_value_text, value_rect)
+
 
 
         # print(Robot.pos)

@@ -166,8 +166,9 @@ print(Actual_map_pollution)
 List_ground_objets = []
 pomme = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
 List_ground_objets.append((pomme,(300,200)))
-bush = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",List_tiles[2],8)
-
+Bush_basique = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",List_tiles[2],8)
+bush = Bush_basique
+Liste_bush_on_map = []
 
 Arial_font = pygame.font.SysFont('Arial', 30)
 Surface_text_pickup = Arial_font.render('Press [E] to pick it up !', False, (255,255,255))
@@ -326,6 +327,7 @@ while running:
                     tile_surface.set_alpha(Actual_map_pollution[x,y]*10)
                     screen.blit(tile_surface,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
 
+
         if keys[pygame.K_e]: #recuperer objets
             for obj in List_ground_objets:
                 if (Robot.pos[0] - obj[1][0])**2 +(Robot.pos[1] - obj[1][1])**2 <= (LEN_SQUARE*Robot.range_pickup)**2 and can_pickup:
@@ -373,6 +375,16 @@ while running:
                         print(tile_souris[0]/64,tile_souris[1]/64)
                         Actual_map_objects_layer[int(tile_souris[0]/64),int(tile_souris[1]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
+                        Liste_bush_on_map.append([(int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
+
+
+        for bush in Liste_bush_on_map:
+            if bush[1] <= math.floor(time.time()):
+                bush[1] = math.floor(time.time())+random.randint(30,50)
+                print("ya eu le bush")
+                List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1),
+                                                          bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1))])
+
 
         #AFFICHAGE INDICE POLLUTION
         pollution_actuelle = numpy.sum(Actual_map_pollution)
@@ -398,7 +410,7 @@ while running:
         pollution_value_text = pollution_value_font.render(f"{pourcentage_pollution:.1f}%", 1, (255, 255, 255))
         value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
         screen.blit(pollution_value_text, value_rect)
-        
+
         # print(Robot.pos)
         Robot.do_all(keys,dt,screen,Actual_map)
 
