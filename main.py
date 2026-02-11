@@ -301,7 +301,7 @@ while running:
             
             dialogue_1.snip = message[0:counter//speed]
                     
-            if keys[pygame.K_RETURN] or keys[pygame.K_SPACE] or pygame.mouse.get_pressed()== (True,False,False):
+            if keys[pygame.K_RETURN] or keys[pygame.K_SPACE]:
                     if done:
                         if active_message < len(dialogue_1.dialogue_text) - 1:
                             active_message += 1
