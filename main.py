@@ -131,7 +131,7 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
-see_animations = False
+see_animations = True
 cooldown_dialogue = False
 ###-------------------------------------------------------
 ### ------------- CODE EMIL
@@ -186,136 +186,136 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == (pygame.K_SPACE or pygame.K_RETURN):
-                if current_state == SHOW_DIALOGUE :
-                    if done :
-                        if active_message < len(dialogue_1.dialogue_text) - 1:   # if len(active_message) <= 75
-                            active_message += 1
-                            done = False
-                            message = dialogue_1.dialogue_text[active_message]
-                            counter = 0
-                            text_sound.stop()
-                        else :  
-                            current_state = GAME_PLAY                                                 #elif len(active_message)> 75
-                            text_sound.stop()                        
-                    else:
-                        counter = speed * len(message)
-                        done = True
-                        text_sound.stop() 
+
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((0,0,0))
     if not see_animations:
         current_state = GAME_PLAY
         fade_alpha = 0
- 
-    if current_state == FADE_BLACK:
-        if timer > 0:
-            timer -=1
-        else :
-            current_state = FADE_IN_TEXT_1
-            fade_alpha = 255 
-    
-            print("fade1 finis")
+    if current_state != GAME_PLAY:
+        if current_state == FADE_BLACK:
+            if timer > 0:
+                timer -=1
+            else :
+                current_state = FADE_IN_TEXT_1
+                fade_alpha = 255 
+        
+                print("fade1 finis")
 
-    elif current_state == FADE_IN_TEXT_1:
+        elif current_state == FADE_IN_TEXT_1:
 
-        screen.blit(text_1, text_rect_1)
-        fade_alpha -= fade_speed 
-        if fade_alpha <= 0:
-            fade_alpha = 0
-            current_state = SHOW_TEXT_1
-            text_timer = 120
-            print("Texte 1 ")
-    elif current_state == SHOW_TEXT_1:
-        screen.blit(text_1, text_rect_1)
-        if text_timer > 0:
-            text_timer -= 1
-        else:
-            current_state = FADE_TEXT_1
-            fade_alpha = 0
+            screen.blit(text_1, text_rect_1)
+            fade_alpha -= fade_speed 
+            if fade_alpha <= 0:
+                fade_alpha = 0
+                current_state = SHOW_TEXT_1
+                text_timer = 120
+                print("Texte 1 ")
+        elif current_state == SHOW_TEXT_1:
+            screen.blit(text_1, text_rect_1)
+            if text_timer > 0:
+                text_timer -= 1
+            else:
+                current_state = FADE_TEXT_1
+                fade_alpha = 0
+                
+        elif current_state == FADE_TEXT_1:
+            screen.blit(text_1, text_rect_1)
+            fade_alpha += fade_speed
+            if fade_alpha >= 255:
+                fade_alpha = 255
+                current_state = FADE_TO_EARTH
+                print("vers la terre")
+        elif current_state == FADE_TO_EARTH:
+            screen.fill ((0,0,0))
             
-    elif current_state == FADE_TEXT_1:
-        screen.blit(text_1, text_rect_1)
-        fade_alpha += fade_speed
-        if fade_alpha >= 255:
-            fade_alpha = 255
-            current_state = FADE_TO_EARTH
-            print("vers la terre")
-    elif current_state == FADE_TO_EARTH:
-        screen.fill ((0,0,0))
-        
-        current_frame += animation_speed
-        if current_frame >= len(frames):
-            current_frame = 0
-        earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
-        screen.blit(frames[int(current_frame)], earth_rect) 
-        current_frame_p += animation_p_speed
-        if current_frame_p >= len(frames_pollution_earth):
-            current_frame_p = 0
-        pollution_rect = frames_pollution_earth[int(current_frame_p)].get_rect(center=(640, 360))
-        screen.blit(frames_pollution_earth[int(current_frame_p)], pollution_rect) 
-        screen.blit(text_2, text_rect_2) 
-        fade_alpha -= fade_speed 
-        if fade_alpha <= 0:
-            fade_alpha = 0
-            current_state = SHOW_EARTH
-            earth_timer = 180
-            print("terre visible")
-    elif current_state == SHOW_EARTH:
-        current_frame += animation_speed
-        if current_frame >= len(frames):
-            current_frame = 0
-        earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
-        screen.blit(frames[int(current_frame)], earth_rect) 
-        current_frame_p += animation_p_speed
-        if current_frame_p >= len(frames_pollution_earth):
-            current_frame_p = 0
-        pollution_rect = frames_pollution_earth[int(current_frame_p)].get_rect(center=(640, 360))
-        screen.blit(frames_pollution_earth[int(current_frame_p)], pollution_rect)
-        screen.blit(text_2, text_rect_2)  
-        earth_timer -= 1
-        if earth_timer <=0:
-            current_state = FADE_TO_DIALOGUE
-            fade_alpha = 0
+            current_frame += animation_speed
+            if current_frame >= len(frames):
+                current_frame = 0
+            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+            screen.blit(frames[int(current_frame)], earth_rect) 
+            current_frame_p += animation_p_speed
+            if current_frame_p >= len(frames_pollution_earth):
+                current_frame_p = 0
+            pollution_rect = frames_pollution_earth[int(current_frame_p)].get_rect(center=(640, 360))
+            screen.blit(frames_pollution_earth[int(current_frame_p)], pollution_rect) 
+            screen.blit(text_2, text_rect_2) 
+            fade_alpha -= fade_speed 
+            if fade_alpha <= 0:
+                fade_alpha = 0
+                current_state = SHOW_EARTH
+                earth_timer = 180
+                print("terre visible")
+        elif current_state == SHOW_EARTH:
+            current_frame += animation_speed
+            if current_frame >= len(frames):
+                current_frame = 0
+            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+            screen.blit(frames[int(current_frame)], earth_rect) 
+            current_frame_p += animation_p_speed
+            if current_frame_p >= len(frames_pollution_earth):
+                current_frame_p = 0
+            pollution_rect = frames_pollution_earth[int(current_frame_p)].get_rect(center=(640, 360))
+            screen.blit(frames_pollution_earth[int(current_frame_p)], pollution_rect)
+            screen.blit(text_2, text_rect_2)  
+            earth_timer -= 1
+            if earth_timer <=0:
+                current_state = FADE_TO_DIALOGUE
+                fade_alpha = 0
 
+        elif current_state == FADE_TO_DIALOGUE :
+            current_frame += animation_speed
+            if current_frame >= len(frames):
+                current_frame = 0
+            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+            screen.blit(frames[int(current_frame)], earth_rect)
+            current_frame_p += animation_p_speed
+            if current_frame_p >= len(frames_pollution_earth):
+                current_frame_p = 0
+            pollution_rect = frames_pollution_earth[int(current_frame_p)].get_rect(center=(640, 360))
+            screen.blit(frames_pollution_earth[int(current_frame_p)], pollution_rect)
+            screen.blit(text_2, text_rect_2)  
+            fade_alpha += fade_speed
+            if fade_alpha >= 255 :
+                fade_alpha = 255
+                current_state = SHOW_DIALOGUE
+                fade_alpha = 0
+                
+        elif current_state == SHOW_DIALOGUE: 
+            for object in objects:
 
-    elif current_state == FADE_TO_DIALOGUE :
-        current_frame += animation_speed
-        if current_frame >= len(frames):
-            current_frame = 0
-        earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
-        screen.blit(frames[int(current_frame)], earth_rect)
-        current_frame_p += animation_p_speed
-        if current_frame_p >= len(frames_pollution_earth):
-            current_frame_p = 0
-        pollution_rect = frames_pollution_earth[int(current_frame_p)].get_rect(center=(640, 360))
-        screen.blit(frames_pollution_earth[int(current_frame_p)], pollution_rect)
-        screen.blit(text_2, text_rect_2)  
-        fade_alpha += fade_speed
-        if fade_alpha >= 255 :
-            fade_alpha = 255
-            current_state = SHOW_DIALOGUE
-            fade_alpha = 0
-    elif current_state == SHOW_DIALOGUE: 
-        for object in objects:
+                object.process()
+                object.draw(screen)
+            previous_counter = counter 
+            if counter < speed * len(message) :
+                counter +=1
+            elif counter >= speed * len(message):
+                done = True
+                text_sound.stop()
 
-            object.process()
-            object.draw(screen)
-        previous_counter = counter 
-        if counter < speed * len(message) :
-            counter +=1
-        elif counter >= speed * len(message):
-            done = True
-            text_sound.stop()
+            current_char = counter // speed
+            previous_char = previous_counter // speed
 
-        current_char = counter // speed
-        previous_char = previous_counter // speed
-
-        if current_char == 1 and previous_char == 0 and not done :
-            text_sound.play()
-        
-        dialogue_1.snip = message[0:counter//speed]
+            if current_char == 1 and previous_char == 0 and not done :
+                text_sound.play()
+            
+            dialogue_1.snip = message[0:counter//speed]
+                    
+            if keys[pygame.K_RETURN] or keys[pygame.K_SPACE] or pygame.mouse.get_pressed()== (True,False,False):
+                    if done:
+                        if active_message < len(dialogue_1.dialogue_text) - 1:
+                            active_message += 1
+                            done = False
+                            message = dialogue_1.dialogue_text[active_message]
+                            counter = 0
+                            text_sound.stop()
+                        else:  
+                            current_state = GAME_PLAY
+                            text_sound.stop()                        
+                    else:
+                        counter = speed * len(message)
+                        done = True
+                        text_sound.stop() 
 
 ##-------------------------------------------------------
 ### ------------- CODE EMIL
