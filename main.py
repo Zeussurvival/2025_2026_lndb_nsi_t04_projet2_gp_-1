@@ -131,7 +131,7 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
-see_animations = True
+see_animations = False
 cooldown_dialogue = False
 ###-------------------------------------------------------
 ### ------------- CODE EMIL
@@ -377,9 +377,9 @@ while running:
         #AFFICHAGE INDICE POLLUTION
         pollution_actuelle = numpy.sum(Actual_map_pollution)
 
-        if pollution_max_possible > 0 :
-            pourcentage_pollution = (pollution_actuelle/pollution_max_possible*100) 
-        else :
+        if pollution_max_possible > 0:
+            pourcentage_pollution = pollution_actuelle/pollution_max_possible*100
+        else:
             pourcentage_pollution = 0
         indice_width = 200
         indice_height = 30
@@ -398,13 +398,9 @@ while running:
         pollution_value_text = pollution_value_font.render(f"{pourcentage_pollution:.1f}%", 1, (255, 255, 255))
         value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
         screen.blit(pollution_value_text, value_rect)
+        
         # print(Robot.pos)
         Robot.do_all(keys,dt,screen,Actual_map)
-
-
-
-
-
 
 ###-------------------------------------------------------
 ### ------------- CODE EUDOCIE

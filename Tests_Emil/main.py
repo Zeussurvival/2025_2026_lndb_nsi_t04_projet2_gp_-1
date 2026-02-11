@@ -121,6 +121,9 @@ Taille_map = 200
 Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
 Actual_map_pollution = D.set_pollution_map_rectangle(Taille_map,Taille_map,Actual_map,5)
 Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
+pollution_initiale = numpy.sum(Actual_map_pollution)
+pollution_max_possible = pollution_initiale
+
 
 Nom_image_list_tiles = ["background_1.png","background_2.png","Bush_tile.png","pollution_texture.png","transparent.png"]
 List_tiles = [CT.Tile(Nom_image_list_tiles[0],None,0),CT.Tile(Nom_image_list_tiles[0],None,90),CT.Tile(Nom_image_list_tiles[0],None,180),CT.Tile(Nom_image_list_tiles[0],None,270),\
