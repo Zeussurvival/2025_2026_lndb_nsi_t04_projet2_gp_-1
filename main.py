@@ -131,7 +131,7 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
-see_animations = True
+see_animations = False
 cooldown_dialogue = False
 ###-------------------------------------------------------
 ### ------------- CODE EMIL
@@ -144,9 +144,9 @@ LEN_SQUARE = 64
 dt = 0
 
 Taille_map = 200
-Actual_map = D.creation_map_rectangle(20,20,0)
+Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
 Actual_map_pollution = D.set_pollution_map_rectangle(10,10,Actual_map,5)
-Actual_map_objects_layer = D.creation_map_rectangle(20,20,-1)
+Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
 
 pollution_initiale = numpy.sum(Actual_map_pollution)
 pollution_max_possible = pollution_initiale
@@ -161,7 +161,7 @@ List_tiles = [CT.Tile(Nom_image_list_tiles[0],None,0),CT.Tile(Nom_image_list_til
 for y in range(Actual_map.shape[0]):
     for x in range(Actual_map.shape[1]):
         Actual_map[x,y] = random.randint(0,7)
-print(Actual_map_pollution)
+print(Actual_map.shape[0])
 
 List_ground_objets = []
 pomme = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
@@ -318,10 +318,10 @@ while running:
         coin_haut = (math.floor((Robot.pos[0]-W_2)/64),math.floor((Robot.pos[1]-H_2)/64))
         coin_bas = (math.ceil((Robot.pos[0]+W_2)/64),math.ceil((Robot.pos[1]+H_2)/64))
 
-        for y in range(Actual_map.shape[0]): # montre la map
-            for x in range(Actual_map.shape[1]):
-                List_tiles[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W/2, y*LEN_SQUARE-Robot.pos[1]+H/2))
-                List_tiles[Actual_map_objects_layer[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W/2, y*LEN_SQUARE-Robot.pos[1]+H/2))
+        for y in range(max(coin_haut[1],0),min(coin_bas[1],Actual_map.shape[0])): # montre la map
+            for x in range(max(coin_haut[0],0),min(coin_bas[0],Actual_map.shape[1])):
+                List_tiles[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
+                List_tiles[Actual_map_objects_layer[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
                 if can_see_pollution:
                     tile_surface = List_tiles[-2].image.copy()
                     tile_surface.set_alpha(Actual_map_pollution[x,y]*10)
@@ -375,22 +375,20 @@ while running:
                         print(tile_souris[0]/64,tile_souris[1]/64)
                         Actual_map_objects_layer[int(tile_souris[0]/64),int(tile_souris[1]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
-                        Liste_bush_on_map.append([(int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
+        #                 Liste_bush_on_map.append([(int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
 
 
-        for bush in Liste_bush_on_map:
-            if bush[1] <= math.floor(time.time()):
-                bush[1] = math.floor(time.time())+random.randint(30,50)
-                print("ya eu le bush")
-                List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1),
-                                                          bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1))])
+        # for bush in Liste_bush_on_map:
+        #     if bush[1] <= math.floor(time.time()):
+        #         bush[1] = math.floor(time.time())+random.randint(30,50)
+        #         print("ya eu le bush")
+        #         List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1),
+        #                                                   bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1))])
 
 
         #AFFICHAGE INDICE POLLUTION
-        pollution_actuelle = numpy.sum(Actual_map_pollution)
-
         if pollution_max_possible > 0:
-            pourcentage_pollution = pollution_actuelle/pollution_max_possible*100
+            pourcentage_pollution = pollution_initiale/pollution_max_possible*100
         else:
             pourcentage_pollution = 0
         indice_width = 200
@@ -411,7 +409,7 @@ while running:
         value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
         screen.blit(pollution_value_text, value_rect)
 
-        # print(Robot.pos)
+        print(Robot.pos)
         Robot.do_all(keys,dt,screen,Actual_map)
 
 ###-------------------------------------------------------
