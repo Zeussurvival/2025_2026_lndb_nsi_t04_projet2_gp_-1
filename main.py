@@ -131,7 +131,7 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution.append(img)
-see_animations = True
+see_animations = False
 cooldown_dialogue = False
 ###-------------------------------------------------------
 ### ------------- CODE EMIL
