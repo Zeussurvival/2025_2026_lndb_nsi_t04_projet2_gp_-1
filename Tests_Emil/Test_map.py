@@ -74,7 +74,6 @@ while running:
 
     coin_haut = (math.floor((Robot.pos[0]-W_2)/64),math.floor((Robot.pos[1]-H_2)/64))
     coin_bas = (math.ceil((Robot.pos[0]+W_2)/64),math.ceil((Robot.pos[1]+H_2)/64))
-
     for y in range(max(coin_haut[1],0),min(coin_bas[1],Actual_map.shape[0])): # montre la map
         for x in range(max(coin_haut[0],0),min(coin_bas[0],Actual_map.shape[1])):
             List_tiles[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
