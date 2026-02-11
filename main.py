@@ -87,8 +87,9 @@ counter = 0
 done = False
 active_message = 0
 current_frame = 0
+current_frame_p = 0
 animation_speed = 0.3*60/fps
-
+animation_p_speed = 0.05*60/fps
 dialogue_image = pygame.image.load(os.path.join(assets_dir, "dialogue_box.png"))
 police_dialogue_path = os.path.join(police_dir, "police_dialogue.ttf")
 dialogue_sounds_path = os.path.join(sounds_dir, "typewriter.mp3")
@@ -118,11 +119,18 @@ message = dialogue_1.dialogue_text[active_message]
 
 
 frames = []
+frames_pollution = []
 for i in range(30):
 
     img = pygame.image.load(f"assets/earth/sprite_{i:02d}.png")
     img = pygame.transform.scale(img,(256,256))
     frames.append(img)
+
+for i in range(1, 6):
+
+    img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
+    img = pygame.transform.scale(img,(256,256))
+    frames_pollution.append(img)
 see_animations = True
 cooldown_dialogue = False
 ###-------------------------------------------------------
@@ -160,7 +168,7 @@ Surface_text_pickup = Arial_font.render('Press [E] to pick it up !', False, (255
 can_pickup = True
 
 hotbar = [bush,None,None,None,None]
-Robot = CH.Humanoid((15*LEN_SQUARE,15*LEN_SQUARE),100,5,5,"robot_front_wait.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
+Robot = CH.Humanoid((15*LEN_SQUARE,15*LEN_SQUARE),100,5,5,"robot_front_walking.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
 print("running now")
 
 while running:
@@ -228,11 +236,17 @@ while running:
             print("vers la terre")
     elif current_state == FADE_TO_EARTH:
         screen.fill ((0,0,0))
+        
         current_frame += animation_speed
         if current_frame >= len(frames):
             current_frame = 0
         earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
         screen.blit(frames[int(current_frame)], earth_rect) 
+        current_frame_p += animation_p_speed
+        if current_frame_p >= len(frames_pollution):
+            current_frame_p = 0
+        pollution_rect = frames_pollution[int(current_frame_p)].get_rect(center=(640, 360))
+        screen.blit(frames_pollution[int(current_frame_p)], pollution_rect) 
         screen.blit(text_2, text_rect_2) 
         fade_alpha -= fade_speed 
         if fade_alpha <= 0:
@@ -246,6 +260,11 @@ while running:
             current_frame = 0
         earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
         screen.blit(frames[int(current_frame)], earth_rect) 
+        current_frame_p += animation_p_speed
+        if current_frame_p >= len(frames_pollution):
+            current_frame_p = 0
+        pollution_rect = frames_pollution[int(current_frame_p)].get_rect(center=(640, 360))
+        screen.blit(frames_pollution[int(current_frame_p)], pollution_rect)
         screen.blit(text_2, text_rect_2)  
         earth_timer -= 1
         if earth_timer <=0:
@@ -259,6 +278,11 @@ while running:
             current_frame = 0
         earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
         screen.blit(frames[int(current_frame)], earth_rect)
+        current_frame_p += animation_p_speed
+        if current_frame_p >= len(frames_pollution):
+            current_frame_p = 0
+        pollution_rect = frames_pollution[int(current_frame_p)].get_rect(center=(640, 360))
+        screen.blit(frames_pollution[int(current_frame_p)], pollution_rect)
         screen.blit(text_2, text_rect_2)  
         fade_alpha += fade_speed
         if fade_alpha >= 255 :
