@@ -37,7 +37,7 @@ range_pollution = 5
 
 
 
-map123 = D.creation_map_rectangle(x_map,y_map)
+map123 = D.creation_map_rectangle(x_map,y_map,0)
 map123_pollution = D.set_pollution_map_rectangle(pollution_origins,seed,map123,range_pollution) # number_of_origins,seed,map,range_pollu
 
 map123_pollution = D.floor_pollution_map_at_smth(map123_pollution,2)
@@ -77,7 +77,7 @@ while running:
 
     for y in range(map123.shape[1]):
         for x in range(map123.shape[0]):
-            pygame.draw.rect(screen,(100,(min(map123_pollution[x,y] *75+20,255)),100),(Len_square*x,Len_square*y,Len_square,Len_square))
+            pygame.draw.rect(screen,(100,(min(map123_pollution[x,y] *75+20,255)),100,0.1),(Len_square*x,Len_square*y,Len_square,Len_square))
 
 
 
