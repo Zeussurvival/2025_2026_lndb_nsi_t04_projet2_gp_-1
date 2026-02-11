@@ -137,11 +137,13 @@ cooldown_dialogue = False
 ### ------------- CODE EMIL
 ###-------------------------------------------------------
 W,H = (1280, 720)
+W_2,H_2 = W/2,H/2
 screen = pygame.display.set_mode((W,H))
 clock = pygame.time.Clock()
 LEN_SQUARE = 64
 dt = 0
 
+Taille_map = 200
 Actual_map = D.creation_map_rectangle(20,20,0)
 Actual_map_pollution = D.set_pollution_map_rectangle(10,10,Actual_map,5)
 Actual_map_objects_layer = D.creation_map_rectangle(20,20,-1)
@@ -166,6 +168,8 @@ bush = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",
 Arial_font = pygame.font.SysFont('Arial', 30)
 Surface_text_pickup = Arial_font.render('Press [E] to pick it up !', False, (255,255,255))
 can_pickup = True
+can_see_pollution = True
+cd_see_pollution = True
 
 hotbar = [bush,None,None,None,None]
 Robot = CH.Humanoid((15*LEN_SQUARE,15*LEN_SQUARE),100,5,5,"robot_front_walking.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
@@ -308,13 +312,22 @@ while running:
             text_sound.play()
         
         dialogue_1.snip = message[0:counter//speed]
-        
+
+##-------------------------------------------------------
+### ------------- CODE EMIL
+###-------------------------------------------------------  
     elif current_state == GAME_PLAY :
+        coin_haut = (math.floor((Robot.pos[0]-W_2)/64),math.floor((Robot.pos[1]-H_2)/64))
+        coin_bas = (math.ceil((Robot.pos[0]+W_2)/64),math.ceil((Robot.pos[1]+H_2)/64))
+
         for y in range(Actual_map.shape[0]): # montre la map
             for x in range(Actual_map.shape[1]):
                 List_tiles[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W/2, y*LEN_SQUARE-Robot.pos[1]+H/2))
-                
                 List_tiles[Actual_map_objects_layer[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W/2, y*LEN_SQUARE-Robot.pos[1]+H/2))
+                if can_see_pollution:
+                    tile_surface = List_tiles[-2].image.copy()
+                    tile_surface.set_alpha(Actual_map_pollution[x,y]*10)
+                    screen.blit(tile_surface,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
 
         if keys[pygame.K_e]: #recuperer objets
             for obj in List_ground_objets:
@@ -325,6 +338,12 @@ while running:
         else:
             can_pickup = True               
 
+        if keys[pygame.K_F3]:              
+            if cd_see_pollution == False:
+                can_see_pollution = not can_see_pollution
+                cd_see_pollution = True
+        else:
+            cd_see_pollution = False
         if keys[pygame.K_n]:
             if Robot.hotbar[Robot.held_item_indice] != None:
                 List_ground_objets.append((Robot.hotbar[Robot.held_item_indice],Robot.pos))
