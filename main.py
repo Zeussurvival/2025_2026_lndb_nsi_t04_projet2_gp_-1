@@ -59,13 +59,13 @@ earth_timer = 180*60/fps
 fade_alpha = 255 
 fade_speed = 1*60/fps
 timer = 70*60/fps
-text_timer = 120*60/fps
+text_timer = 70*60/fps
 
 
 # Variables dialogue
 
 counter = 0
-speed = round(4 * 60/fps)
+speed = round(25 * 60/fps)
 done = False
 active_message = 0
 
@@ -131,7 +131,7 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
-see_animations = False
+see_animations = True
 cooldown_dialogue = False
 ###-------------------------------------------------------
 ### ------------- CODE EMIL
