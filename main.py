@@ -119,7 +119,7 @@ message = dialogue_1.dialogue_text[active_message]
 
 
 frames = []
-frames_pollution = []
+frames_pollution_earth = []
 for i in range(30):
 
     img = pygame.image.load(f"assets/earth/sprite_{i:02d}.png")
@@ -130,7 +130,7 @@ for i in range(1, 6):
 
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
-    frames_pollution.append(img)
+    frames_pollution_earth.append(img)
 see_animations = False
 cooldown_dialogue = False
 ###-------------------------------------------------------
@@ -148,6 +148,9 @@ Actual_map = D.creation_map_rectangle(20,20,0)
 Actual_map_pollution = D.set_pollution_map_rectangle(10,10,Actual_map,5)
 Actual_map_objects_layer = D.creation_map_rectangle(20,20,-1)
 
+pollution_initiale = numpy.sum(Actual_map_pollution)
+pollution_max_possible = pollution_initiale
+
 Nom_image_list_tiles = ["background_1.png","background_2.png","Bush_tile.png","transparent.png"]
 List_tiles = [CT.Tile(Nom_image_list_tiles[0],None,0),CT.Tile(Nom_image_list_tiles[0],None,90),CT.Tile(Nom_image_list_tiles[0],None,180),CT.Tile(Nom_image_list_tiles[0],None,270),\
               CT.Tile(Nom_image_list_tiles[1],None,0),CT.Tile(Nom_image_list_tiles[1],None,90),CT.Tile(Nom_image_list_tiles[1],None,180),CT.Tile(Nom_image_list_tiles[1],None,270),\
@@ -157,7 +160,7 @@ List_tiles = [CT.Tile(Nom_image_list_tiles[0],None,0),CT.Tile(Nom_image_list_til
 for y in range(Actual_map.shape[0]):
     for x in range(Actual_map.shape[1]):
         Actual_map[x,y] = random.randint(0,7)
-# print(Actual_map_pollution)
+print(Actual_map_pollution)
 
 List_ground_objets = []
 pomme = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
@@ -247,10 +250,10 @@ while running:
         earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
         screen.blit(frames[int(current_frame)], earth_rect) 
         current_frame_p += animation_p_speed
-        if current_frame_p >= len(frames_pollution):
+        if current_frame_p >= len(frames_pollution_earth):
             current_frame_p = 0
-        pollution_rect = frames_pollution[int(current_frame_p)].get_rect(center=(640, 360))
-        screen.blit(frames_pollution[int(current_frame_p)], pollution_rect) 
+        pollution_rect = frames_pollution_earth[int(current_frame_p)].get_rect(center=(640, 360))
+        screen.blit(frames_pollution_earth[int(current_frame_p)], pollution_rect) 
         screen.blit(text_2, text_rect_2) 
         fade_alpha -= fade_speed 
         if fade_alpha <= 0:
@@ -265,10 +268,10 @@ while running:
         earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
         screen.blit(frames[int(current_frame)], earth_rect) 
         current_frame_p += animation_p_speed
-        if current_frame_p >= len(frames_pollution):
+        if current_frame_p >= len(frames_pollution_earth):
             current_frame_p = 0
-        pollution_rect = frames_pollution[int(current_frame_p)].get_rect(center=(640, 360))
-        screen.blit(frames_pollution[int(current_frame_p)], pollution_rect)
+        pollution_rect = frames_pollution_earth[int(current_frame_p)].get_rect(center=(640, 360))
+        screen.blit(frames_pollution_earth[int(current_frame_p)], pollution_rect)
         screen.blit(text_2, text_rect_2)  
         earth_timer -= 1
         if earth_timer <=0:
@@ -283,10 +286,10 @@ while running:
         earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
         screen.blit(frames[int(current_frame)], earth_rect)
         current_frame_p += animation_p_speed
-        if current_frame_p >= len(frames_pollution):
+        if current_frame_p >= len(frames_pollution_earth):
             current_frame_p = 0
-        pollution_rect = frames_pollution[int(current_frame_p)].get_rect(center=(640, 360))
-        screen.blit(frames_pollution[int(current_frame_p)], pollution_rect)
+        pollution_rect = frames_pollution_earth[int(current_frame_p)].get_rect(center=(640, 360))
+        screen.blit(frames_pollution_earth[int(current_frame_p)], pollution_rect)
         screen.blit(text_2, text_rect_2)  
         fade_alpha += fade_speed
         if fade_alpha >= 255 :
@@ -372,7 +375,30 @@ while running:
                         Actual_map_objects_layer[int(tile_souris[0]/64),int(tile_souris[1]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
 
+        #AFFICHAGE INDICE POLLUTION
+        pollution_actuelle = numpy.sum(Actual_map_pollution)
 
+        if pollution_max_possible > 0 :
+            pourcentage_pollution = (pollution_actuelle/pollution_max_possible*100) 
+        else :
+            pourcentage_pollution = 0
+        indice_width = 200
+        indice_height = 30
+        indice_x = W - indice_width - 20
+        indice_y = 20
+        interface_padding = 12
+        interface_rect = pygame.Rect(indice_x - interface_padding, 
+                                     indice_y - interface_padding, 
+                                     indice_width + 2*interface_padding, 
+                                     indice_height + 50)
+        interface_surface = pygame.Surface((interface_rect.width, interface_rect.height))
+        interface_surface.set_alpha(200)
+        interface_surface.fill((20, 20, 20))
+        screen.blit(interface_surface, interface_rect.topleft)
+        pollution_value_font = pygame.font.Font(font_1, 20)
+        pollution_value_text = pollution_value_font.render(f"{pourcentage_pollution:.1f}%", 1, (255, 255, 255))
+        value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
+        screen.blit(pollution_value_text, value_rect)
         # print(Robot.pos)
         Robot.do_all(keys,dt,screen,Actual_map)
 
