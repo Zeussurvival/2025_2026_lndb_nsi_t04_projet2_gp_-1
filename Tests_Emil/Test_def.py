@@ -61,10 +61,11 @@ def pollution_creation_rond(Liste_pos,range_pollu,map): # pas forcement realiste
 
 def set_pollution_map_rectangle(number_of_pos,seed,map_actu,range_pollu):
     Liste_pos = create_random_pos(seed,number_of_pos,map_actu.shape) # generation positions pr pollution
+    print(type(Liste_pos))
     new_map = pollution_creation_rond(Liste_pos,range_pollu,map_actu) # creation de la vrai map de pollution
     # print(new_map)
     # print(Liste_pos)
-    return new_map
+    return [new_map,Liste_pos]
 
 
 def floor_pollution_map_at_smth(map,floor_num):

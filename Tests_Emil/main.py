@@ -121,9 +121,13 @@ dt = 0
 
 Taille_map = 200
 Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
-Actual_map_pollution = D.set_pollution_map_rectangle(Taille_map,Taille_map,Actual_map,5)
+result = D.set_pollution_map_rectangle(10,10,Actual_map,5)
+Actual_map_pollution = result[0]
+Liste_dechets = result[1]
 Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
 pollution_initiale = numpy.sum(Actual_map_pollution)
+pollution_max_possible = pollution_initiale
+print(type(Actual_map_pollution))
 
 
 Nom_image_list_tiles = ["background_1.png","background_2.png","Bush_tile.png","pollution_texture.png","transparent.png"]
@@ -327,8 +331,8 @@ while running:
             if bush[1] <= math.floor(time.time()):
                 bush[1] = math.floor(time.time())+random.randint(30,50)
                 print("ya eu le bush")
-                List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1),
-                                                          bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1))])
+                List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(LEN_SQUARE//2,LEN_SQUARE)*(random.randint(0,1) *2 -1),
+                                                          bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(LEN_SQUARE//2,LEN_SQUARE)*(random.randint(0,1) *2 -1))])
                 # + random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1)
 
         #AFFICHAGE INDICE POLLUTION
