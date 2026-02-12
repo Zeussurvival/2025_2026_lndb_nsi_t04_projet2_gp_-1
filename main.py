@@ -145,8 +145,14 @@ dt = 0
 
 Taille_map = 200
 Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
-Actual_map_pollution = D.set_pollution_map_rectangle(10,10,Actual_map,5)
+result = D.set_pollution_map_rectangle(10,10,Actual_map,5)
+Actual_map_pollution = result[0]
+Liste_dechets = result[1]
 Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
+pollution_initiale = numpy.sum(Actual_map_pollution)
+pollution_max_possible = pollution_initiale
+print(Liste_dechets)
+
 
 pollution_initiale = numpy.sum(Actual_map_pollution)
 pollution_max_possible = pollution_initiale
@@ -314,7 +320,7 @@ while running:
 ##-------------------------------------------------------
 ### ------------- CODE EMIL
 ###-------------------------------------------------------  
-    elif current_state == GAME_PLAY :
+    if current_state == GAME_PLAY:
         coin_haut = (math.floor((Robot.pos[0]-W_2)/64),math.floor((Robot.pos[1]-H_2)/64))
         coin_bas = (math.ceil((Robot.pos[0]+W_2)/64),math.ceil((Robot.pos[1]+H_2)/64))
 
@@ -409,7 +415,7 @@ while running:
         value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
         screen.blit(pollution_value_text, value_rect)
 
-        print(Robot.pos)
+        # print(Robot.pos)
         Robot.do_all(keys,dt,screen,Actual_map)
 
 ###-------------------------------------------------------
