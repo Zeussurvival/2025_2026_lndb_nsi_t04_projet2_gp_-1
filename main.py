@@ -375,15 +375,15 @@ while running:
                         print(tile_souris[0]/64,tile_souris[1]/64)
                         Actual_map_objects_layer[int(tile_souris[0]/64),int(tile_souris[1]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
-        #                 Liste_bush_on_map.append([(int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
+                        Liste_bush_on_map.append([(int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
 
 
-        # for bush in Liste_bush_on_map:
-        #     if bush[1] <= math.floor(time.time()):
-        #         bush[1] = math.floor(time.time())+random.randint(30,50)
-        #         print("ya eu le bush")
-        #         List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1),
-        #                                                   bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1))])
+        for bush in Liste_bush_on_map:
+            if bush[1] <= math.floor(time.time()):
+                bush[1] = math.floor(time.time())+random.randint(30,50)
+                print("ya eu le bush")
+                List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1),
+                                                          bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1))])
 
 
         #AFFICHAGE INDICE POLLUTION
