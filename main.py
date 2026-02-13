@@ -415,7 +415,7 @@ while running:
         screen.blit(pollution_value_text, value_rect)
 
         # print(Robot.pos)
-        Robot.do_all(keys,dt,screen,Actual_map)
+        Robot.do_all(keys,dt,screen,Actual_map,LEN_SQUARE)
 
 ###-------------------------------------------------------
 ### ------------- CODE EUDOCIE

@@ -5,7 +5,8 @@ pygame.display.init()
 pygame.font.init()
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 assets_dir = os.path.join(main_dir,"assets") 
-img_dir = os.path.join(assets_dir,"Tiles") 
+img_dir = os.path.join(assets_dir,"Tiles")
+
 # bg_image_dir = os.path.join(main_dir,"Tiles/Background_images")
 
 
@@ -17,11 +18,11 @@ img_dir = os.path.join(assets_dir,"Tiles")
 #         else:
 #             self.background_image = None
 class Tile:
-    def __init__(self,image,list_images,rotate):
+    def __init__(self,image,list_images,rotate,LEN_SQUARE):
         if image != None:
             self.image = pygame.image.load(os.path.join(img_dir, image)).convert_alpha()
             self.image = pygame.transform.rotate(self.image,rotate)
-            self.image = pygame.transform.scale(self.image,(64,64))
+            self.image = pygame.transform.scale(self.image,(LEN_SQUARE,LEN_SQUARE))
         else:
             self.image = None #a supr qd plus de tile
         if rotate != None: #a supr qd plus de tile

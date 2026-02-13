@@ -116,7 +116,7 @@ W,H = (1280, 720)
 W_2,H_2 = W/2,H/2
 screen = pygame.display.set_mode((W,H))
 clock = pygame.time.Clock()
-LEN_SQUARE = 64
+LEN_SQUARE = 128
 dt = 0
 
 Taille_map = 200
@@ -131,11 +131,11 @@ print(type(Actual_map_pollution))
 
 
 Nom_image_list_tiles = ["background_1.png","background_2.png","Bush_tile.png","pollution_texture.png","transparent.png"]
-List_tiles = [CT.Tile(Nom_image_list_tiles[0],None,0),CT.Tile(Nom_image_list_tiles[0],None,90),CT.Tile(Nom_image_list_tiles[0],None,180),CT.Tile(Nom_image_list_tiles[0],None,270),\
-              CT.Tile(Nom_image_list_tiles[1],None,0),CT.Tile(Nom_image_list_tiles[1],None,90),CT.Tile(Nom_image_list_tiles[1],None,180),CT.Tile(Nom_image_list_tiles[1],None,270),\
-              CT.Tile(Nom_image_list_tiles[2],None,0),
-              CT.Tile(Nom_image_list_tiles[3],None,0),
-              CT.Tile(Nom_image_list_tiles[4],None,0)]
+List_tiles = [CT.Tile(Nom_image_list_tiles[0],None,0,LEN_SQUARE),CT.Tile(Nom_image_list_tiles[0],None,90,LEN_SQUARE),CT.Tile(Nom_image_list_tiles[0],None,180,LEN_SQUARE),CT.Tile(Nom_image_list_tiles[0],None,270,LEN_SQUARE),\
+              CT.Tile(Nom_image_list_tiles[1],None,0,LEN_SQUARE),CT.Tile(Nom_image_list_tiles[1],None,90,LEN_SQUARE),CT.Tile(Nom_image_list_tiles[1],None,180,LEN_SQUARE),CT.Tile(Nom_image_list_tiles[1],None,270,LEN_SQUARE),\
+              CT.Tile(Nom_image_list_tiles[2],None,0,LEN_SQUARE),
+              CT.Tile(Nom_image_list_tiles[3],None,0,LEN_SQUARE),
+              CT.Tile(Nom_image_list_tiles[4],None,0,LEN_SQUARE)]
 
 for y in range(Actual_map.shape[0]):
     for x in range(Actual_map.shape[1]):
@@ -169,7 +169,6 @@ random.seed = random.seed(None)
 ### ------------- CODE EUDOCIE + START UN PEU EMIL
 ###-------------------------------------------------------
 while running:
-    time_0 = time.time()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -269,8 +268,8 @@ while running:
 ### ------------- CODE EMIL
 ###-------------------------------------------------------
     if current_state == GAME_PLAY:
-        coin_haut = (math.floor((Robot.pos[0]-W_2)/64),math.floor((Robot.pos[1]-H_2)/64))
-        coin_bas = (math.ceil((Robot.pos[0]+W_2)/64),math.ceil((Robot.pos[1]+H_2)/64))
+        coin_haut = (math.floor((Robot.pos[0]-W_2)/LEN_SQUARE),math.floor((Robot.pos[1]-H_2)/LEN_SQUARE))
+        coin_bas = (math.ceil((Robot.pos[0]+W_2)/LEN_SQUARE),math.ceil((Robot.pos[1]+H_2)/LEN_SQUARE))
 
         for y in range(max(coin_haut[1],0),min(coin_bas[1],Actual_map.shape[0])): # montre la map
             for x in range(max(coin_haut[0],0),min(coin_bas[0],Actual_map.shape[1])):
@@ -304,10 +303,10 @@ while running:
 
 
         for obj in List_ground_objets: # mettre le texte pick up
-            if coin_haut[0]-1 < obj[1][0]//64 < coin_bas[0]+1 and coin_haut[1]-1 < obj[1][1]//64 < coin_bas[1]+1:
+            if coin_haut[0]-1 < obj[1][0]//LEN_SQUARE < coin_bas[0]+1 and coin_haut[1]-1 < obj[1][1]//LEN_SQUARE < coin_bas[1]+1:
                 if (Robot.pos[0] - obj[1][0])**2 +(Robot.pos[1] - obj[1][1])**2 <= (LEN_SQUARE*Robot.range_pickup)**2:
-                    screen.blit(Surface_text_pickup, (obj[1][0]-Robot.pos[0]+W_2-Surface_text_pickup.get_size()[0]/2, obj[1][1]-Robot.pos[1]+H_2-Surface_text_pickup.get_size()[1]/2 - 32 - 10 - 8*math.cos(time.time())))
-                screen.blit(pygame.transform.scale(obj[0].image,(32,32)),(obj[1][0]-Robot.pos[0]+W_2 - 16,obj[1][1]-Robot.pos[1]+H_2 - 16))
+                    screen.blit(Surface_text_pickup, (obj[1][0]-Robot.pos[0]+W_2-Surface_text_pickup.get_size()[0]/2, obj[1][1]-Robot.pos[1]+H_2-Surface_text_pickup.get_size()[1]/2 - LEN_SQUARE/2 - 10 - 8*math.cos(time.time())))
+                screen.blit(pygame.transform.scale(obj[0].image,(LEN_SQUARE/2,LEN_SQUARE/2)),(obj[1][0]-Robot.pos[0]+W_2 - LEN_SQUARE/4,obj[1][1]-Robot.pos[1]+H_2 - LEN_SQUARE/4))
 
 
 
@@ -363,7 +362,7 @@ while running:
 
 
         # print(Robot.pos)
-        Robot.do_all(keys,dt,screen,Actual_map)
+        Robot.do_all(keys,dt,screen,Actual_map,LEN_SQUARE)
 
 
 
@@ -379,8 +378,6 @@ while running:
         fade_surface.fill((0, 0, 0))  
         screen.blit(fade_surface, (0, 0))
    
-    if time.time()-time_0 > dt:
-        print(" OH SHIT", time.time()-time_0- dt)
     pygame.display.flip()
     dt = clock.tick(fps) / 1000
 

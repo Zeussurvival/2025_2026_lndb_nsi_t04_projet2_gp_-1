@@ -25,7 +25,7 @@ class Humanoid:
         self.pv = pv
         self.speed = speed * LEN_SQUARE
         self.base_damage = base_damage
-        self.image_length = (64,96)
+        self.image_length = (64*(LEN_SQUARE/64),96*(LEN_SQUARE/64))
         self.held_item_indice = 0
         self.hotbar = hotbar
         self.hotbar_len = 5
@@ -37,7 +37,7 @@ class Humanoid:
 
         if image != None:
             self.image = pygame.image.load(os.path.join(img_dir, image)).convert_alpha()
-            self.image = pygame.transform.scale(self.image,(64,96))
+            self.image = pygame.transform.scale(self.image,(self.image_length[0],self.image_length[1]))
         else:
             self.image = None
 
@@ -67,7 +67,7 @@ class Humanoid:
         # pygame.draw.line(screen,"green",(W/2,H/2-100),(W/2,H/2+100)) # Croix central
         # pygame.draw.line(screen,"green",(W/2-100,H/2),(W/2+100,H/2)) # Croix central
 
-    def do_movement_by_self(self,keys,dt,screen,Actual_map):
+    def do_movement_by_self(self,keys,dt,screen,Actual_map,LEN_SQUARE):
         self.vect = pygame.math.Vector2(0,0)
         last_key_pressed = []
         if keys[pygame.K_q]:
@@ -90,21 +90,21 @@ class Humanoid:
             #     self.pos[0] = 0 
             # if self.pos[1] - 0 < 0:
             #     self.pos[1] = 0
-            self.do_collision_check(self.vect,self.pos,Actual_map)
+            self.do_collision_check(self.vect,self.pos,Actual_map,LEN_SQUARE)
 
             self.pos[0],self.pos[1] = round(self.pos[0],2),round(self.pos[1],2)
         self.blit_center_self(screen,self.pos,last_key_pressed)
 
-    def do_collision_check(self,vect_mvt,pos,Map):
+    def do_collision_check(self,vect_mvt,pos,Map,LEN_SQUARE):
         fake_pos = pos + vect_mvt
         if fake_pos[0] - self.image_length[0]/2 < 0: # Check les collisions pour les bords de la map
             fake_pos[0] = self.image_length[0]/2
         if fake_pos[1] - self.image_length[1]/2< 0:
             fake_pos[1] = self.image_length[1]/2
         if fake_pos[0] + self.image_length[0]/2 > Map.shape[1] * 64: # 64 et pas LEN SQUARE !!
-            fake_pos[0] = Map.shape[1] * 64 - self.image_length[0]/2
+            fake_pos[0] = Map.shape[1] * LEN_SQUARE - self.image_length[0]/2
         if fake_pos[1] + self.image_length[1]/2 > Map.shape[1] * 64:
-            fake_pos[1] = Map.shape[1] * 64 - self.image_length[1]/2
+            fake_pos[1] = Map.shape[1] * LEN_SQUARE - self.image_length[1]/2
         self.pos = fake_pos
 
 
@@ -156,8 +156,8 @@ class Humanoid:
 
 
 
-    def do_all(self,keys,dt,screen,Actual_map):
-        self.do_movement_by_self(keys,dt,screen,Actual_map)
+    def do_all(self,keys,dt,screen,Actual_map,LEN_SQUARE):
+        self.do_movement_by_self(keys,dt,screen,Actual_map,LEN_SQUARE)
         self.draw_hotbar(screen)
         self.change_held_item(keys)
 
