@@ -35,7 +35,6 @@ def audio_device_available():
 # pygame setup
 pygame.init()
 pygame.font.init()
-pygame.mixer.init()
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
@@ -131,7 +130,7 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
-see_animations = True
+see_animations = False
 cooldown_dialogue = False
 ###-------------------------------------------------------
 ### ------------- CODE EMIL
@@ -321,8 +320,8 @@ while running:
 ### ------------- CODE EMIL
 ###-------------------------------------------------------  
     if current_state == GAME_PLAY:
-        coin_haut = (math.floor((Robot.pos[0]-W_2)/64),math.floor((Robot.pos[1]-H_2)/64))
-        coin_bas = (math.ceil((Robot.pos[0]+W_2)/64),math.ceil((Robot.pos[1]+H_2)/64))
+        coin_haut = (math.floor((Robot.pos[0]-W_2)/LEN_SQUARE),math.floor((Robot.pos[1]-H_2)/LEN_SQUARE))
+        coin_bas = (math.ceil((Robot.pos[0]+W_2)/LEN_SQUARE),math.ceil((Robot.pos[1]+H_2)/LEN_SQUARE))
 
         for y in range(max(coin_haut[1],0),min(coin_bas[1],Actual_map.shape[0])): # montre la map
             for x in range(max(coin_haut[0],0),min(coin_bas[0],Actual_map.shape[1])):

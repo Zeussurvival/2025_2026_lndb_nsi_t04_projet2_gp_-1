@@ -159,7 +159,7 @@ can_see_pollution = True
 cd_see_pollution = True
 
 
-hotbar = [bush,None,None,None,None]
+hotbar = [bush,bush,bush,bush,bush]
 Robot = CH.Humanoid((15*LEN_SQUARE,15*LEN_SQUARE),100,5,5,"robot_front_wait.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
 print("running now")
 

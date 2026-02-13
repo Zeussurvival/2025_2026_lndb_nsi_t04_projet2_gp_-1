@@ -114,7 +114,7 @@ class Humanoid:
                 self.hotbar[i] = obj
                 return True
         if len(self.inventory) < self.inventory_size - 1:
-            self.inventory[i] = obj
+            self.inventory.append(obj)
             return True
 
 
