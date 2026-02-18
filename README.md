@@ -18,7 +18,7 @@ RE:LIFE est un jeu interactif où le joueur doit netooyer une planète dans l'un
 
 ### Arborescence des fichiers
 ```
-TheGraphicsEngine/
+RE:LIFE/
 ├── 
 ├── docs/ # Documentation
 ├── licences/ # Licences des dépendances
