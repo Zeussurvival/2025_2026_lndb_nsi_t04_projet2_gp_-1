@@ -6,7 +6,7 @@ screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
 
-image = Image.open("assets/TopDownApocalipticExteriorTileset/TileSheet.png")
+image = Image.open("Test map json/bat3.png")
 print("Taille de l'image:", image.size)
 print("Mode de couleur:", image.mode)
 print("Format de l'image:", image.format)
