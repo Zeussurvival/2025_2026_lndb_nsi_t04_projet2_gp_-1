@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="60" tilewidth="8" tileheight="8" infinite="0" nextlayerid="14" nextobjectid="1">
+ <editorsettings>
+  <export target="map.json" format="json"/>
+ </editorsettings>
  <tileset firstgid="1" source="Apocalypse.tsx"/>
  <tileset firstgid="481" source="Techwave-1.tsx"/>
  <tileset firstgid="545" source="Chimney.tsx"/>
