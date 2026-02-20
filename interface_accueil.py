@@ -78,6 +78,9 @@ music_panel_rect = music_panel.get_rect()
 music_panel_rect.center = (400,300)
 
 font = pygame.font.Font(None, 36)
+
+font_difficult = pygame.font.Font(None, 23)
+font_text = pygame.font.Font(None, 30)
 # font_title 
 
 
@@ -97,6 +100,8 @@ mouse_clicked_button = False
 objects = []
 show_settings = False
 show_music = False
+show_difficult = False
+pt_pollution = 10
 
 class Button():
     def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False, icon=None, icon_only=False):
@@ -186,7 +191,7 @@ class Settings_Button():
         self.buttonRect = pygame.Rect(0, 0, self.width, self.height)
         self.buttonRect.center = (x, y)
         
-        self.buttonSurf = font.render(buttonText, True, WHITE)
+        self.buttonSurf = font_difficult.render(buttonText, True, WHITE)
     def process(self):
         mousePos = pygame.mouse.get_pos()
 
@@ -342,12 +347,38 @@ def quit():
 def fonction ():
     print ("à faire")
 
+def go_difficult():
+    global show_difficult
+    show_difficult = not show_difficult
+    print("open_difficult")
+
+def difficult_normal ():
+    print("difficulté normale")
+
+def difficult_easy ():
+    print("difficulté facile")
+
+def difficult_hard ():
+    print("difficulté difficile")
+
+def pollution_up ():
+    global pt_pollution
+    pt_pollution +=1
+    print("pollution up")
+
+def pollution_down ():
+    global pt_pollution
+    pt_pollution -=1
+    print("pollution down")
+
 Button(400, 450, 140, 50, 'Jouer', launch_game, icon=icon_play)
 Button(70, 70, 50, 50, '', go_settings, icon=icon_settings, icon_only=True )
 Button(730, 70, 50, 50, "", fonction, icon=icon_info, icon_only=True)
 Button(730, 120, 50, 50, "", redirect, icon=icon_discord, icon_only=True)
 Button(730, 170, 50, 50, "", fonction, icon=icon_dons, icon_only=True)
 Button(120, 70, 50, 50, "", quit, icon=icon_quit, icon_only=True)
+Button(700, 530, 140, 40, "Difficulté", go_difficult,)
+
 
 settings_buttons = [
     Settings_Button(400, 300, 50, 50, '', open_music, icon=icon_sound, icon_only=True),
@@ -359,6 +390,15 @@ music_buttons = [
     Music_Button(400, 335, 50, 50, '', down, icon=icon_down, icon_only=True),
     Music_Button(500, 335, 50, 50, '', up, icon=icon_up, icon_only=True),
     Music_Button(250, 160, 50, 50, '', close_music, icon=icon_close, icon_only=True)
+]
+
+difficult_buttons = [
+    Settings_Button(250, 160, 50, 50, '', go_difficult, icon=icon_close, icon_only=True),
+    Settings_Button(400, 285, 85, 35, "normale", difficult_normal),
+    Settings_Button(300, 285, 85, 35, "facile", difficult_easy),
+    Settings_Button(500, 285, 85, 35, "difficile", difficult_hard),
+    Settings_Button(350, 385, 50, 50, '', pollution_down, icon=icon_down, icon_only=True),
+    Settings_Button(450, 385, 50, 50, '', pollution_up, icon=icon_up, icon_only=True),
 ]
 
 perso_image_scaled = pygame.transform.scale(perso_image, (128, 188))        
@@ -384,7 +424,8 @@ while running:
                     show_music = False
                 elif show_settings:
                     show_settings = False
-
+                elif show_difficult :
+                    show_difficult = False
     # fill the screen with a color to wipe away anything from last frame
     # screen.fill("purple")
     mouse_pos = pygame.mouse.get_pos()
@@ -416,6 +457,22 @@ while running:
     for object in objects:
         object.process()
 
+    if show_difficult :
+        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
+        overlay.fill(SEMI_TRANSPARENT)
+        screen.blit(overlay, (0, 0))
+        screen.blit(settings_panel, settings_panel_rect)
+        difficult_title = font.render("Difficulté", True, WHITE)
+        difficult_title_rect = difficult_title.get_rect(center=(400, 200))
+        screen.blit(difficult_title, difficult_title_rect)
+        pollution_text = font_text.render("points de pollution", True, WHITE)
+        pollution_text_rect = pollution_text.get_rect(center=(400, 340))
+        screen.blit(pollution_text, pollution_text_rect)
+        pollution_pt = font_text.render(pt_pollution, True, WHITE)
+        pollution_pt_rect = pollution_pt.get_rect(center=(400, 350))
+        screen.blit(pollution_pt, pollution_pt_rect)
+        for btn in difficult_buttons:
+            btn.process()
 
     if show_settings and not show_music:
         # Créer un overlay semi-transparent
