@@ -353,12 +353,18 @@ def go_difficult():
     print("open_difficult")
 
 def difficult_normal ():
+    global pt_pollution
+    pt_pollution = 25
     print("difficulté normale")
 
 def difficult_easy ():
+    global pt_pollution
+    pt_pollution = 10
     print("difficulté facile")
 
 def difficult_hard ():
+    global pt_pollution
+    pt_pollution = 50
     print("difficulté difficile")
 
 def pollution_up ():
@@ -368,7 +374,8 @@ def pollution_up ():
 
 def pollution_down ():
     global pt_pollution
-    pt_pollution -=1
+    if pt_pollution > 5 :
+        pt_pollution -=1
     print("pollution down")
 
 Button(400, 450, 140, 50, 'Jouer', launch_game, icon=icon_play)
@@ -468,8 +475,8 @@ while running:
         pollution_text = font_text.render("points de pollution", True, WHITE)
         pollution_text_rect = pollution_text.get_rect(center=(400, 340))
         screen.blit(pollution_text, pollution_text_rect)
-        pollution_pt = font_text.render(pt_pollution, True, WHITE)
-        pollution_pt_rect = pollution_pt.get_rect(center=(400, 350))
+        pollution_pt = font_text.render(str(pt_pollution), True, WHITE)
+        pollution_pt_rect = pollution_pt.get_rect(center=(400, 385))
         screen.blit(pollution_pt, pollution_pt_rect)
         for btn in difficult_buttons:
             btn.process()
