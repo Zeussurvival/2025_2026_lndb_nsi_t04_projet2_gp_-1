@@ -77,10 +77,11 @@ music_panel = pygame.image.load(os.path.join(X2_dir,"Card X2.png"))
 music_panel_rect = music_panel.get_rect()
 music_panel_rect.center = (400,300)
 
-font = pygame.font.Font(None, 36)
+font = pygame.font.Font(None, 33)
 
 font_difficult = pygame.font.Font(None, 23)
 font_text = pygame.font.Font(None, 30)
+font_map = pygame.font.Font(None, 3)
 # font_title 
 
 
@@ -101,7 +102,8 @@ objects = []
 show_settings = False
 show_music = False
 show_difficult = False
-pt_pollution = 10
+pt_pollution = 30
+show_pannel_map = False
 
 class Button():
     def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False, icon=None, icon_only=False):
@@ -303,6 +305,47 @@ class Music_Button():
             text_rect = self.buttonSurf.get_rect(center=self.buttonRect.center)
             screen.blit(self.buttonSurf, text_rect) 
 
+class Slider:
+    def __init__(self, x, y, width, min_val=0, max_val=100, initial_val=50):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.min_val = min_val
+        self.max_val = max_val
+        self.value = initial_val
+        self.dragging = False
+
+        self.track_rect = pygame.Rect(x, y, width, 6)
+        self.handle_radius = 12
+        self.handle_x = x + int((initial_val - min_val) / (max_val - min_val) * width)
+
+    def process(self, events):
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_pressed = pygame.mouse.get_pressed()[0]
+
+        handle_rect = pygame.Rect(
+            self.handle_x - self.handle_radius,
+            self.y - self.handle_radius,
+            self.handle_radius * 2,
+            self.handle_radius * 2
+        )
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if handle_rect.collidepoint(mouse_pos):
+                    self.dragging = True
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.dragging = False
+
+        if self.dragging and mouse_pressed:
+            self.handle_x = max(self.x, min(self.x + self.width, mouse_pos[0]))
+            self.value = int(self.min_val + (self.handle_x - self.x) / self.width * (self.max_val - self.min_val))
+
+        # Dessin
+        pygame.draw.rect(screen, (7, 51, 51), self.track_rect, border_radius=3)
+        pygame.draw.rect(screen, WHITE, pygame.Rect(self.x, self.y, self.handle_x - self.x, 6), border_radius=3)
+        pygame.draw.circle(screen, WHITE, (self.handle_x, self.y + 3), self.handle_radius)
+
 def go_settings():
     global show_settings
     show_settings = not show_settings
@@ -354,17 +397,17 @@ def go_difficult():
 
 def difficult_normal ():
     global pt_pollution
-    pt_pollution = 25
+    pt_pollution = 50
     print("difficulté normale")
 
 def difficult_easy ():
     global pt_pollution
-    pt_pollution = 10
+    pt_pollution = 30
     print("difficulté facile")
 
 def difficult_hard ():
     global pt_pollution
-    pt_pollution = 50
+    pt_pollution = 90
     print("difficulté difficile")
 
 def pollution_up ():
@@ -374,9 +417,15 @@ def pollution_up ():
 
 def pollution_down ():
     global pt_pollution
-    if pt_pollution > 5 :
+    if pt_pollution > 25 :
         pt_pollution -=1
     print("pollution down")
+
+
+def go_map():
+    global show_pannel_map
+    show_pannel_map = not show_pannel_map
+    print("open map")
 
 Button(400, 450, 140, 50, 'Jouer', launch_game, icon=icon_play)
 Button(70, 70, 50, 50, '', go_settings, icon=icon_settings, icon_only=True )
@@ -384,7 +433,8 @@ Button(730, 70, 50, 50, "", fonction, icon=icon_info, icon_only=True)
 Button(730, 120, 50, 50, "", redirect, icon=icon_discord, icon_only=True)
 Button(730, 170, 50, 50, "", fonction, icon=icon_dons, icon_only=True)
 Button(120, 70, 50, 50, "", quit, icon=icon_quit, icon_only=True)
-Button(700, 530, 140, 40, "Difficulté", go_difficult,)
+Button(700, 530, 140, 40, "Difficulté", go_difficult)
+Button(700, 470, 140, 40, "Taille map", go_map)
 
 
 settings_buttons = [
@@ -408,6 +458,11 @@ difficult_buttons = [
     Settings_Button(450, 385, 50, 50, '', pollution_up, icon=icon_up, icon_only=True),
 ]
 
+map_buttons= [
+    Settings_Button(250, 160, 50, 50, '', go_map, icon=icon_close, icon_only=True),
+]
+map_slider = Slider(300, 320, 200, min_val=200, max_val=500, initial_val=250)
+
 perso_image_scaled = pygame.transform.scale(perso_image, (128, 188))        
 perso_image_rect = perso_image_scaled.get_rect ()
 # perso_image_rect = perso_image.get_rect ()
@@ -422,7 +477,8 @@ while running:
     
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
-    for event in pygame.event.get():
+    events = pygame.event.get()
+    for event in events:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
@@ -433,6 +489,8 @@ while running:
                     show_settings = False
                 elif show_difficult :
                     show_difficult = False
+                elif show_pannel_map :
+                    show_pannel_map = False
     # fill the screen with a color to wipe away anything from last frame
     # screen.fill("purple")
     mouse_pos = pygame.mouse.get_pos()
@@ -481,6 +539,22 @@ while running:
         for btn in difficult_buttons:
             btn.process()
 
+    if show_pannel_map :
+        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
+        overlay.fill(SEMI_TRANSPARENT)
+        screen.blit(overlay, (0, 0))
+        screen.blit(settings_panel, settings_panel_rect)
+        map_title = font.render("Taille de la map", True, WHITE)
+        map_title_rect = map_title.get_rect(center=(400, 200))
+        screen.blit(map_title, map_title_rect)
+        
+        for btn in map_buttons:
+            btn.process()
+        map_slider.process(events)  
+
+        slider_text = font_text.render(str(map_slider.value), True, WHITE)
+        screen.blit(slider_text, slider_text.get_rect(center=(400, 370)))
+                
     if show_settings and not show_music:
         # Créer un overlay semi-transparent
         overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
