@@ -141,25 +141,46 @@ screen = pygame.display.set_mode((W,H))
 clock = pygame.time.Clock()
 LEN_SQUARE = 64
 dt = 0
+construction_dir = os.path.join(assets_dir,"Building_txt")
+tiles_dir = os.path.join(assets_dir,"Tiles")
+autres_tiles_dir = os.path.join(tiles_dir,"Autres")
+batiments_tiles_dir = os.path.join(tiles_dir,"Batiment")
 
+List_batiments = []
+for file in os.listdir(os.path.join("assets","Building_txt")):
+    bat_actuel = []
+    with open(os.path.join("assets","Building_txt", file),"r") as f:
+        for line in f:
+            bat_actuel.append(line.strip())
+    List_batiments.append(bat_actuel)
+
+seed = random.seed(time.time()) # creation de la map des settings de la pollu et autres
 Taille_map = 200
 Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
-result = D.set_pollution_map_rectangle(10,10,Actual_map,5)
+result = D.set_pollution_map_rectangle(50,seed,Actual_map,5)
 Actual_map_pollution = result[0]
 Liste_dechets = result[1]
+
 Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
 pollution_initiale = numpy.sum(Actual_map_pollution)
 pollution_max_possible = pollution_initiale
 print(Liste_dechets)
 
 
-pollution_initiale = numpy.sum(Actual_map_pollution)
+pollution_initiale = numpy.sum(Actual_map_pollution) # objectif de pollution
 pollution_max_possible = pollution_initiale
 
-Nom_image_list_tiles = ["background_1.png","background_2.png","Bush_tile.png","pollution_texture.png","transparent.png"]
+
+Nom_image_list_tiles = [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_2.png"),
+                        os.path.join(autres_tiles_dir,"Bush_tile.png"),os.path.join(autres_tiles_dir,"pollution_texture.png"),
+                        os.path.join(autres_tiles_dir,"transparent.png")]
 List_tiles = [CT.Tile(Nom_image_list_tiles[0],None,0),CT.Tile(Nom_image_list_tiles[0],None,90),CT.Tile(Nom_image_list_tiles[0],None,180),CT.Tile(Nom_image_list_tiles[0],None,270),\
               CT.Tile(Nom_image_list_tiles[1],None,0),CT.Tile(Nom_image_list_tiles[1],None,90),CT.Tile(Nom_image_list_tiles[1],None,180),CT.Tile(Nom_image_list_tiles[1],None,270),\
               CT.Tile(Nom_image_list_tiles[2],None,0),]
+
+for img in os.listdir(batiments_tiles_dir): # ajout des images de tiles pr les batiments
+    Nom_image_list_tiles.append(os.path.join(batiments_tiles_dir,img))
+    List_tiles.append(CT.Tile(os.path.join(assets_dir,"Tiles","Batiment",img),None,0))
 
 liste_tile_needed = [CT.Tile(Nom_image_list_tiles[3],None,0),CT.Tile(Nom_image_list_tiles[4],None,0)]
 List_tiles += liste_tile_needed
@@ -167,6 +188,7 @@ List_tiles += liste_tile_needed
 for y in range(Actual_map.shape[0]):
     for x in range(Actual_map.shape[1]):
         Actual_map[x,y] = random.randint(0,7)
+
 print(Actual_map.shape[0])
 
 List_ground_objets = []
@@ -185,7 +207,6 @@ cd_see_pollution = True
 hotbar = [bush,None,None,None,None]
 Robot = CH.Humanoid((15*LEN_SQUARE,15*LEN_SQUARE),100,5,5,"robot_front_walking.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
 print("running now")
-
 while running:
     time_0 = time.time()
     keys = pygame.key.get_pressed()  
