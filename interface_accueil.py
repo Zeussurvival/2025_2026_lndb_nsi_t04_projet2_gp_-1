@@ -102,7 +102,7 @@ objects = []
 show_settings = False
 show_music = False
 show_difficult = False
-pt_pollution = 30
+pt_pollution = 30 #pour Emil pour avoir le nombre de pt de pollution
 show_pannel_map = False
 
 class Button():
@@ -554,6 +554,7 @@ while running:
 
         slider_text = font_text.render(str(map_slider.value), True, WHITE)
         screen.blit(slider_text, slider_text.get_rect(center=(400, 370)))
+        map_size = map_slider.value #pour Emil pour avoir la taille de la map
                 
     if show_settings and not show_music:
         # Créer un overlay semi-transparent
