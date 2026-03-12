@@ -1,7 +1,9 @@
 from PIL import Image
 import os
 main_dir = os.path.split(os.path.abspath(__file__))[0]
-temp_dir = os.path.join(main_dir,"Temp")
+assets_dir = os.path.join(main_dir,"assets")
+temp_dir = os.path.join(assets_dir,"Tiles","Batiment")
+construction_dir = os.path.join(assets_dir,"Building_txt")
 test_map_dir = os.path.join(main_dir,"Test map json")
 print(main_dir)
 
@@ -11,42 +13,42 @@ image = Image.open("Test map json/bat3.png").convert("RGBA")
 print("Taille de l'image:", image.size)
 print("Mode de couleur:", image.mode)
 print("Format de l'image:", image.format)
+size_image = image.size
+Liste_des_tiles_de_limage = []
+
+tiles_x = image.size[0] // 8
+tiles_y = image.size[1] // 8
 
 Liste_des_tiles_de_limage = []
 
-def donne_le_nombre_si_inf_ou_egale_sinon_modulo(nombre,modu_a):
-    if nombre % modu_a == 0:
-        return modu_a
-    return nombre%modu_a
+for y in range(tiles_y):
+    for x in range(tiles_x):
+        changed = False
+        zone = (x*8, y*8, x*8+8, y*8+8)
+        image_coupee = image.crop(zone)
 
+        for filename in os.listdir(temp_dir):
+            path = os.path.join(temp_dir, filename)
+            img_exist = Image.open(path).convert("RGBA")
+            if image_coupee.tobytes() == img_exist.tobytes():
+                Liste_des_tiles_de_limage.append(f"{filename}")
+                changed = True
+                break
+        if not changed:
+            nb_images = len(os.listdir(temp_dir))
+            filename = f"{nb_images}_image.png"
+            path = os.path.join(temp_dir, filename)
 
-for i in range ((image.size[0]//8)*(image.size[1]//8)):
-    changed = False
-    zone = (8*i%image.size[0], 8*(8*i//image.size[0]), donne_le_nombre_si_inf_ou_egale_sinon_modulo(8*(i+1),(image.size[0])), 8+8*((8*i)//image.size[0]))
-    print(zone)
-    image_coupee = image.crop(zone)
-    list_image = os.listdir(temp_dir)
-    for A, filename in enumerate(os.listdir(temp_dir)):
-        path = os.path.join(temp_dir, filename)
-        img_exist = Image.open(path).convert("RGBA")
-
-        if image_coupee.size == img_exist.size and \
-        image_coupee.tobytes() == img_exist.tobytes():
-            Liste_des_tiles_de_limage.append(f"Temp/{filename}")
-            changed = True
-            break
-    print(changed,i)
-    if not changed:
-        text = "Temp/"+str(i)+"_image.png"
-        Liste_des_tiles_de_limage.append("Temp/"+str(i)+"_image.png")
-        image_coupee.save((text))
-
+            image_coupee.save(path)
+            Liste_des_tiles_de_limage.append(f"{filename}")
 
 print(Liste_des_tiles_de_limage)
-print((9*10)%19,(9*10)/19,(9*10)//19)
-print(os.path.join(main_dir,"spritesheet.png"))
+with open(os.path.join(construction_dir,"constru_1.txt"),"w") as f:
+    f.write(str(size_image[0]//8)+str(size_image[1]//8)+"\n")
+    for txt in Liste_des_tiles_de_limage:
+        f.write(txt+"\n")
 
-print(Image.open("Temp/4_image.png").convert("RGBA").tobytes()) # (96, 64, 104, 72)
-print(image.crop((96, 64, 104, 72)).tobytes())
-# img = Image.open(os.path.join(temp_dir,"36_image.png")).convert("RGBA")
-# img.show()
+# print(Image.open("Temp/4_image.png").convert("RGBA").tobytes()) # (96, 64, 104, 72)
+# print(image.crop((96, 64, 104, 72)).tobytes())
+print(image.crop((96,64,104,72)).getpixel((0,0)))
+print(Image.open("Temp/4_image.png").getpixel((0,0)))
