@@ -41,10 +41,11 @@ for y in range(tiles_y):
 
             image_coupee.save(path)
             Liste_des_tiles_de_limage.append(f"{filename}")
-
+print(str(size_image[0]//8)+str(size_image[1]//8)+"\n")
 print(Liste_des_tiles_de_limage)
 with open(os.path.join(construction_dir,"constru_1.txt"),"w") as f:
-    f.write(str(size_image[0]//8)+str(size_image[1]//8)+"\n")
+    f.write(str(size_image[0]//8)+"\n")
+    f.write(str(size_image[1]//8)+"\n")
     for txt in Liste_des_tiles_de_limage:
         f.write(txt+"\n")
 
