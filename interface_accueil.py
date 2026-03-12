@@ -103,6 +103,7 @@ show_settings = False
 show_music = False
 show_difficult = False
 pt_pollution = 30 #pour Emil pour avoir le nombre de pt de pollution
+map_size = 250
 show_pannel_map = False
 
 class Button():
@@ -355,9 +356,11 @@ def change_volume():
     print("changement volume")
 
 def launch_game():
+    global map_size
+    map_size = map_slider.value
     pygame.quit()
-    subprocess.run(["python", "main.py"])      
-    print('Button Pressed')
+    main_path = os.path.join(main_dir, "main.py")
+    subprocess.run(["python", main_path, str(map_size), str(pt_pollution)])
 
 def close_music():
     global show_music
@@ -474,7 +477,7 @@ perso_speed_y = random.choice([-200, -150, 150, 200])
 
 
 while running:
-    
+
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
     events = pygame.event.get()

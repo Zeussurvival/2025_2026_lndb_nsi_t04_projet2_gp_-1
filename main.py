@@ -11,8 +11,7 @@ import classes.Test_def as D
 import classes.Test_classe_tile as CT
 import classes.Test_classe_humain as CH
 import classes.Test_classe_objets as CO
-
-
+import sys
 # Chemins
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 assets_dir = os.path.join(main_dir,"assets")
@@ -142,7 +141,8 @@ clock = pygame.time.Clock()
 LEN_SQUARE = 64
 dt = 0
 
-Taille_map = 200
+Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 250
+pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 30
 Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
 result = D.set_pollution_map_rectangle(10,10,Actual_map,5)
 Actual_map_pollution = result[0]
