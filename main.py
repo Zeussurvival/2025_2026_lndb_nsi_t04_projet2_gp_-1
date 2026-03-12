@@ -131,6 +131,49 @@ for i in range(1, 6):
     frames_pollution_earth.append(img)
 see_animations = False
 cooldown_dialogue = False
+
+#MINIMAP
+def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, LEN_SQUARE, W, H):
+
+    minimap_scale = 3        # 1 tile = 3 pixels sur la minimap
+    minimap_range = 30       # nombre de tiles visibles autour du joueur
+    minimap_size = minimap_range * 2 * minimap_scale
+    minimap_x = 10           
+    minimap_y = 10
+
+    # Fond semi-transparent
+    minimap_surf = pygame.Surface((minimap_size, minimap_size), pygame.SRCALPHA)
+    minimap_surf.fill((0, 0, 0, 150))
+
+    
+    player_tile_x = int(Robot.pos[0] // LEN_SQUARE)
+    player_tile_y = int(Robot.pos[1] // LEN_SQUARE)
+
+    for dy in range(-minimap_range, minimap_range):
+        for dx in range(-minimap_range, minimap_range):
+            tx = player_tile_x + dx
+            ty = player_tile_y + dy
+            if 0 <= tx < Actual_map.shape[0] and 0 <= ty < Actual_map.shape[1]:
+
+                px = (dx + minimap_range) * minimap_scale
+                py = (dy + minimap_range) * minimap_scale
+                pygame.draw.rect(minimap_surf, (20, 60, 20), (px, py, minimap_scale, minimap_scale))
+                pollution = Actual_map_pollution[tx, ty]
+                alpha = min(180, int(pollution * 12))
+
+                if alpha > 0:
+                    pollution_tile = pygame.Surface((minimap_scale, minimap_scale), pygame.SRCALPHA)
+                    pollution_tile.fill((255, 255, 0, alpha))
+                    minimap_surf.blit(pollution_tile, (px, py))
+
+    pygame.draw.rect(minimap_surf, (255, 255, 255),
+                     (minimap_range * minimap_scale - 2, minimap_range * minimap_scale - 2, 4, 4))
+
+    screen.blit(minimap_surf, (minimap_x, minimap_y))
+
+
+
+
 ###-------------------------------------------------------
 ### ------------- CODE EMIL
 ###-------------------------------------------------------
@@ -448,7 +491,7 @@ while running:
         fade_surface.set_alpha(fade_alpha)
         fade_surface.fill((0, 0, 0))  
         screen.blit(fade_surface, (0, 0))
-   
+    draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, LEN_SQUARE, W, H)
     # if time.time()-time_0 > dt:
     #     print(" OH SHIT", time.time()-time_0- dt)
     pygame.display.flip()
