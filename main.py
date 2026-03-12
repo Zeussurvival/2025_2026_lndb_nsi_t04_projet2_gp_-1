@@ -17,8 +17,6 @@ main_dir = os.path.split(os.path.abspath(__file__))[0]
 assets_dir = os.path.join(main_dir,"assets")
 police_dir = os.path.join(assets_dir,"polices")
 sounds_dir = os.path.join(assets_dir, "sounds")
-print(os.path.abspath(__file__))
-print(main_dir)
 font_1 = os.path.join(police_dir, "test_1.ttf")
 font_2 = os.path.join(police_dir, "test_2.ttf")
 def audio_device_available():
@@ -131,6 +129,55 @@ for i in range(1, 6):
     frames_pollution_earth.append(img)
 see_animations = False
 cooldown_dialogue = False
+
+#MINIMAP
+def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, Actual_map_objects_layer, LEN_SQUARE, W, H):
+
+    minimap_scale = 3        
+    minimap_range = 30      
+    minimap_size = minimap_range * 2 * minimap_scale
+    minimap_x = 10           
+    minimap_y = 10
+
+    # Fond semi-transparent
+    minimap_surf = pygame.Surface((minimap_size, minimap_size), pygame.SRCALPHA)
+    minimap_surf.fill((0, 0, 0, 150))
+
+    
+    player_tile_x = int(Robot.pos[0] // LEN_SQUARE)
+    player_tile_y = int(Robot.pos[1] // LEN_SQUARE)
+
+    for dy in range(-minimap_range, minimap_range):
+        for dx in range(-minimap_range, minimap_range):
+            tx = player_tile_x + dx
+            ty = player_tile_y + dy
+            if 0 <= tx < Actual_map.shape[0] and 0 <= ty < Actual_map.shape[1]:
+
+                px = (dx + minimap_range) * minimap_scale
+                py = (dy + minimap_range) * minimap_scale
+                if Actual_map_objects_layer[tx, ty] != -1:
+                    pygame.draw.rect(minimap_surf, (255, 0, 0),
+                                    (px, py, minimap_scale, minimap_scale))
+
+                else:
+                    pygame.draw.rect(minimap_surf, (20, 60, 20),
+                                    (px, py, minimap_scale, minimap_scale))
+                pollution = Actual_map_pollution[tx, ty]
+                alpha = min(180, int(pollution * 12))
+
+                if alpha > 0:
+                    pollution_tile = pygame.Surface((minimap_scale, minimap_scale), pygame.SRCALPHA)
+                    pollution_tile.fill((255, 255, 0, alpha))
+                    minimap_surf.blit(pollution_tile, (px, py))
+
+    pygame.draw.rect(minimap_surf, (255, 255, 255),
+                     (minimap_range * minimap_scale - 2, minimap_range * minimap_scale - 2, 4, 4))
+
+    screen.blit(minimap_surf, (minimap_x, minimap_y))
+
+
+
+
 ###-------------------------------------------------------
 ### ------------- CODE EMIL
 ###-------------------------------------------------------
@@ -148,6 +195,7 @@ batiments_tiles_dir = os.path.join(tiles_dir,"Batiment")
 Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 250
 pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 30
 List_batiments = []
+List_indice_batiments = []
 for file in os.listdir(os.path.join("assets","Building_txt")):
     bat_actuel = []
     with open(os.path.join("assets","Building_txt", file),"r") as f:
@@ -162,16 +210,21 @@ result = D.set_pollution_map_rectangle(50,seed,Actual_map,5)
 Actual_map_pollution = result[0]
 Liste_dechets = result[1]
 
+for y in range(Actual_map.shape[0]):
+    for x in range(Actual_map.shape[1]):
+        Actual_map[x,y] = random.randint(0,7)
+
+
 Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
 pollution_initiale = numpy.sum(Actual_map_pollution)
 pollution_max_possible = pollution_initiale
-print(Liste_dechets)
+# print(Liste_dechets)
 
 
 pollution_initiale = numpy.sum(Actual_map_pollution) # objectif de pollution
 pollution_max_possible = pollution_initiale
 
-
+Nom_img_simple = ["background_1.png","background_2.png","Bush_tile.png","pollution_texture.png","transparent.png"]
 Nom_image_list_tiles = [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_2.png"),
                         os.path.join(autres_tiles_dir,"Bush_tile.png"),os.path.join(autres_tiles_dir,"pollution_texture.png"),
                         os.path.join(autres_tiles_dir,"transparent.png")]
@@ -180,15 +233,36 @@ List_tiles = [CT.Tile(Nom_image_list_tiles[0],None,0),CT.Tile(Nom_image_list_til
               CT.Tile(Nom_image_list_tiles[2],None,0),]
 
 for img in os.listdir(batiments_tiles_dir): # ajout des images de tiles pr les batiments
+    Nom_img_simple.append(img)
     Nom_image_list_tiles.append(os.path.join(batiments_tiles_dir,img))
     List_tiles.append(CT.Tile(os.path.join(assets_dir,"Tiles","Batiment",img),None,0))
 
-liste_tile_needed = [CT.Tile(Nom_image_list_tiles[3],None,0),CT.Tile(Nom_image_list_tiles[4],None,0)]
-List_tiles += liste_tile_needed
+# D.list_dindice_avec_param_en_indice_0_1_vers_matrice(List_batiments[0])
+index_tiles = {name: i for i, name in enumerate(Nom_img_simple)}
+List_indice_batiments = []
+for bat in List_batiments:
+    indices = [index_tiles[name] for name in bat[2:] if name in index_tiles]
+    List_indice_batiments.append(indices)
 
-for y in range(Actual_map.shape[0]):
-    for x in range(Actual_map.shape[1]):
-        Actual_map[x,y] = random.randint(0,7)
+List_indice_batiments.append(indices)
+print(indices)
+
+List_final_indice_batiments = []
+Liste_de_matrice_de_bat = []
+for i in range(len(List_batiments)):
+    bat_actuel = List_batiments[i]
+    List_final_indice_batiments.append([int(bat_actuel[0]),int(bat_actuel[1]),*List_indice_batiments[i]])
+    print(List_final_indice_batiments[i])
+    Liste_de_matrice_de_bat.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice(List_final_indice_batiments[i]))
+print(Liste_de_matrice_de_bat)
+
+D.replace_matrice_big_then_small_addition(Actual_map,Liste_de_matrice_de_bat[0],(0,0))
+print(Actual_map[0,3])
+print(Actual_map)
+
+
+liste_tile_needed = [CT.Tile(Nom_image_list_tiles[3],None,0),CT.Tile(Nom_image_list_tiles[4],None,0)] # ajout des elements necessaires
+List_tiles += liste_tile_needed
 
 print(Actual_map.shape[0])
 
@@ -206,7 +280,7 @@ can_see_pollution = True
 cd_see_pollution = True
 
 hotbar = [bush,None,None,None,None]
-Robot = CH.Humanoid((15*LEN_SQUARE,15*LEN_SQUARE),100,5,5,"robot_front_walking.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
+Robot = CH.Humanoid((3*LEN_SQUARE,3*LEN_SQUARE),100,5,5,"robot_front_walking.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
 print("running now")
 while running:
     time_0 = time.time()
@@ -346,6 +420,7 @@ while running:
         coin_haut = (math.floor((Robot.pos[0]-W_2)/LEN_SQUARE),math.floor((Robot.pos[1]-H_2)/LEN_SQUARE))
         coin_bas = (math.ceil((Robot.pos[0]+W_2)/LEN_SQUARE),math.ceil((Robot.pos[1]+H_2)/LEN_SQUARE))
 
+        # print(Actual_map[int(Robot.pos[0]//64),int(Robot.pos[1]//64)])
         for y in range(max(coin_haut[1],0),min(coin_bas[1],Actual_map.shape[0])): # montre la map
             for x in range(max(coin_haut[0],0),min(coin_bas[0],Actual_map.shape[1])):
                 List_tiles[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
@@ -437,7 +512,7 @@ while running:
         value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
         screen.blit(pollution_value_text, value_rect)
 
-        # print(Robot.pos)
+        # print(Robot.pos[0]//64,Robot.pos[1]//64)
         Robot.do_all(keys,dt,screen,Actual_map,LEN_SQUARE)
 
 ###-------------------------------------------------------
@@ -448,7 +523,7 @@ while running:
         fade_surface.set_alpha(fade_alpha)
         fade_surface.fill((0, 0, 0))  
         screen.blit(fade_surface, (0, 0))
-   
+    draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, Actual_map_objects_layer, LEN_SQUARE, W, H)
     # if time.time()-time_0 > dt:
     #     print(" OH SHIT", time.time()-time_0- dt)
     pygame.display.flip()

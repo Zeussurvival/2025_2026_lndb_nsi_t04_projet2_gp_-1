@@ -14,6 +14,12 @@ def place_matrice_big_then_small_addition(matrice,house_matrice,positions):
                 matrice[positions[1]+true_y,positions[0]+true_x] += house_matrice[true_y,true_x]
     return matrice
 
+def replace_matrice_big_then_small_addition(matrice,house_matrice,positions):
+    for true_y in range(house_matrice.shape[0]):
+        for true_x in range(house_matrice.shape[1]):
+            if 0 <= positions[1]+true_y < matrice.shape[0] and 0 <= positions[0]+true_x < matrice.shape[1]:
+                matrice[positions[1]+true_y,positions[0]+true_x] = house_matrice[true_y,true_x]
+
 def creation_map_rectangle(width,height,num):
     Map = np.full((width,height), num,dtype=np.int32)
     return Map
@@ -51,8 +57,13 @@ def pollution_creation_rond(Liste_pos,range_pollu,map): # pas forcement realiste
     # print(map_pollution)
     return map_pollution
 
- 
+def list_dindice_avec_param_en_indice_0_1_vers_matrice(LaListe):
+    width = LaListe[0]
+    height = LaListe[1]
 
+    data = np.array(LaListe[2:], dtype=np.int32)
+
+    return data.reshape((width, height))
 
 # mat = create_round_matrice(5)
 # for row in mat:
