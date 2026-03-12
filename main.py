@@ -135,8 +135,8 @@ cooldown_dialogue = False
 #MINIMAP
 def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, Actual_map_objects_layer, LEN_SQUARE, W, H):
 
-    minimap_scale = 3        # 1 tile = 3 pixels sur la minimap
-    minimap_range = 30       # nombre de tiles visibles autour du joueur
+    minimap_scale = 3        
+    minimap_range = 30      
     minimap_size = minimap_range * 2 * minimap_scale
     minimap_x = 10           
     minimap_y = 10
