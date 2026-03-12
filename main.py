@@ -224,10 +224,12 @@ pollution_max_possible = pollution_initiale
 pollution_initiale = numpy.sum(Actual_map_pollution) # objectif de pollution
 pollution_max_possible = pollution_initiale
 
-Nom_img_simple = ["background_1.png","background_2.png","Bush_tile.png","pollution_texture.png","transparent.png"]
-Nom_image_list_tiles = [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_2.png"),
-                        os.path.join(autres_tiles_dir,"Bush_tile.png"),os.path.join(autres_tiles_dir,"pollution_texture.png"),
-                        os.path.join(autres_tiles_dir,"transparent.png")]
+Nom_img_simple = ["background_1.png","background_1.png","background_1.png","background_1.png",
+                  "background_2.png","background_2.png","background_2.png","background_2.png",
+                  "Bush_tile.png",]
+Nom_image_list_tiles = [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_1.png"),
+                        os.path.join(autres_tiles_dir,"background_2.png"),os.path.join(autres_tiles_dir,"background_2.png"),os.path.join(autres_tiles_dir,"background_2.png"),os.path.join(autres_tiles_dir,"background_2.png"),
+                        os.path.join(autres_tiles_dir,"Bush_tile.png")]
 List_tiles = [CT.Tile(Nom_image_list_tiles[0],None,0),CT.Tile(Nom_image_list_tiles[0],None,90),CT.Tile(Nom_image_list_tiles[0],None,180),CT.Tile(Nom_image_list_tiles[0],None,270),\
               CT.Tile(Nom_image_list_tiles[1],None,0),CT.Tile(Nom_image_list_tiles[1],None,90),CT.Tile(Nom_image_list_tiles[1],None,180),CT.Tile(Nom_image_list_tiles[1],None,270),\
               CT.Tile(Nom_image_list_tiles[2],None,0),]
@@ -261,7 +263,7 @@ print(Actual_map[0,3])
 print(Actual_map)
 
 
-liste_tile_needed = [CT.Tile(Nom_image_list_tiles[3],None,0),CT.Tile(Nom_image_list_tiles[4],None,0)] # ajout des elements necessaires
+liste_tile_needed = [CT.Tile(os.path.join(autres_tiles_dir,"pollution_texture.png"),None,0),CT.Tile(os.path.join(autres_tiles_dir,"transparent.png"),None,0)] # ajout des elements necessaires
 List_tiles += liste_tile_needed
 
 print(Actual_map.shape[0])
@@ -523,7 +525,7 @@ while running:
         fade_surface.set_alpha(fade_alpha)
         fade_surface.fill((0, 0, 0))  
         screen.blit(fade_surface, (0, 0))
-    draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, Actual_map_objects_layer, LEN_SQUARE, W, H)
+   
     # if time.time()-time_0 > dt:
     #     print(" OH SHIT", time.time()-time_0- dt)
     pygame.display.flip()
