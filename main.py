@@ -133,7 +133,7 @@ see_animations = False
 cooldown_dialogue = False
 
 #MINIMAP
-def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, LEN_SQUARE, W, H):
+def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, Actual_map_objects_layer, LEN_SQUARE, W, H):
 
     minimap_scale = 3        # 1 tile = 3 pixels sur la minimap
     minimap_range = 30       # nombre de tiles visibles autour du joueur
@@ -157,7 +157,13 @@ def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, LEN_SQUARE, W,
 
                 px = (dx + minimap_range) * minimap_scale
                 py = (dy + minimap_range) * minimap_scale
-                pygame.draw.rect(minimap_surf, (20, 60, 20), (px, py, minimap_scale, minimap_scale))
+                if Actual_map_objects_layer[tx, ty] != -1:
+                    pygame.draw.rect(minimap_surf, (255, 0, 0),
+                                    (px, py, minimap_scale, minimap_scale))
+
+                else:
+                    pygame.draw.rect(minimap_surf, (20, 60, 20),
+                                    (px, py, minimap_scale, minimap_scale))
                 pollution = Actual_map_pollution[tx, ty]
                 alpha = min(180, int(pollution * 12))
 
@@ -491,7 +497,7 @@ while running:
         fade_surface.set_alpha(fade_alpha)
         fade_surface.fill((0, 0, 0))  
         screen.blit(fade_surface, (0, 0))
-    draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, LEN_SQUARE, W, H)
+    draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, Actual_map_objects_layer, LEN_SQUARE, W, H)
     # if time.time()-time_0 > dt:
     #     print(" OH SHIT", time.time()-time_0- dt)
     pygame.display.flip()
