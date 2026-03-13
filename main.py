@@ -212,59 +212,43 @@ for y in range(Actual_map.shape[0]):
     for x in range(Actual_map.shape[1]):
         Actual_map[x,y] = random.randint(0,7)
 
-
 Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
 pollution_initiale = numpy.sum(Actual_map_pollution)
 pollution_max_possible = pollution_initiale
 # print(Liste_dechets)
-
-
 pollution_initiale = numpy.sum(Actual_map_pollution) # objectif de pollution
 pollution_max_possible = pollution_initiale
 
-# Nom_img_simple = ["background_1.png","background_2.png","Bush_tile.png","pollution_texture.png","transparent.png"]
-# Nom_image_list_tiles = [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_2.png"),
-#                         os.path.join(autres_tiles_dir,"Bush_tile.png"),os.path.join(autres_tiles_dir,"pollution_texture.png"),
-#                         os.path.join(autres_tiles_dir,"transparent.png")]
 
 ### ENREGISTREMENT DES TILES
 tileset = []
 tileset_paths = []
 tileset_paths += [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_2.png"),os.path.join(autres_tiles_dir,"background_3.png"),os.path.join(autres_tiles_dir,"background_4.png")]\
                + [os.path.join(autres_tiles_dir,"background_5.png"),os.path.join(autres_tiles_dir,"background_6.png"),os.path.join(autres_tiles_dir,"background_7.png"),os.path.join(autres_tiles_dir,"background_8.png")]
-
+dict_image_bats = {}
 for i in range(len(tileset_paths)):
     tile = tileset_paths[i]
+    dict_image_bats[tile] = len(tileset_paths)
     tileset.append(CT.Tile(tile,None,0))
 
-dict_image_bats = {}
 for img in os.listdir(batiments_tiles_dir):
     true_img = os.path.join(batiments_tiles_dir,img)
     dict_image_bats[true_img] = len(tileset_paths)
     tileset_paths.append(true_img)
     tileset.append(CT.Tile(true_img,None,0))
 
+Bats_in_map = []
 for bat in List_batiments:
     temp_liste = []
     x,y = bat[0],bat[1]
     for elmt in bat[2:]:
         temp_liste.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
-    new_bat = D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_liste)
-
-D.replace_matrice_big_then_small(Actual_map,new_bat,(0,0))
-print("eee")
-print(new_bat)
-print("liste")
-print(temp_liste)
+    Bats_in_map.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_liste))
+Bats_zones_in_map = []
+Bats_in_map = [D.replace_matrice_big_then_small(Actual_map_objects_layer,Bats_in_map[0],(0,0))]
 
 tileset_paths += [os.path.join(autres_tiles_dir,"Bush_tile.png"),os.path.join(autres_tiles_dir,"pollution_texture.png"),os.path.join(autres_tiles_dir,"transparent.png")]
 tileset += [CT.Tile(os.path.join(autres_tiles_dir,"Bush_tile.png"),None,0),CT.Tile(os.path.join(autres_tiles_dir,"pollution_texture.png"),None,0),CT.Tile(os.path.join(autres_tiles_dir,"transparent.png"),None,0)]
-
-
-
-
-
-
 
 
 
@@ -529,7 +513,7 @@ while running:
         fade_surface.set_alpha(fade_alpha)
         fade_surface.fill((0, 0, 0))  
         screen.blit(fade_surface, (0, 0))
-    draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
+    draw_minimap(screen, Robot, Actual_map_objects_layer, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
     # if time.time()-time_0 > dt:
     #     print(" OH SHIT", time.time()-time_0- dt)
     pygame.display.flip()
