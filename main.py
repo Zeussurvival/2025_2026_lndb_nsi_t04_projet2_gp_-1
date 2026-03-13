@@ -274,7 +274,7 @@ tileset += [CT.Tile(os.path.join(autres_tiles_dir,"Bush_tile.png"),None,0),CT.Ti
 List_ground_objets = []
 pomme = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
 List_ground_objets.append((pomme,(300,200)))
-Bush_basique = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",tileset[len(tileset)-3],8)
+Bush_basique = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",tileset[len(tileset)-3],len(tileset)-3)
 bush = Bush_basique
 Liste_bush_on_map = []
 
