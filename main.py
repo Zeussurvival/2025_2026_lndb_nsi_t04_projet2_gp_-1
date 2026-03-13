@@ -224,52 +224,59 @@ pollution_max_possible = pollution_initiale
 pollution_initiale = numpy.sum(Actual_map_pollution) # objectif de pollution
 pollution_max_possible = pollution_initiale
 
-Nom_img_simple = ["background_1.png","background_2.png","Bush_tile.png","pollution_texture.png","transparent.png"]
-Nom_image_list_tiles = [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_2.png"),
-                        os.path.join(autres_tiles_dir,"Bush_tile.png"),os.path.join(autres_tiles_dir,"pollution_texture.png"),
-                        os.path.join(autres_tiles_dir,"transparent.png")]
-List_tiles = [CT.Tile(Nom_image_list_tiles[0],None,0),CT.Tile(Nom_image_list_tiles[0],None,90),CT.Tile(Nom_image_list_tiles[0],None,180),CT.Tile(Nom_image_list_tiles[0],None,270),\
-              CT.Tile(Nom_image_list_tiles[1],None,0),CT.Tile(Nom_image_list_tiles[1],None,90),CT.Tile(Nom_image_list_tiles[1],None,180),CT.Tile(Nom_image_list_tiles[1],None,270),\
-              CT.Tile(Nom_image_list_tiles[2],None,0),]
+# Nom_img_simple = ["background_1.png","background_2.png","Bush_tile.png","pollution_texture.png","transparent.png"]
+# Nom_image_list_tiles = [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_2.png"),
+#                         os.path.join(autres_tiles_dir,"Bush_tile.png"),os.path.join(autres_tiles_dir,"pollution_texture.png"),
+#                         os.path.join(autres_tiles_dir,"transparent.png")]
 
-for img in os.listdir(batiments_tiles_dir): # ajout des images de tiles pr les batiments
-    Nom_img_simple.append(img)
-    Nom_image_list_tiles.append(os.path.join(batiments_tiles_dir,img))
-    List_tiles.append(CT.Tile(os.path.join(assets_dir,"Tiles","Batiment",img),None,0))
+### ENREGISTREMENT DES TILES
+tileset = []
+tileset_paths = []
+tileset_paths += [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_2.png"),os.path.join(autres_tiles_dir,"background_3.png"),os.path.join(autres_tiles_dir,"background_4.png")]\
+               + [os.path.join(autres_tiles_dir,"background_5.png"),os.path.join(autres_tiles_dir,"background_6.png"),os.path.join(autres_tiles_dir,"background_7.png"),os.path.join(autres_tiles_dir,"background_8.png")]
 
-# D.list_dindice_avec_param_en_indice_0_1_vers_matrice(List_batiments[0])
-index_tiles = {name: i for i, name in enumerate(Nom_img_simple)}
-List_indice_batiments = []
+for i in range(len(tileset_paths)):
+    tile = tileset_paths[i]
+    tileset.append(CT.Tile(tile,None,0))
+
+dict_image_bats = {}
+for img in os.listdir(batiments_tiles_dir):
+    true_img = os.path.join(batiments_tiles_dir,img)
+    dict_image_bats[true_img] = len(tileset_paths)
+    tileset_paths.append(true_img)
+    tileset.append(CT.Tile(true_img,None,0))
+
 for bat in List_batiments:
-    indices = [index_tiles[name] for name in bat[2:] if name in index_tiles]
-    List_indice_batiments.append(indices)
+    temp_liste = []
+    x,y = bat[0],bat[1]
+    for elmt in bat[2:]:
 
-List_indice_batiments.append(indices)
-print(indices)
+        temp_liste.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
+    new_bat = D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_liste)
 
-List_final_indice_batiments = []
-Liste_de_matrice_de_bat = []
-for i in range(len(List_batiments)):
-    bat_actuel = List_batiments[i]
-    List_final_indice_batiments.append([int(bat_actuel[0]),int(bat_actuel[1]),*List_indice_batiments[i]])
-    print(List_final_indice_batiments[i])
-    Liste_de_matrice_de_bat.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice(List_final_indice_batiments[i]))
-print(Liste_de_matrice_de_bat)
+D.place_matrice_big_then_small(Actual_map,new_bat,(0,0))
+print(new_bat)
+print("liste")
+print(temp_liste)
 
-D.replace_matrice_big_then_small_addition(Actual_map,Liste_de_matrice_de_bat[0],(0,0))
-print(Actual_map[0,3])
-print(Actual_map)
+tileset_paths += [os.path.join(autres_tiles_dir,"Bush_tile.png"),os.path.join(autres_tiles_dir,"pollution_texture.png"),os.path.join(autres_tiles_dir,"transparent.png")]
+tileset += [CT.Tile(os.path.join(autres_tiles_dir,"Bush_tile.png"),None,0),CT.Tile(os.path.join(autres_tiles_dir,"pollution_texture.png"),None,0),CT.Tile(os.path.join(autres_tiles_dir,"transparent.png"),None,0)]
 
 
-liste_tile_needed = [CT.Tile(Nom_image_list_tiles[3],None,0),CT.Tile(Nom_image_list_tiles[4],None,0)] # ajout des elements necessaires
-List_tiles += liste_tile_needed
 
-print(Actual_map.shape[0])
 
+
+
+
+
+
+
+
+### AUTRES
 List_ground_objets = []
 pomme = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
 List_ground_objets.append((pomme,(300,200)))
-Bush_basique = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",List_tiles[2],8)
+Bush_basique = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",tileset[len(tileset)-3],8)
 bush = Bush_basique
 Liste_bush_on_map = []
 
@@ -421,12 +428,13 @@ while running:
         coin_bas = (math.ceil((Robot.pos[0]+W_2)/LEN_SQUARE),math.ceil((Robot.pos[1]+H_2)/LEN_SQUARE))
 
         # print(Actual_map[int(Robot.pos[0]//64),int(Robot.pos[1]//64)])
+        # print(List_tiles[Actual_map[0,0]].path)
         for y in range(max(coin_haut[1],0),min(coin_bas[1],Actual_map.shape[0])): # montre la map
             for x in range(max(coin_haut[0],0),min(coin_bas[0],Actual_map.shape[1])):
-                List_tiles[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
-                List_tiles[Actual_map_objects_layer[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
+                tileset[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
+                tileset[Actual_map_objects_layer[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
                 if can_see_pollution:
-                    tile_surface = List_tiles[-2].image.copy()
+                    tile_surface = tileset[-2].image.copy()
                     tile_surface.set_alpha(Actual_map_pollution[x,y]*10)
                     screen.blit(tile_surface,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
 
