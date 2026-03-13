@@ -1,10 +1,11 @@
 import numpy as np
 import random
+
 def place_matrice_big_then_small(matrice,house_matrice,positions):
     for true_y in range(house_matrice.shape[0]):
         for true_x in range(house_matrice.shape[1]):
             if 0 <= positions[1]+true_y < matrice.shape[1] and 0 <= positions[0]+true_x < matrice.shape[0]:
-                matrice[positions[1]+true_y,positions[0]+true_x] = house_matrice[true_y,true_x]
+                matrice[positions[1]+true_x,positions[0]+true_x] = house_matrice[true_y,true_x]
     return matrice
 
 def place_matrice_big_then_small_addition(matrice,house_matrice,positions):
@@ -14,11 +15,12 @@ def place_matrice_big_then_small_addition(matrice,house_matrice,positions):
                 matrice[positions[1]+true_y,positions[0]+true_x] += house_matrice[true_y,true_x]
     return matrice
 
-def replace_matrice_big_then_small_addition(matrice,house_matrice,positions):
-    for true_y in range(house_matrice.shape[0]):
-        for true_x in range(house_matrice.shape[1]):
-            if 0 <= positions[1]+true_y < matrice.shape[0] and 0 <= positions[0]+true_x < matrice.shape[1]:
-                matrice[positions[1]+true_y,positions[0]+true_x] = house_matrice[true_y,true_x]
+def replace_matrice_big_then_small(matrice,house_matrice,positions):
+    for y in range(house_matrice.shape[0]):
+        for x in range(house_matrice.shape[1]):
+            if 0 <= positions[0] + x < matrice.shape[1] and 0 <= positions[1] + y < matrice.shape[1]:
+                matrice[positions[0]+x, positions[1]+y] = house_matrice[y,x]
+    pass
 
 def creation_map_rectangle(width,height,num):
     Map = np.full((width,height), num,dtype=np.int32)
@@ -63,7 +65,7 @@ def list_dindice_avec_param_en_indice_0_1_vers_matrice(LaListe):
 
     data = np.array(LaListe[2:], dtype=np.int32)
 
-    return data.reshape((width, height))
+    return data.reshape((height, width))
 
 # mat = create_round_matrice(5)
 # for row in mat:

@@ -9,7 +9,7 @@ print(main_dir)
 
 
 
-image = Image.open("Test map json/bat3.png").convert("RGBA")
+image = Image.open("Test map json/bat3_true.png").convert("RGBA")
 print("Taille de l'image:", image.size)
 print("Mode de couleur:", image.mode)
 print("Format de l'image:", image.format)
