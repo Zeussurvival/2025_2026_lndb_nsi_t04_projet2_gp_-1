@@ -250,11 +250,11 @@ for bat in List_batiments:
     temp_liste = []
     x,y = bat[0],bat[1]
     for elmt in bat[2:]:
-
         temp_liste.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
     new_bat = D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_liste)
 
-D.place_matrice_big_then_small(Actual_map,new_bat,(0,0))
+D.replace_matrice_big_then_small(Actual_map,new_bat,(0,0))
+print("eee")
 print(new_bat)
 print("liste")
 print(temp_liste)
