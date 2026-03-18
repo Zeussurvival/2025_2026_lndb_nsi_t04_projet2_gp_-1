@@ -202,9 +202,9 @@ for file in os.listdir(os.path.join("assets","Building_txt")):
     List_batiments.append(bat_actuel)
 
 seed = random.seed(time.time()) # creation de la map des settings de la pollu et autres
-Taille_map = 200
+
 Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
-result = D.set_pollution_map_rectangle(50,seed,Actual_map,5)
+result = D.set_pollution_map_rectangle(pt_pollution,seed,Actual_map,5)
 Actual_map_pollution = result[0]
 Liste_dechets = result[1]
 
