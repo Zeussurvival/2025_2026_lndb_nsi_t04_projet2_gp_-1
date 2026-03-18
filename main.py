@@ -267,7 +267,7 @@ for tile in temp_list:
 
 ### AUTRES
 List_machines_depollution = []
-machine_depo_1 = CO.Machine_objet("Depollution_machine_t_1_objet.png","MAchine de dépollution","Une machine pour dépolluer les environs",1)
+machine_depo_1_obj = CO.Machine_objet("Depollution_machine_t_1_objet.png","MAchine de dépollution","Une machine pour dépolluer les environs",1,"Depollution_machine_t_1.png",dict_image_bats[os.path.join(autres_tiles_dir,"Depollution_machine_t_1.png")])
 
 
 List_ground_objets = []
@@ -283,12 +283,10 @@ can_pickup = True
 can_see_pollution = True
 cd_see_pollution = True
 
-hotbar = [bush,None,None,None,None]
+hotbar = [bush,machine_depo_1_obj,None,None,None]
 Robot = CH.Humanoid((3*LEN_SQUARE,3*LEN_SQUARE),100,5,5,"robot_front_walking.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
+time_for_every_sec = int(time.time())
 
-
-# tileset_paths += [os.path.join(autres_tiles_dir,"Bush_tile.png"),os.path.join(autres_tiles_dir,"pollution_texture.png"),os.path.join(autres_tiles_dir,"transparent.png")]
-# tileset += [CT.Tile(os.path.join(autres_tiles_dir,"Bush_tile.png"),None,0),CT.Tile(os.path.join(autres_tiles_dir,"pollution_texture.png"),None,0),CT.Tile(os.path.join(autres_tiles_dir,"transparent.png"),None,0)]
 print("running now")
 while running:
     time_0 = time.time()
@@ -477,24 +475,32 @@ while running:
         centre_tile = (tile_souris[0]+32,tile_souris[1]+32) # on prends dcp le centre de la tile, en gros c juste len_square /2 mais on va simplifier
         diff = (centre_tile[0]-Robot.pos[0],centre_tile[1]-Robot.pos[1]) # reconversion en pos ecran
 
+
         if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True:
             if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
                 screen_pos=(W/2-(Robot.pos[0]-tile_souris[0]),H/2-(Robot.pos[1]-tile_souris[1]))
                 pygame.draw.rect(screen,"red",(screen_pos[0],screen_pos[1],LEN_SQUARE,LEN_SQUARE),2)
-                if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/64) < Actual_map.shape[0] and 0<= int(tile_souris[1]/64) < Actual_map.shape[1]:
+                if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/LEN_SQUARE) < Actual_map.shape[0] and 0<= int(tile_souris[1]/LEN_SQUARE) < Actual_map.shape[1]:
                     if Robot.hotbar[Robot.held_item_indice].type == "Plant":
-
-                        Actual_map_objects_layer[int(tile_souris[0]/64),int(tile_souris[1]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
+                        Actual_map_objects_layer[int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
                         Liste_bush_on_map.append([(int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
+                        
+                    elif Robot.hotbar[Robot.held_item_indice].type == "Machine_objet":
+                        List_machines_depollution.append(CM.Depollution((int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)),0.1,5,1))
+                        Actual_map_objects_layer[int(tile_souris[0]/64),int(tile_souris[1]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
+                        Robot.hotbar[Robot.held_item_indice] = None
+                        
 
-
-        for bush in Liste_bush_on_map:
-            if bush[1] <= math.floor(time.time()):
-                bush[1] = math.floor(time.time())+random.randint(30,50)
-                print("ya eu le bush")
-                List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
-                                                          bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
+        if time_for_every_sec +1 <= int(time.time()):
+            for bush in Liste_bush_on_map:
+                if bush[1] <= math.floor(time.time()):
+                    bush[1] = math.floor(time.time())+random.randint(30,50)
+                    print("ya eu le bush")
+                    List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
+                                                            bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
+            for machine in List_machines_depollution:
+                pass
 
 
         #AFFICHAGE INDICE POLLUTION
