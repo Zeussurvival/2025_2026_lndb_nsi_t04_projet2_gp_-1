@@ -2,6 +2,9 @@
 ● naissance de l’idée,
 ● problématique initiale,
 ● objectifs.
+Ce projet nous est venu a l'idée en souhaitant lier les jeux vidéo au sujet du trophée "Nature & Informatique", tout en prooposant de quelque chose d'originale dans l'execution de ce dernier. Nous avons souhauter changer le style des jeux vidéo présents en permettant a l'utilisateur d'avoir plus d'interaction. Etant inspiré par l'animation pixar nous avons appelé ce projet RE:LIFE.  
+Selon nous, la problématique initiale était de 
+
 2 - Organisation du travail :
 ● présentation de l’équipe,
 ● rôle de chacun et chacune,
