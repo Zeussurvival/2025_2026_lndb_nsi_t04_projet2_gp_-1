@@ -11,6 +11,7 @@ import classes.Test_def as D
 import classes.Test_classe_tile as CT
 import classes.Test_classe_humain as CH
 import classes.Test_classe_objets as CO
+import classes.Test_classe_machines as CM
 import sys
 # Chemins
 main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -102,6 +103,7 @@ dialogue_box_y = (screen.get_height() - dialogue_box_height) // 2
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
 font = pygame.font.Font(font_1, 25)
+font_coord = pygame.font.Font(font_1, 15)
 text_1 = font.render("Cela fait 732 années que les humains ont quitté cette planète", 1, (255, 255, 255))
 text_2 = font.render("Ils ont laissé derrière eux… ceci.", 1, (255, 255, 255))
 text_rect_1 = text_1.get_rect(center=(640, 360))
@@ -128,7 +130,7 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
-see_animations = True
+see_animations = False
 cooldown_dialogue = False
 
 #MINIMAP
@@ -173,7 +175,8 @@ def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, tileset_paths,
                      (minimap_range * minimap_scale - 2, minimap_range * minimap_scale - 2, 4, 4))
 
     screen.blit(minimap_surf, (minimap_x, minimap_y))
-
+    coords_text = font_coord.render(f"X: {player_tile_x}  Y: {player_tile_y}", True, (255, 255, 255))
+    screen.blit(coords_text, (minimap_x, minimap_y + minimap_size + 5))
 
 
 
@@ -181,6 +184,8 @@ def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, tileset_paths,
 ###-------------------------------------------------------
 ### ------------- CODE EMIL
 ###-------------------------------------------------------
+
+### SETUP PYGAME ET IMPORTANTS
 W,H = (1280, 720)
 W_2,H_2 = W/2,H/2
 screen = pygame.display.set_mode((W,H))
@@ -192,6 +197,7 @@ tiles_dir = os.path.join(assets_dir,"Tiles")
 autres_tiles_dir = os.path.join(tiles_dir,"Autres")
 batiments_tiles_dir = os.path.join(tiles_dir,"Batiment")
 
+### CREATION MAP
 Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 250
 pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 30
 List_batiments = []
@@ -217,8 +223,7 @@ for y in range(Actual_map.shape[0]):
 Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
 pollution_initiale = numpy.sum(Actual_map_pollution)
 pollution_max_possible = pollution_initiale
-# print(Liste_dechets)
-pollution_initiale = numpy.sum(Actual_map_pollution) # objectif de pollution
+pollution_initiale = numpy.sum(Actual_map_pollution)
 pollution_max_possible = pollution_initiale
 
 
@@ -241,26 +246,34 @@ for img in os.listdir(batiments_tiles_dir):
 
 Bats_in_map = []
 for bat in List_batiments:
-    temp_liste = []
+    temp_list = []
     x,y = bat[0],bat[1]
     for elmt in bat[2:]:
-        temp_liste.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
-    Bats_in_map.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_liste))
+        temp_list.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
+    Bats_in_map.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_list))
 Bats_zones_in_map = []
 Bats_in_map = [D.replace_matrice_big_then_small(Actual_map_objects_layer,Bats_in_map[0],(0,0))]
 
-tileset_paths += [os.path.join(autres_tiles_dir,"Bush_tile.png"),os.path.join(autres_tiles_dir,"pollution_texture.png"),os.path.join(autres_tiles_dir,"transparent.png")]
-tileset += [CT.Tile(os.path.join(autres_tiles_dir,"Bush_tile.png"),None,0),CT.Tile(os.path.join(autres_tiles_dir,"pollution_texture.png"),None,0),CT.Tile(os.path.join(autres_tiles_dir,"transparent.png"),None,0)]
 
 
-
+temp_list = ["Depollution_machine_t_1.png","Bush_tile.png","pollution_texture.png","transparent.png"]
+for tile in temp_list:
+    true_path = os.path.join(autres_tiles_dir,tile)
+    if true_path not in dict_image_bats:
+        dict_image_bats[true_path] = len(tileset)
+        tileset_paths += [true_path]
+        tileset += [CT.Tile(os.path.join(true_path),None,0)]
 
 
 ### AUTRES
+List_machines_depollution = []
+machine_depo_1_obj = CO.Machine_objet("Depollution_machine_t_1_objet.png","MAchine de dépollution","Une machine pour dépolluer les environs",1,"Depollution_machine_t_1.png",dict_image_bats[os.path.join(autres_tiles_dir,"Depollution_machine_t_1.png")])
+
+
 List_ground_objets = []
 pomme = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
 List_ground_objets.append((pomme,(300,200)))
-Bush_basique = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",tileset[len(tileset)-3],len(tileset)-3)
+Bush_basique = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",tileset[dict_image_bats[os.path.join(autres_tiles_dir,"Bush_tile.png")]],len(tileset)-3)
 bush = Bush_basique
 Liste_bush_on_map = []
 
@@ -270,8 +283,10 @@ can_pickup = True
 can_see_pollution = True
 cd_see_pollution = True
 
-hotbar = [bush,None,None,None,None]
+hotbar = [bush,machine_depo_1_obj,None,None,None]
 Robot = CH.Humanoid((3*LEN_SQUARE,3*LEN_SQUARE),100,5,5,"robot_front_walking.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
+time_for_every_sec = int(time.time())
+
 print("running now")
 while running:
     time_0 = time.time()
@@ -412,8 +427,6 @@ while running:
         coin_haut = (math.floor((Robot.pos[0]-W_2)/LEN_SQUARE),math.floor((Robot.pos[1]-H_2)/LEN_SQUARE))
         coin_bas = (math.ceil((Robot.pos[0]+W_2)/LEN_SQUARE),math.ceil((Robot.pos[1]+H_2)/LEN_SQUARE))
 
-        # print(Actual_map[int(Robot.pos[0]//64),int(Robot.pos[1]//64)])
-        # print(List_tiles[Actual_map[0,0]].path)
         for y in range(max(coin_haut[1],0),min(coin_bas[1],Actual_map.shape[0])): # montre la map
             for x in range(max(coin_haut[0],0),min(coin_bas[0],Actual_map.shape[1])):
                 tileset[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
@@ -462,24 +475,32 @@ while running:
         centre_tile = (tile_souris[0]+32,tile_souris[1]+32) # on prends dcp le centre de la tile, en gros c juste len_square /2 mais on va simplifier
         diff = (centre_tile[0]-Robot.pos[0],centre_tile[1]-Robot.pos[1]) # reconversion en pos ecran
 
+
         if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True:
             if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
                 screen_pos=(W/2-(Robot.pos[0]-tile_souris[0]),H/2-(Robot.pos[1]-tile_souris[1]))
                 pygame.draw.rect(screen,"red",(screen_pos[0],screen_pos[1],LEN_SQUARE,LEN_SQUARE),2)
-                if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/64) < Actual_map.shape[0] and 0<= int(tile_souris[1]/64) < Actual_map.shape[1]:
+                if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/LEN_SQUARE) < Actual_map.shape[0] and 0<= int(tile_souris[1]/LEN_SQUARE) < Actual_map.shape[1]:
                     if Robot.hotbar[Robot.held_item_indice].type == "Plant":
-                        print(tile_souris[0]/64,tile_souris[1]/64)
+                        Actual_map_objects_layer[int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
+                        Robot.hotbar[Robot.held_item_indice] = None
+                        Liste_bush_on_map.append([(int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
+                        
+                    elif Robot.hotbar[Robot.held_item_indice].type == "Machine_objet":
+                        List_machines_depollution.append(CM.Depollution((int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)),0.1,5,1))
                         Actual_map_objects_layer[int(tile_souris[0]/64),int(tile_souris[1]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
-        #                 Liste_bush_on_map.append([(int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
+                        
 
-
-        # for bush in Liste_bush_on_map:
-        #     if bush[1] <= math.floor(time.time()):
-        #         bush[1] = math.floor(time.time())+random.randint(30,50)
-        #         print("ya eu le bush")
-        #         List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1),
-        #                                                   bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(LEN_SQUARE/2,LEN_SQUARE)*(random.randint(0,1) *2 -1))])
+        if time_for_every_sec +1 <= int(time.time()):
+            for bush in Liste_bush_on_map:
+                if bush[1] <= math.floor(time.time()):
+                    bush[1] = math.floor(time.time())+random.randint(30,50)
+                    print("ya eu le bush")
+                    List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
+                                                            bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
+            for machine in List_machines_depollution:
+                pass
 
 
         #AFFICHAGE INDICE POLLUTION
@@ -518,6 +539,7 @@ while running:
         screen.blit(fade_surface, (0, 0))
     if see_minimap == True :
         draw_minimap(screen, Robot, Actual_map_objects_layer, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
+
     # if time.time()-time_0 > dt:
     #     print(" OH SHIT", time.time()-time_0- dt)
     pygame.display.flip()
