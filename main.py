@@ -58,6 +58,7 @@ fade_speed = 1*60/fps
 timer = 70*60/fps
 text_timer = 70*60/fps
 
+see_minimap = False 
 
 # Variables dialogue
 
@@ -177,6 +178,7 @@ def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, tileset_paths,
 
 
 
+
 ###-------------------------------------------------------
 ### ------------- CODE EMIL
 ###-------------------------------------------------------
@@ -206,9 +208,9 @@ for file in os.listdir(os.path.join("assets","Building_txt")):
     List_batiments.append(bat_actuel)
 
 seed = random.seed(time.time()) # creation de la map des settings de la pollu et autres
-Taille_map = 200
+
 Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
-result = D.set_pollution_map_rectangle(50,seed,Actual_map,5)
+result = D.set_pollution_map_rectangle(pt_pollution,seed,Actual_map,5)
 Actual_map_pollution = result[0]
 Liste_dechets = result[1]
 
@@ -421,6 +423,7 @@ while running:
 ### ------------- CODE EMIL
 ###-------------------------------------------------------  
     if current_state == GAME_PLAY:
+        see_minimap = True
         coin_haut = (math.floor((Robot.pos[0]-W_2)/LEN_SQUARE),math.floor((Robot.pos[1]-H_2)/LEN_SQUARE))
         coin_bas = (math.ceil((Robot.pos[0]+W_2)/LEN_SQUARE),math.ceil((Robot.pos[1]+H_2)/LEN_SQUARE))
 
@@ -526,7 +529,8 @@ while running:
         fade_surface.set_alpha(fade_alpha)
         fade_surface.fill((0, 0, 0))  
         screen.blit(fade_surface, (0, 0))
-    draw_minimap(screen, Robot, Actual_map_objects_layer, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
+    if see_minimap == True :
+        draw_minimap(screen, Robot, Actual_map_objects_layer, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
     # if time.time()-time_0 > dt:
     #     print(" OH SHIT", time.time()-time_0- dt)
     pygame.display.flip()

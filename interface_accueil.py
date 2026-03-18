@@ -105,6 +105,8 @@ show_difficult = False
 pt_pollution = 30 #pour Emil pour avoir le nombre de pt de pollution
 map_size = 250
 show_pannel_map = False
+show_dons = False
+
 
 class Button():
     def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False, icon=None, icon_only=False):
@@ -384,7 +386,7 @@ def down():
     print("music_down")
 
 def redirect():
-    webbrowser.open("https://discord.gg/EBkmmfwn")
+    webbrowser.open("https://discord.gg/Dd9TjkC3")
 
 def quit():
     global running
@@ -430,11 +432,18 @@ def go_map():
     show_pannel_map = not show_pannel_map
     print("open map")
 
+def go_dons():
+    global show_dons
+    show_dons = not show_dons
+
+def go_info():
+    webbrowser.open("https://github.com/Zeussurvival/2025_2026_lndb_nsi_t04_projet2_gp_-1?tab=readme-ov-file#relife")
+
 Button(400, 450, 140, 50, 'Jouer', launch_game, icon=icon_play)
 Button(70, 70, 50, 50, '', go_settings, icon=icon_settings, icon_only=True )
-Button(730, 70, 50, 50, "", fonction, icon=icon_info, icon_only=True)
+Button(730, 70, 50, 50, "", go_info, icon=icon_info, icon_only=True)
 Button(730, 120, 50, 50, "", redirect, icon=icon_discord, icon_only=True)
-Button(730, 170, 50, 50, "", fonction, icon=icon_dons, icon_only=True)
+Button(730, 170, 50, 50, "", go_dons, icon=icon_dons, icon_only=True)
 Button(120, 70, 50, 50, "", quit, icon=icon_quit, icon_only=True)
 Button(700, 530, 140, 40, "Difficulté", go_difficult)
 Button(700, 470, 140, 40, "Taille map", go_map)
@@ -465,6 +474,11 @@ map_buttons= [
     Settings_Button(250, 160, 50, 50, '', go_map, icon=icon_close, icon_only=True),
 ]
 map_slider = Slider(300, 320, 200, min_val=200, max_val=500, initial_val=250)
+dons_buttons= [
+    Settings_Button(250, 160, 50, 50, '', go_dons, icon=icon_close, icon_only=True),
+]
+
+
 
 perso_image_scaled = pygame.transform.scale(perso_image, (128, 188))        
 perso_image_rect = perso_image_scaled.get_rect ()
@@ -494,6 +508,9 @@ while running:
                     show_difficult = False
                 elif show_pannel_map :
                     show_pannel_map = False
+                elif show_dons :
+                    show_dons = False
+
     # fill the screen with a color to wipe away anything from last frame
     # screen.fill("purple")
     mouse_pos = pygame.mouse.get_pos()
@@ -577,7 +594,21 @@ while running:
 
         for btn in settings_buttons:
             btn.process()
+    if show_dons :
+        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
+        overlay.fill(SEMI_TRANSPARENT)
+        screen.blit(overlay, (0, 0))
+        screen.blit(settings_panel, settings_panel_rect)
+        map_title = font.render("Dons", True, WHITE)
+        map_title_rect = map_title.get_rect(center=(400, 200))
+        screen.blit(map_title, map_title_rect)  
+        for btn in dons_buttons:
+            btn.process()
+        slider_text = font_text.render(str("Ce projet est à but non lucratif"), True, WHITE)
+        screen.blit(slider_text, slider_text.get_rect(center=(400, 325)))
     
+
+
     elif show_music :
         overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
         overlay.fill(SEMI_TRANSPARENT)
