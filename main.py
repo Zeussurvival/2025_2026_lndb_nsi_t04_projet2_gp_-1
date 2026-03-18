@@ -198,8 +198,8 @@ autres_tiles_dir = os.path.join(tiles_dir,"Autres")
 batiments_tiles_dir = os.path.join(tiles_dir,"Batiment")
 
 ### CREATION MAP
-Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 250
-pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 30
+Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 200
+pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 140
 List_batiments = []
 List_indice_batiments = []
 for file in os.listdir(os.path.join("assets","Building_txt")):
@@ -286,6 +286,8 @@ cd_see_pollution = True
 hotbar = [bush,machine_depo_1_obj,None,None,None]
 Robot = CH.Humanoid((3*LEN_SQUARE,3*LEN_SQUARE),100,5,5,"robot_front_walking.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
 time_for_every_sec = int(time.time())
+time_for_every_30_sec = int(time.time())
+
 
 print("running now")
 while running:
@@ -494,11 +496,13 @@ while running:
 
         if time_for_every_sec +1 <= int(time.time()):
             for bush in Liste_bush_on_map:
-                if bush[1] <= math.floor(time.time()):
-                    bush[1] = math.floor(time.time())+random.randint(30,50)
+                if bush[1] <= int(time.time()):
+                    bush[1] = int(time.time())+random.randint(30,50)
                     print("ya eu le bush")
                     List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
                                                             bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
+
+        if time_for_every_30_sec + 30 <= int(time.time()):
             for machine in List_machines_depollution:
                 pass
 

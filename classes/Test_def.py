@@ -41,6 +41,26 @@ def create_round_matrice(radius):
             # print(matrice[x,y])
     return matrice
 
+
+
+def list_dindice_avec_param_en_indice_0_1_vers_matrice(LaListe):
+    width = LaListe[0]
+    height = LaListe[1]
+
+    data = np.array(LaListe[2:], dtype=np.int32)
+
+    return data.reshape((height, width))
+
+
+### POLLUTION BASED
+
+def set_pollution_map_rectangle(number_of_pos,seed,map_actu,range_pollu):
+    Liste_pos = create_random_pos(seed,number_of_pos,map_actu.shape) # generation positions pr pollution
+    new_map = pollution_creation_rond(Liste_pos,range_pollu,map_actu) # creation de la vrai map de pollution
+    # print(new_map)
+    # print(Liste_pos)
+    return [new_map,Liste_pos]
+
 def create_random_pos(seed,numbers_to_gen,map_length):
     random.seed(seed)
     map_total = map_length[0] * map_length[1]
@@ -58,28 +78,6 @@ def pollution_creation_rond(Liste_pos,range_pollu,map): # pas forcement realiste
     # print(Liste_pos)
     # print(map_pollution)
     return map_pollution
-
-def list_dindice_avec_param_en_indice_0_1_vers_matrice(LaListe):
-    width = LaListe[0]
-    height = LaListe[1]
-
-    data = np.array(LaListe[2:], dtype=np.int32)
-
-    return data.reshape((height, width))
-
-# mat = create_round_matrice(5)
-# for row in mat:
-#     print(row)
-
-
-def set_pollution_map_rectangle(number_of_pos,seed,map_actu,range_pollu):
-    Liste_pos = create_random_pos(seed,number_of_pos,map_actu.shape) # generation positions pr pollution
-    print(type(Liste_pos))
-    new_map = pollution_creation_rond(Liste_pos,range_pollu,map_actu) # creation de la vrai map de pollution
-    # print(new_map)
-    # print(Liste_pos)
-    return [new_map,Liste_pos]
-
 
 def floor_pollution_map_at_smth(map,floor_num):
     for i in range(map.shape[0]):
