@@ -36,3 +36,10 @@ class Plant(OBJET):
         self.image_tile = image_tile
         self.indice_in_map = indice_in_map
     
+class Machine_objet(OBJET):
+    def __init__(self, image_name, name, description, tier, image_tile, indice_in_map):
+        super().__init__(image_name, name, description, can_see=True)
+        self.type = "Machine_objet"
+        self.tier = tier
+        self.image_tile = image_tile
+        self.indice_in_map = indice_in_map

@@ -19,7 +19,8 @@ img_dir = os.path.join(assets_dir,"Tiles")
 class Tile:
     def __init__(self,image,list_images,rotate):
         if image != None:
-            self.image = pygame.image.load(os.path.join(img_dir, image)).convert_alpha()
+            self.path = image
+            self.image = pygame.image.load(os.path.join(img_dir, self.path)).convert_alpha()
             self.image = pygame.transform.rotate(self.image,rotate)
             self.image = pygame.transform.scale(self.image,(64,64))
         else:
