@@ -102,6 +102,7 @@ dialogue_box_y = (screen.get_height() - dialogue_box_height) // 2
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
 font = pygame.font.Font(font_1, 25)
+font_coord = pygame.font.Font(font_1, 15)
 text_1 = font.render("Cela fait 732 années que les humains ont quitté cette planète", 1, (255, 255, 255))
 text_2 = font.render("Ils ont laissé derrière eux… ceci.", 1, (255, 255, 255))
 text_rect_1 = text_1.get_rect(center=(640, 360))
@@ -173,7 +174,8 @@ def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, tileset_paths,
                      (minimap_range * minimap_scale - 2, minimap_range * minimap_scale - 2, 4, 4))
 
     screen.blit(minimap_surf, (minimap_x, minimap_y))
-
+    coords_text = font_coord.render(f"X: {player_tile_x}  Y: {player_tile_y}", True, (255, 255, 255))
+    screen.blit(coords_text, (minimap_x, minimap_y + minimap_size + 5))
 
 
 
@@ -518,6 +520,7 @@ while running:
         screen.blit(fade_surface, (0, 0))
     if see_minimap == True :
         draw_minimap(screen, Robot, Actual_map_objects_layer, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
+
     # if time.time()-time_0 > dt:
     #     print(" OH SHIT", time.time()-time_0- dt)
     pygame.display.flip()
