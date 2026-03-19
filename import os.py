@@ -9,10 +9,11 @@ import numpy
 # print (zone)
 matrice = numpy.full((10,10), 1,dtype=numpy.float32)
 center = 5,5
-range_depo = 3
+range_depo = 4
 to_remove = 0.1
 
-def to_remove_bro(center):
+def to_remove_bro(center,range_depo,to_remove):
+    actuel = 0
     nb_a_faire = 1
     pos_actu = center
     for i in range(range_depo):
@@ -23,9 +24,14 @@ def to_remove_bro(center):
             for t in range(nb_a_faire+2*i):
                 matrice[pos_actu[0],pos_actu[1]+t] -= to_remove
                 matrice[pos_actu[0]+2*i,pos_actu[1]+t] -= to_remove
-                # matrice[pos_actu[0]+t,pos_actu[1]] -= to_remove
+                actuel += 2*to_remove
+            pos_actu=center[0]-i+1,center[1]-i
+            for t in range(nb_a_faire+2*i-2):
+                matrice[pos_actu[0]+t,pos_actu[1]] -= to_remove
+                matrice[pos_actu[0]+t,pos_actu[1]+2*i] -= to_remove
+                actuel += 2*to_remove
+    return round(actuel,10)
 
 
-
-to_remove_bro(center)
+print(to_remove_bro(center,range_depo,to_remove))
 print(matrice)

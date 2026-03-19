@@ -45,7 +45,7 @@ def create_round_matrice(radius,radius_max,multipli,multipli_max):
 
 def remove_pollution(map_pollution,range,capacite):
     total_retirer = 0
-    
+
 
 
 def list_dindice_avec_param_en_indice_0_1_vers_matrice(LaListe):
@@ -86,3 +86,27 @@ def floor_pollution_map_at_smth(map,floor_num):
                 map[i,y] = floor_num
     return map
 
+
+
+
+def to_remove_bro(matrice,center,range_depo,to_remove,capa_max):
+    actuel = 0
+    nb_a_faire = 1
+    pos_actu = center
+    for i in range(range_depo):
+        if i == 0:
+            matrice[center[0],center[1]] -= to_remove
+        else:
+            pos_actu=center[0]-i,center[1]-i
+            for t in range(nb_a_faire+2*i):
+                matrice[pos_actu[0],pos_actu[1]+t] -= to_remove
+                matrice[pos_actu[0]+2*i,pos_actu[1]+t] -= to_remove
+                actuel += 2*to_remove
+            pos_actu=center[0]-i+1,center[1]-i
+            for t in range(nb_a_faire+2*i-2):
+                matrice[pos_actu[0]+t,pos_actu[1]] -= to_remove
+                matrice[pos_actu[0]+t,pos_actu[1]+2*i] -= to_remove
+                actuel += 2*to_remove
+            if actuel >= capa_max:
+                round(actuel,10)
+    return round(actuel,10)
