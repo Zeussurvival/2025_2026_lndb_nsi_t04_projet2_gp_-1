@@ -357,11 +357,18 @@ def go_settings():
 def change_volume():
     print("changement volume")
 
+# def launch_game():
+#     global map_size
+#     map_size = map_slider.value
+#     pygame.quit()
+#     main_path = os.path.join(main_dir, "main.py")
+#     subprocess.run(["python", main_path, str(map_size), str(pt_pollution)])
+
 def launch_game():
     global map_size
     map_size = map_slider.value
     pygame.quit()
-    main_path = os.path.join(main_dir, "main.py")
+    main_path = os.path.join(main_dir, "select_map.py")
     subprocess.run(["python", main_path, str(map_size), str(pt_pollution)])
 
 def close_music():

@@ -13,6 +13,10 @@ import classes.Test_classe_humain as CH
 import classes.Test_classe_objets as CO
 import classes.Test_classe_machines as CM
 import sys
+
+mode = sys.argv[3] if len(sys.argv) > 3 else "new"
+file_path = sys.argv[4] if len(sys.argv) > 4 else None
+
 # Chemins
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 assets_dir = os.path.join(main_dir,"assets")
@@ -202,7 +206,7 @@ Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 200
 pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 3
 pt_pollution *= 3
 List_batiments = []
-List_indice_batiments = []
+
 for file in os.listdir(os.path.join("assets","Building_txt")):
     bat_actuel = []
     with open(os.path.join("assets","Building_txt", file),"r") as f:
@@ -213,23 +217,25 @@ for file in os.listdir(os.path.join("assets","Building_txt")):
 seed = random.seed(time.time()) # creation de la map des settings de la pollu et autres
 
 # Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
-if os.path.exists("testmap.txt"):
-    Actual_map = numpy.loadtxt("testmap.txt", dtype=int)
-    print("map chargé")
-else :
-    Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
 
-result = D.set_pollution_map_rectangle(pt_pollution,seed,Actual_map,5,10,1,10)
-Actual_map_pollution = result[0]
-Liste_dechets = result[1]
+if mode == "load" and file_path and os.path.exists(file_path):
+    Actual_map = numpy.loadtxt(file_path, dtype=int)
+    Actual_map_objects_layer = numpy.loadtxt("testobjects.txt", dtype=int)
+    Actual_map_pollution = numpy.loadtxt("testpollution.txt", dtype=int)
+    result = D.set_pollution_map_rectangle(pt_pollution, seed, Actual_map, 5, 10, 1, 10)
+    Liste_dechets = result[1]  # juste pour avoir la liste
+else:
+    Actual_map = D.creation_map_rectangle(Taille_map, Taille_map, 0)
+    Actual_map_objects_layer = D.creation_map_rectangle(Taille_map, Taille_map, -1)
+    result = D.set_pollution_map_rectangle(pt_pollution, seed, Actual_map, 5, 10, 1, 10)
+    Actual_map_pollution = result[0]
+    Liste_dechets = result[1]
 
 # for y in range(Actual_map.shape[0]):
 #     for x in range(Actual_map.shape[1]):
 #         Actual_map[x,y] = random.randint(0,7)
-if os.path.exists("testobjects.txt"):
-    Actual_map_objects_layer = numpy.loadtxt("testobjects.txt", dtype=int)
-else :
-    Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
+
+
 pollution_initiale = numpy.sum(Actual_map_pollution)
 pollution_max_possible = pollution_initiale
 pollution_initiale = numpy.sum(Actual_map_pollution)
@@ -564,3 +570,4 @@ while running:
 pygame.quit()
 numpy.savetxt("testmap.txt", Actual_map, fmt="%d")  
 numpy.savetxt("testobjects.txt", Actual_map_objects_layer, fmt="%d")  
+numpy.savetxt("testpollution.txt", Actual_map_pollution, fmt="%d")
