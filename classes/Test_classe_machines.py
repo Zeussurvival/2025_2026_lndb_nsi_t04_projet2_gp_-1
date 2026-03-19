@@ -11,8 +11,10 @@ class MACHINE():
         self.location = location
 
 class Depollution(MACHINE):
-    def __init__(self, location,percent_reduced,range_depo,tier):
+    def __init__(self, location,polu_reduced_per_30_sec,range_depo,tier,polu_capa_max):
         super().__init__(location)
-        self.percentage_reduced = percent_reduced
+        self.polu_reduced_per_30_sec = polu_reduced_per_30_sec
         self.range_depo = range_depo
         self.tier = tier
+        self.polu_capa = 0
+        self.polu_capa_max = polu_capa_max

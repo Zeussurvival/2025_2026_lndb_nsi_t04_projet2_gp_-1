@@ -199,7 +199,7 @@ batiments_tiles_dir = os.path.join(tiles_dir,"Batiment")
 
 ### CREATION MAP
 Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 200
-pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 30
+pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 3
 pt_pollution *= 3
 List_batiments = []
 List_indice_batiments = []
@@ -498,7 +498,7 @@ while running:
                         Liste_bush_on_map.append([(int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
                         
                     elif Robot.hotbar[Robot.held_item_indice].type == "Machine_objet":
-                        List_machines_depollution.append(CM.Depollution((int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)),0.1,5,1))
+                        List_machines_depollution.append(CM.Depollution((int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)),0.1,5,1,polu_capa_max=12))
                         Actual_map_objects_layer[int(tile_souris[0]/64),int(tile_souris[1]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
                         
@@ -510,10 +510,13 @@ while running:
                     print("ya eu le bush")
                     List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
                                                             bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
-
+            time_for_every_sec = int(time.time())+1
+            for machine in List_machines_depollution:
+                print(machine.polu_reduced_per_30_sec)
         if time_for_every_30_sec + 30 <= int(time.time()):
             for machine in List_machines_depollution:
                 pass
+            time_for_every_30_sec = int(time.time()) + 30
 
 
         #AFFICHAGE INDICE POLLUTION
