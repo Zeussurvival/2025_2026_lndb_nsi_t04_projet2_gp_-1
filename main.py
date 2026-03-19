@@ -199,7 +199,8 @@ batiments_tiles_dir = os.path.join(tiles_dir,"Batiment")
 
 ### CREATION MAP
 Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 200
-pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 140
+pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 30
+pt_pollution *= 3
 List_batiments = []
 List_indice_batiments = []
 for file in os.listdir(os.path.join("assets","Building_txt")):
@@ -218,7 +219,7 @@ if os.path.exists("testmap.txt"):
 else :
     Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
 
-result = D.set_pollution_map_rectangle(pt_pollution,seed,Actual_map,5)
+result = D.set_pollution_map_rectangle(pt_pollution,seed,Actual_map,5,10,1,10)
 Actual_map_pollution = result[0]
 Liste_dechets = result[1]
 
