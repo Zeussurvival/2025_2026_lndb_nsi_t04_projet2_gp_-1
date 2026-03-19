@@ -212,19 +212,24 @@ for file in os.listdir(os.path.join("assets","Building_txt")):
 
 seed = random.seed(time.time()) # creation de la map des settings de la pollu et autres
 
-Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
+# Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
+if os.path.exists("testmap.txt"):
+    Actual_map = numpy.loadtxt("testmap.txt", dtype=int)
+    print("map chargé")
+else :
+    Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
+
 result = D.set_pollution_map_rectangle(pt_pollution,seed,Actual_map,5,10,1,10)
-
-
-# def set_pollution_map_rectangle(number_of_pos,seed,map_actu,range_pollu,range_pollu_max,multipli,multipli_min):
 Actual_map_pollution = result[0]
 Liste_dechets = result[1]
 
-for y in range(Actual_map.shape[0]):
-    for x in range(Actual_map.shape[1]):
-        Actual_map[x,y] = random.randint(0,7)
-
-Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
+# for y in range(Actual_map.shape[0]):
+#     for x in range(Actual_map.shape[1]):
+#         Actual_map[x,y] = random.randint(0,7)
+if os.path.exists("testobjects.txt"):
+    Actual_map_objects_layer = numpy.loadtxt("testobjects.txt", dtype=int)
+else :
+    Actual_map_objects_layer = D.creation_map_rectangle(Taille_map,Taille_map,-1)
 pollution_initiale = numpy.sum(Actual_map_pollution)
 pollution_max_possible = pollution_initiale
 pollution_initiale = numpy.sum(Actual_map_pollution)
@@ -554,7 +559,9 @@ while running:
 
     # if time.time()-time_0 > dt:
     #     print(" OH SHIT", time.time()-time_0- dt)
+
     pygame.display.flip()
     dt = clock.tick(fps) / 1000
-
-  
+pygame.quit()
+numpy.savetxt("testmap.txt", Actual_map, fmt="%d")  
+numpy.savetxt("testobjects.txt", Actual_map_objects_layer, fmt="%d")  
