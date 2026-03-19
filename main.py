@@ -237,9 +237,9 @@ else:
 
 
 pollution_initiale = numpy.sum(Actual_map_pollution)
-pollution_max_possible = pollution_initiale
-pollution_initiale = numpy.sum(Actual_map_pollution)
-pollution_max_possible = pollution_initiale
+pollution_actuelle = pollution_initiale
+pollution_max_possible = pollution_initiale *2
+
 
 
 ### ENREGISTREMENT DES TILES
@@ -524,11 +524,12 @@ while running:
                     chng = D.to_remove_bro(Actual_map_pollution,machine.location,machine.range_depo,machine.polu_reduced_per_30_sec,machine.polu_capa_max - machine.polu_capa)
                     machine.polu_capa += chng
             time_for_every_30_sec = int(time.time()) + 30
+            pollution_actuelle = numpy.sum(Actual_map_pollution)
 
 
         #AFFICHAGE INDICE POLLUTION
         if pollution_max_possible > 0:
-            pourcentage_pollution = pollution_initiale/pollution_max_possible*100
+            pourcentage_pollution = pollution_actuelle/pollution_max_possible*100
         else:
             pourcentage_pollution = 0
         indice_width = 200
