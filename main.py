@@ -212,7 +212,6 @@ for file in os.listdir(os.path.join("assets","Building_txt")):
 
 seed = random.seed(time.time()) # creation de la map des settings de la pollu et autres
 
-# Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
 if os.path.exists("testmap.txt"):
     Actual_map = numpy.loadtxt("testmap.txt", dtype=int)
     print("map chargé")
