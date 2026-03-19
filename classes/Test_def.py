@@ -43,6 +43,9 @@ def create_round_matrice(radius,radius_max,multipli,multipli_max):
             # print(matrice[x,y])
     return matrice
 
+def remove_pollution(map_pollution,range,capacite):
+    total_retirer = 0
+    
 
 
 def list_dindice_avec_param_en_indice_0_1_vers_matrice(LaListe):
