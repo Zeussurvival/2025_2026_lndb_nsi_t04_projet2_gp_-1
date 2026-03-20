@@ -43,9 +43,6 @@ def create_round_matrice(radius,radius_max,multipli,multipli_max):
             # print(matrice[x,y])
     return matrice
 
-def remove_pollution(map_pollution,range,capacite):
-    total_retirer = 0
-
 
 
 def list_dindice_avec_param_en_indice_0_1_vers_matrice(LaListe):
@@ -116,5 +113,5 @@ def to_remove_bro(matrice,center,range_depo,to_remove,capa_max):
                         matrice[pos_actu[0]+t,pos_actu[1]+2*i] -= to_remove
                         actuel+= to_remove
             if actuel >= capa_max:
-                round(actuel,10)
+                return round(actuel,10)
     return round(actuel,10)
