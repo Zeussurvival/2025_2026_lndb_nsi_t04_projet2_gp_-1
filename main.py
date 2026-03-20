@@ -230,10 +230,9 @@ else:
     result = D.set_pollution_map_rectangle(pt_pollution, seed, Actual_map, 5, 10, 1, 10)
     Actual_map_pollution = result[0]
     Liste_dechets = result[1]
-
-# for y in range(Actual_map.shape[0]):
-#     for x in range(Actual_map.shape[1]):
-#         Actual_map[x,y] = random.randint(0,7)
+    for y in range(Actual_map.shape[0]):
+        for x in range(Actual_map.shape[1]):
+            Actual_map[x,y] = random.randint(0,7)
 
 
 pollution_initiale = numpy.sum(Actual_map_pollution)
