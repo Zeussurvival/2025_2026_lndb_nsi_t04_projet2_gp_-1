@@ -18,6 +18,7 @@ X2_dir = os.path.join(hologram_dir, "Card X2")
 button_1 = os.path.join(hologram_dir,"Button 1")
 icons = os.path.join(hologram_dir,"Icons")
 robot = os.path.join(assets_dir,"Robot")
+saves_dir = os.path.join(main_dir, "saves")
 
 Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 200
 pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 140
@@ -347,13 +348,15 @@ def launch_game():
     main_path = os.path.join(main_dir, "main.py")
     if mode == "load":
         if selected_file and os.path.exists(selected_file):
-            subprocess.run(["python", main_path, str(Taille_map), str(pt_pollution), "load", selected_file])
+            save_base = os.path.basename(selected_file).replace("_map.txt", "")
+            objects_file = os.path.join(saves_dir, f"{save_base}_objects.txt")
+            pollution_file = os.path.join(saves_dir, f"{save_base}_pollution.txt")
+            subprocess.run(["python", main_path, str(Taille_map), str(pt_pollution), 
+                          "load", selected_file, objects_file, pollution_file, save_base])
         else:
-            print("ERREUR : fichier introuvable")
+            print("aucun save sélectionné")
     else:
         subprocess.run(["python", main_path, str(Taille_map), str(pt_pollution), "new"])
-def redirect():
-    webbrowser.open("https://discord.gg/Dd9TjkC3")
 
 def quit():
     global running
@@ -362,21 +365,36 @@ def quit():
 def fonction ():
     print ("à faire")
 
+
 def go_fichier():
-    global show_fichier, selected_file, mode
+    global show_fichier, mode, selected_save_index
     show_fichier = not show_fichier
-    if show_fichier:  
+    if show_fichier:
         mode = "load"
-        selected_file = os.path.join(main_dir, "testmap.txt")
+        selected_save_index = 0
+
 def go_nouveau():
     global mode, selected_file
     mode = "new"
     selected_file = None
     print("nouvelle map")
 
+def get_saves():
+    saves = []
+    if not os.path.exists(saves_dir):
+        return saves
+    i = 1
+    while os.path.exists(os.path.join(saves_dir, f"save_{i}_map.txt")):
+        saves.append(f"save_{i}")
+        i += 1
+    return saves
+selected_save_index = 0
 
-def go_info():
-    webbrowser.open("https://github.com/Zeussurvival/2025_2026_lndb_nsi_t04_projet2_gp_-1?tab=readme-ov-file#relife")
+def select_save(index):
+    global selected_file, selected_save_index
+    selected_save_index = index
+    selected_file = os.path.join(saves_dir, f"save_{index + 1}_map.txt")
+    print(f"save sélectionné : save_{index + 1}")
 
 Button(400, 450, 170, 50, 'Continuer', launch_game, icon=icon_play)
 Button(50, 70, 50, 50, "", quit, icon=icon_quit, icon_only=True)
@@ -412,15 +430,32 @@ while running:
     for object in objects:
         object.process()
 
-    if show_fichier :
+    if show_fichier:
         overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
         overlay.fill(SEMI_TRANSPARENT)
         screen.blit(overlay, (0, 0))
         screen.blit(settings_panel, settings_panel_rect)
-        fichier_title = font.render("Sélectionnez un fichier", True, WHITE)
-        fichier_title_rect = fichier_title.get_rect(center=(400, 200))
-        screen.blit(fichier_title, fichier_title_rect)
-        
+
+        fichier_title = font.render("Choisir une map", True, WHITE)
+        screen.blit(fichier_title, fichier_title.get_rect(center=(400, 200)))
+
+        saves = get_saves()
+        if not saves:
+            no_save_text = font_text.render("Aucun save trouvé", True, WHITE)
+            screen.blit(no_save_text, no_save_text.get_rect(center=(400, 310)))
+        else:
+            for i, save_name in enumerate(saves):
+                y_pos = 260 + i * 45
+                color = (0, 255, 200) if i == selected_save_index else WHITE
+                save_surf = font_text.render(save_name, True, color)
+                save_rect = save_surf.get_rect(center=(400, y_pos))
+                screen.blit(save_surf, save_rect)
+
+    
+                if save_rect.collidepoint(pygame.mouse.get_pos()):
+                    pygame.draw.rect(screen, (0, 255, 200), save_rect.inflate(20, 8), 2)
+                    if pygame.mouse.get_pressed()[0]:
+                        select_save(i)
         for btn in fichier_buttons:
             btn.process()
   

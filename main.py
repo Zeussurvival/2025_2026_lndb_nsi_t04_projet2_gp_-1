@@ -16,6 +16,8 @@ import sys
 
 mode = sys.argv[3] if len(sys.argv) > 3 else "new"
 file_path = sys.argv[4] if len(sys.argv) > 4 else None
+objects_path = sys.argv[5] if len(sys.argv) > 5 else None
+pollution_path = sys.argv[6] if len(sys.argv) > 6 else None
 
 # Chemins
 main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -218,10 +220,11 @@ seed = random.seed(time.time()) # creation de la map des settings de la pollu et
 
 # Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
 
+
 if mode == "load" and file_path and os.path.exists(file_path):
     Actual_map = numpy.loadtxt(file_path, dtype=int)
-    Actual_map_objects_layer = numpy.loadtxt("testobjects.txt", dtype=int)
-    Actual_map_pollution = numpy.loadtxt("testpollution.txt", dtype=int)
+    Actual_map_objects_layer = numpy.loadtxt(objects_path, dtype=int)
+    Actual_map_pollution = numpy.loadtxt(pollution_path, dtype=int)
     result = D.set_pollution_map_rectangle(pt_pollution, seed, Actual_map, 5, 10, 1, 10)
     Liste_dechets = result[1]  # juste pour avoir la liste
 else:
@@ -459,11 +462,7 @@ while running:
                     can_pickup = False
                     if Robot.pickup(obj[0]):
                         List_ground_objets.remove(obj)
-                        for y in range(Actual_map_pollution.shape[0]):
-                            for x in range(Actual_map_pollution.shape[1]):
-                                Actual_map_pollution[x, y] -= 0.1
-                                if Actual_map_pollution[x, y] < 0:
-                                    Actual_map_pollution[x, y] = 0
+
         else:
             can_pickup = True               
 
@@ -569,6 +568,21 @@ while running:
     pygame.display.flip()
     dt = clock.tick(fps) / 1000
 pygame.quit()
-numpy.savetxt("testmap.txt", Actual_map, fmt="%d")  
-numpy.savetxt("testobjects.txt", Actual_map_objects_layer, fmt="%d")  
-numpy.savetxt("testpollution.txt", Actual_map_pollution, fmt="%d")
+
+save_dir = os.path.join(main_dir, "saves")
+os.makedirs(save_dir, exist_ok=True)
+
+current_save = sys.argv[7] if len(sys.argv) > 7 else None
+
+if current_save:
+    save_name = current_save  
+else:
+    save_index = 1
+    while os.path.exists(os.path.join(save_dir, f"save_{save_index}_map.txt")):
+        save_index += 1
+    save_name = f"save_{save_index}"
+
+numpy.savetxt(os.path.join(save_dir, f"{save_name}_map.txt"), Actual_map, fmt="%d")
+numpy.savetxt(os.path.join(save_dir, f"{save_name}_objects.txt"), Actual_map_objects_layer, fmt="%d")
+numpy.savetxt(os.path.join(save_dir, f"{save_name}_pollution.txt"), Actual_map_pollution, fmt="%d")
+print(f"Partie sauvegardée : {save_name}")
