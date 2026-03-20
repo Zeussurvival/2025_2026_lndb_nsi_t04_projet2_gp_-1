@@ -8,8 +8,8 @@ Nos objectifs pour le projet sont désormais clair pour nous: donné  a l'utilis
   
 2 - Organisation du travail :  
 ● présentation de l’équipe,  
-   > Eudocie De Khoverine (17 ans),  
-   > Emil Gunnarsson (16 ans),  
+   > Eudocie De Khoverine (17 ans),  j'ai toujours eu un attrait pour l'informatique depuis un jeune âge et j'ai un intéret pour découvrir et créer de nouveaux jeux vidéos
+   > Emil Gunnarsson (16 ans),  je code depuis la seconde car j'avais voulu comprendre comment les jeux vidéos fonctionnaient, j'apprécie créer des petits jeux et des programmes pratiques
    > Mateo Leloup (17 ans),  
    > Tristan Bonnière (18 ans), 
 > 
