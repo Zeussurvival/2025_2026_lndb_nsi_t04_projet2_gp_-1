@@ -99,14 +99,22 @@ def to_remove_bro(matrice,center,range_depo,to_remove,capa_max):
         else:
             pos_actu=center[0]-i,center[1]-i
             for t in range(nb_a_faire+2*i):
-                matrice[pos_actu[0],pos_actu[1]+t] -= to_remove
-                matrice[pos_actu[0]+2*i,pos_actu[1]+t] -= to_remove
-                actuel += 2*to_remove
+                if  0 <= pos_actu[1]+t < matrice.shape[0]:
+                    if 0 <= pos_actu[0] < matrice.shape[1]:
+                        matrice[pos_actu[0],pos_actu[1]+t] -= to_remove
+                        actuel+= to_remove
+                    if 0 <= pos_actu[0]+2*i < matrice.shape[1]:
+                        matrice[pos_actu[0]+2*i,pos_actu[1]+t] -= to_remove
+                        actuel += to_remove
             pos_actu=center[0]-i+1,center[1]-i
             for t in range(nb_a_faire+2*i-2):
-                matrice[pos_actu[0]+t,pos_actu[1]] -= to_remove
-                matrice[pos_actu[0]+t,pos_actu[1]+2*i] -= to_remove
-                actuel += 2*to_remove
+                if  0 <= pos_actu[0]+t < matrice.shape[0]:
+                    if 0 <= pos_actu[0] < matrice.shape[1]:
+                        matrice[pos_actu[0]+t,pos_actu[1]] -= to_remove
+                        actuel+= to_remove
+                    if 0 <= pos_actu[1]+2*i < matrice.shape[1]:
+                        matrice[pos_actu[0]+t,pos_actu[1]+2*i] -= to_remove
+                        actuel+= to_remove
             if actuel >= capa_max:
                 round(actuel,10)
     return round(actuel,10)
