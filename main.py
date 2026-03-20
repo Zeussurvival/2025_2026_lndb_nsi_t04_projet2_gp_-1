@@ -224,7 +224,7 @@ seed = random.seed(time.time()) # creation de la map des settings de la pollu et
 if mode == "load" and file_path and os.path.exists(file_path):
     Actual_map = numpy.loadtxt(file_path, dtype=int)
     Actual_map_objects_layer = numpy.loadtxt(objects_path, dtype=int)
-    Actual_map_pollution = numpy.loadtxt(pollution_path, dtype=int)
+    Actual_map_pollution = numpy.loadtxt(pollution_path, dtype=float)
     result = D.set_pollution_map_rectangle(pt_pollution, seed, Actual_map, 5, 10, 1, 10)
     Liste_dechets = result[1]  # juste pour avoir la liste
 else:
@@ -589,5 +589,5 @@ else:
 
 numpy.savetxt(os.path.join(save_dir, f"{save_name}_map.txt"), Actual_map, fmt="%d")
 numpy.savetxt(os.path.join(save_dir, f"{save_name}_objects.txt"), Actual_map_objects_layer, fmt="%d")
-numpy.savetxt(os.path.join(save_dir, f"{save_name}_pollution.txt"), Actual_map_pollution, fmt="%d")
+numpy.savetxt(os.path.join(save_dir, f"{save_name}_pollution.txt"), Actual_map_pollution, fmt="%.4f")
 print(f"Partie sauvegardée : {save_name}")
