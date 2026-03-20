@@ -202,7 +202,7 @@ autres_tiles_dir = os.path.join(tiles_dir,"Autres")
 batiments_tiles_dir = os.path.join(tiles_dir,"Batiment")
 
 ### CREATION MAP
-Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 20
+Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 40
 pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 3
 pt_pollution *= 3
 List_batiments = []
@@ -266,7 +266,9 @@ for bat in List_batiments:
         temp_list.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
     Bats_in_map.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_list))
 Bats_zones_in_map = []
-Bats_in_map = [D.replace_matrice_big_then_small(Actual_map_objects_layer,Bats_in_map[0],(0,0))]
+Bats_in_map += [D.replace_matrice_big_then_small(Actual_map_objects_layer,Bats_in_map[0],(0,0))] \
+            + [D.replace_matrice_big_then_small(Actual_map_objects_layer,Bats_in_map[1],(15,15))] \
+            + [D.replace_matrice_big_then_small(Actual_map_objects_layer,Bats_in_map[2],(15,0))]
 
 
 
@@ -493,10 +495,14 @@ while running:
 
 
         if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True:
+
             if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
+
                 screen_pos=(W/2-(Robot.pos[0]-tile_souris[0]),H/2-(Robot.pos[1]-tile_souris[1]))
                 pygame.draw.rect(screen,"red",(screen_pos[0],screen_pos[1],LEN_SQUARE,LEN_SQUARE),2)
+
                 if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/LEN_SQUARE) < Actual_map.shape[0] and 0<= int(tile_souris[1]/LEN_SQUARE) < Actual_map.shape[1]:
+
                     if Robot.hotbar[Robot.held_item_indice].type == "Plant":
                         Actual_map_objects_layer[int(tile_souris[0]/LEN_SQUARE),int(tile_souris[1]/LEN_SQUARE)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
@@ -512,7 +518,6 @@ while running:
             for bush in Liste_bush_on_map:
                 if bush[1] <= int(time.time()):
                     bush[1] = int(time.time())+random.randint(30,50)
-                    print("ya eu le bush")
                     List_ground_objets.append([Bush_basique,(bush[0][0]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
                                                             bush[0][1]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
             time_for_every_sec = int(time.time())+1
@@ -528,7 +533,7 @@ while running:
 
         #AFFICHAGE INDICE POLLUTION
         if pollution_max_possible > 0:
-            pourcentage_pollution = pollution_actuelle/pollution_max_possible*100
+            pourcentage_pollution = round(pollution_actuelle,4)
         else:
             pourcentage_pollution = 0
         indice_width = 200
@@ -545,7 +550,7 @@ while running:
         interface_surface.fill((20, 20, 20))
         screen.blit(interface_surface, interface_rect.topleft)
         pollution_value_font = pygame.font.Font(font_1, 20)
-        pollution_value_text = pollution_value_font.render(f"{pourcentage_pollution:.1f}%", 1, (255, 255, 255))
+        pollution_value_text = pollution_value_font.render(f"{pourcentage_pollution:.1f}g totale.", 1, (255, 255, 255))
         value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
         screen.blit(pollution_value_text, value_rect)
 
