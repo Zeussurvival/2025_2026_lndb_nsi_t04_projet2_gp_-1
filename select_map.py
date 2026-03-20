@@ -427,9 +427,6 @@ while running:
     # screen.blit(perso_image, perso_image_rect)
     screen.blit(title_image_resize, title_image_rect)
 
-    for object in objects:
-        object.process()
-
     if show_fichier:
         overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
         overlay.fill(SEMI_TRANSPARENT)
@@ -456,8 +453,11 @@ while running:
                     pygame.draw.rect(screen, (0, 255, 200), save_rect.inflate(20, 8), 2)
                     if pygame.mouse.get_pressed()[0]:
                         select_save(i)
-        for btn in fichier_buttons:
-            btn.process()
+        for object in fichier_buttons:
+            object.process()
+    if not show_fichier:
+        for object in objects:
+            object.process()
   
 
          

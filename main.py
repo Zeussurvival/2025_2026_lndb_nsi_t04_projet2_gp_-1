@@ -166,9 +166,9 @@ def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, tileset_paths,
                 py = (dy + minimap_range) * minimap_scale
                 tile_indice = Actual_map[tx, ty]
                 if 8 <= tile_indice < len(tileset_paths) - 3:
-                    pygame.draw.rect(minimap_surf, (255, 0, 0), (px, py, minimap_scale, minimap_scale))
+                    pygame.draw.rect(minimap_surf, (111, 166, 150), (px, py, minimap_scale, minimap_scale))
                 else:
-                    pygame.draw.rect(minimap_surf, (20, 60, 20), (px, py, minimap_scale, minimap_scale))
+                    pygame.draw.rect(minimap_surf, (80, 85, 80), (px, py, minimap_scale, minimap_scale))
                 pollution = Actual_map_pollution[tx, ty]
                 alpha = min(180, int(pollution * 12))
 
