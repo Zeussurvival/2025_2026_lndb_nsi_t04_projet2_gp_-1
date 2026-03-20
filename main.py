@@ -461,11 +461,6 @@ while running:
                     can_pickup = False
                     if Robot.pickup(obj[0]):
                         List_ground_objets.remove(obj)
-                        for y in range(Actual_map_pollution.shape[0]):
-                            for x in range(Actual_map_pollution.shape[1]):
-                                Actual_map_pollution[x, y] -= 0.1
-                                if Actual_map_pollution[x, y] < 0:
-                                    Actual_map_pollution[x, y] = 0
         else:
             can_pickup = True               
 
