@@ -136,7 +136,7 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
-see_animations = False
+see_animations = False 
 cooldown_dialogue = False
 
 #MINIMAP
@@ -207,14 +207,7 @@ batiments_tiles_dir = os.path.join(tiles_dir,"Batiment")
 Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 40
 pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 3
 pt_pollution *= 3
-List_batiments = []
 
-for file in os.listdir(os.path.join("assets","Building_txt")):
-    bat_actuel = []
-    with open(os.path.join("assets","Building_txt", file),"r") as f:
-        for line in f:
-            bat_actuel.append(line.strip())
-    List_batiments.append(bat_actuel)
 
 seed = random.seed(time.time()) # creation de la map des settings de la pollu et autres
 
@@ -261,6 +254,23 @@ for img in os.listdir(batiments_tiles_dir):
     tileset_paths.append(true_img)
     tileset.append(CT.Tile(true_img,None,0))
 
+temp_list = ["Depollution_machine_t_1.png","Bush_tile.png","pollution_texture.png","transparent.png"]
+for tile in temp_list:
+    true_path = os.path.join(autres_tiles_dir,tile)
+    if true_path not in dict_image_bats:
+        dict_image_bats[true_path] = len(tileset)
+        tileset_paths += [true_path]
+        tileset += [CT.Tile(os.path.join(true_path),None,0)]
+
+# Batiments
+List_batiments = []
+
+for file in os.listdir(os.path.join("assets","Building_txt")):
+    bat_actuel = []
+    with open(os.path.join("assets","Building_txt", file),"r") as f:
+        for line in f:
+            bat_actuel.append(line.strip())
+    List_batiments.append(bat_actuel)
 Bats_in_map = []
 for bat in List_batiments:
     temp_list = []
@@ -275,13 +285,7 @@ Bats_in_map += [D.replace_matrice_big_then_small(Actual_map_objects_layer,Bats_i
 
 
 
-temp_list = ["Depollution_machine_t_1.png","Bush_tile.png","pollution_texture.png","transparent.png"]
-for tile in temp_list:
-    true_path = os.path.join(autres_tiles_dir,tile)
-    if true_path not in dict_image_bats:
-        dict_image_bats[true_path] = len(tileset)
-        tileset_paths += [true_path]
-        tileset += [CT.Tile(os.path.join(true_path),None,0)]
+
 
 
 ### AUTRES
@@ -553,6 +557,11 @@ while running:
         value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
         screen.blit(pollution_value_text, value_rect)
 
+
+        # verification du mouvement du joueur
+        rect_robot = pygame.rect.Rect(Robot.pos[0]-Robot.image_length[0]/2,Robot.pos[1]-Robot.image_length[1]/2,Robot.image_length[0],Robot.image_length[1])
+        indice = rect_robot.colliderect(pygame.rect.Rect(64,64,1024,1204))
+        print(indice)
         # print(Robot.pos[0]//64,Robot.pos[1]//64)
         Robot.do_all(keys,dt,screen,Actual_map,LEN_SQUARE)
 
