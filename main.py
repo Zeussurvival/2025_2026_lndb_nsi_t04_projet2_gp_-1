@@ -263,28 +263,41 @@ for tile in temp_list:
         tileset += [CT.Tile(os.path.join(true_path),None,0)]
 
 # Batiments
-List_batiments = []
+List_batiments_raw = []
 
-for file in os.listdir(os.path.join("assets","Building_txt")):
+for file in os.listdir(os.path.join("assets","Building_txt")): # va enregistrer les lignes du txt en element dans une liste
     bat_actuel = []
     with open(os.path.join("assets","Building_txt", file),"r") as f:
         for line in f:
             bat_actuel.append(line.strip())
-    List_batiments.append(bat_actuel)
-Bats_in_map = []
-for bat in List_batiments:
+    List_batiments_raw.append(bat_actuel)
+
+List_batiments_net = []
+List_batiments_zones_collision_fix = [[0,0,10,8,5],[1,3,10,6,3],[1,0,10,9,3]]
+for bat in List_batiments_raw: # enregistre une matrice en fct de lindice de limage dans la tileset
     temp_list = []
     x,y = bat[0],bat[1]
     for elmt in bat[2:]:
         temp_list.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
-    Bats_in_map.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_list))
+    List_batiments_net.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_list))
 Bats_zones_in_map = []
-Bats_in_map += [D.replace_matrice_big_then_small(Actual_map_objects_layer,Bats_in_map[0],(0,0))] \
-            + [D.replace_matrice_big_then_small(Actual_map_objects_layer,Bats_in_map[1],(15,15))] \
-            + [D.replace_matrice_big_then_small(Actual_map_objects_layer,Bats_in_map[2],(15,0))]
 
+List_batiments_zones_collision = []
 
+D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[0],(0,0))
+List_batiments_zones_collision.append(pygame.Rect((0+List_batiments_zones_collision_fix[0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[0][1])*LEN_SQUARE,List_batiments_zones_collision_fix[0][2]*LEN_SQUARE,List_batiments_zones_collision_fix[0][3]*LEN_SQUARE))
+D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[1],(15,15))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[1][0])*LEN_SQUARE,(15+List_batiments_zones_collision_fix[1][1])*LEN_SQUARE,List_batiments_zones_collision_fix[1][2]*LEN_SQUARE,List_batiments_zones_collision_fix[1][3]*LEN_SQUARE))
+D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[2],(15,0))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[2][1])*LEN_SQUARE,List_batiments_zones_collision_fix[2][2]*LEN_SQUARE,List_batiments_zones_collision_fix[2][3]*LEN_SQUARE))
 
+print(List_batiments_net)
+
+# KEYBINDS
+touche_direction_gauche = pygame.K_q
+touche_direction_droite = pygame.K_d
+touche_direction_haut = pygame.K_z
+touche_direction_bas = pygame.K_s
 
 
 
@@ -307,7 +320,7 @@ can_see_pollution = True
 cd_see_pollution = True
 
 hotbar = [bush,machine_depo_1_obj,None,None,None]
-Robot = CH.Humanoid((3*LEN_SQUARE,3*LEN_SQUARE),100,5,5,"robot_front_walking.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
+Robot = CH.Humanoid((8*LEN_SQUARE,16*LEN_SQUARE),100,5,5,"robot_front_walking.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
 time_for_every_sec = int(time.time())
 time_for_every_30_sec = int(time.time())
 
@@ -559,11 +572,47 @@ while running:
 
 
         # verification du mouvement du joueur
-        rect_robot = pygame.rect.Rect(Robot.pos[0]-Robot.image_length[0]/2,Robot.pos[1]-Robot.image_length[1]/2,Robot.image_length[0],Robot.image_length[1])
-        indice = rect_robot.colliderect(pygame.rect.Rect(64,64,1024,1204))
-        print(indice)
-        # print(Robot.pos[0]//64,Robot.pos[1]//64)
-        Robot.do_all(keys,dt,screen,Actual_map,LEN_SQUARE)
+        vect_mvt = pygame.math.Vector2(0,0)
+        # last_mvt = []   -----> pour faire les animations mais la jai pas le temps ptdr
+        if keys[touche_direction_gauche]:
+            vect_mvt[0] -= Robot.speed * dt
+        if keys[touche_direction_droite]:
+            vect_mvt[0] += Robot.speed * dt
+        if keys[touche_direction_haut]:
+            vect_mvt[1] -= Robot.speed * dt
+        if keys[touche_direction_bas]:
+            vect_mvt[1] += Robot.speed * dt
+        new_pos = Robot.pos + vect_mvt
+        if vect_mvt.length() != 0:
+            if vect_mvt.length() / (Robot.speed * dt + 0.00001):
+                if new_pos[0] - Robot.image_length[0]/2 <0:
+                    new_pos[0] = Robot.image_length[0]/2
+                if new_pos[1] - Robot.image_length[1]/2 < 0:
+                    new_pos[1] = Robot.image_length[1]/2
+        rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,64)
+        indice = rect_robot.collidelist(List_batiments_zones_collision)
+        if indice == -1:
+            Robot.pos = new_pos
+        print(Robot.pos)
+
+
+
+        # if self.vect.length()!= 0: # eviter de faire des calculs pour rien ET ...
+        #     if self.vect.length() / (self.speed *dt + 10 **-10) > 1:
+        #         self.vect = self.vect.normalize() * self.speed *dt
+        #     # if self.pos[0] - 0 < 0: # le -0 sert a faire une collision simple eviter de sortir de la map niveau image du joueur et le nb devrait etre taille image / 2
+        #     #     self.pos[0] = 0 
+        #     # if self.pos[1] - 0 < 0:
+        #     #     self.pos[1] = 0
+        #     self.do_collision_check(self.vect,self.pos,Actual_map,LEN_SQUARE)
+
+        #     self.pos[0],self.pos[1] = round(self.pos[0],2),round(self.pos[1],2)
+        # self.blit_center_self(screen,self.pos,last_key_pressed)
+
+
+
+
+        Robot.do_all(keys,screen)
 
 ###-------------------------------------------------------
 ### ------------- CODE EUDOCIE

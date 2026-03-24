@@ -59,41 +59,41 @@ class Humanoid:
             screen.blit(self.image,vrai_pos)
         else:
             screen.blit(self.True_list_images[0],vrai_pos)
-        self.blit_center_self(screen,pos,key_pressed)
+        self.blit_center_self(screen,key_pressed)
         
-    def blit_center_self(self,screen,pos,key_pressed):
+    def blit_center_self(self,screen,key_pressed):
         H,W = pygame.Surface.get_height(screen),pygame.Surface.get_width(screen) #self.image_length[1]/2
         screen.blit(self.image,(W/2-self.image_length[0]/2,H/2-self.image_length[1]/2))
         # pygame.draw.line(screen,"green",(W/2,H/2-100),(W/2,H/2+100)) # Croix central
         # pygame.draw.line(screen,"green",(W/2-100,H/2),(W/2+100,H/2)) # Croix central
 
-    def do_movement_by_self(self,keys,dt,screen,Actual_map,LEN_SQUARE):
-        self.vect = pygame.math.Vector2(0,0)
-        last_key_pressed = []
-        if keys[pygame.K_q]:
-            self.vect[0] -= self.speed * dt
-            last_key_pressed.append("q")
-        if keys[pygame.K_d]:
-            self.vect[0] += self.speed * dt
-            last_key_pressed.append("d")    
-        if keys[pygame.K_s]:
-            self.vect[1] += self.speed * dt    
-            last_key_pressed.append("s")        
-        if keys[pygame.K_z]:
-            self.vect[1] -= self.speed * dt
-            last_key_pressed.append("z")    
+    # def do_movement_by_self(self,keys,dt,screen,Actual_map,LEN_SQUARE):
+    #     self.vect = pygame.math.Vector2(0,0)
+    #     last_key_pressed = []
+    #     if keys[pygame.K_q]:
+    #         self.vect[0] -= self.speed * dt
+    #         last_key_pressed.append("q")
+    #     if keys[pygame.K_d]:
+    #         self.vect[0] += self.speed * dt
+    #         last_key_pressed.append("d")    
+    #     if keys[pygame.K_s]:
+    #         self.vect[1] += self.speed * dt    
+    #         last_key_pressed.append("s")        
+    #     if keys[pygame.K_z]:
+    #         self.vect[1] -= self.speed * dt
+    #         last_key_pressed.append("z")    
 
-        if self.vect.length()!= 0: # eviter de faire des calculs pour rien ET ...
-            if self.vect.length() / (self.speed *dt + 10 **-10) > 1:
-                self.vect = self.vect.normalize() * self.speed *dt
-            # if self.pos[0] - 0 < 0: # le -0 sert a faire une collision simple eviter de sortir de la map niveau image du joueur et le nb devrait etre taille image / 2
-            #     self.pos[0] = 0 
-            # if self.pos[1] - 0 < 0:
-            #     self.pos[1] = 0
-            self.do_collision_check(self.vect,self.pos,Actual_map,LEN_SQUARE)
+    #     if self.vect.length()!= 0: # eviter de faire des calculs pour rien ET ...
+    #         if self.vect.length() / (self.speed *dt + 10 **-10) > 1:
+    #             self.vect = self.vect.normalize() * self.speed *dt
+    #         # if self.pos[0] - 0 < 0: # le -0 sert a faire une collision simple eviter de sortir de la map niveau image du joueur et le nb devrait etre taille image / 2
+    #         #     self.pos[0] = 0 
+    #         # if self.pos[1] - 0 < 0:
+    #         #     self.pos[1] = 0
+    #         self.do_collision_check(self.vect,self.pos,Actual_map,LEN_SQUARE)
 
-            self.pos[0],self.pos[1] = round(self.pos[0],2),round(self.pos[1],2)
-        self.blit_center_self(screen,self.pos,last_key_pressed)
+    #         self.pos[0],self.pos[1] = round(self.pos[0],2),round(self.pos[1],2)
+    #     self.blit_center_self(screen,self.pos,last_key_pressed)
 
     def do_collision_check(self,vect_mvt,pos,Map,LEN_SQUARE):
         fake_pos = pos + vect_mvt
@@ -157,10 +157,10 @@ class Humanoid:
 
 
 
-    def do_all(self,keys,dt,screen,Actual_map,LEN_SQUARE):
-        self.do_movement_by_self(keys,dt,screen,Actual_map,LEN_SQUARE)
+    def do_all(self,keys,screen):
         self.draw_hotbar(screen)
         self.change_held_item(keys)
+        self.blit_center_self(screen,None)
 
     # def use_hand(self,zombie_list,Human):
     #     if self.held_item != None:

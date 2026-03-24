@@ -1,0 +1,14 @@
+3: sauvegarde en constru 1
+0 a 79 = 80 = 10
+0 a 63 = 64 = 8
+toit de 40 = 5
+
+2: sauvegarde en constru 2
+8 a 87 = 80 = 10
+24 a 71 = 48 = 6
+toit 24 a 47 = 24 = 3
+
+1: sauvegarde en constru 3
+8 a 87 = 80 = 10
+0 a 71 = 72 = 9
+toit 0 a 23 = 24 = 3
