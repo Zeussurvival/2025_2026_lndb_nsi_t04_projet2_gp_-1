@@ -593,21 +593,6 @@ while running:
         indice = rect_robot.collidelist(List_batiments_zones_collision)
         if indice == -1:
             Robot.pos = new_pos
-        print(Robot.pos)
-
-
-
-        # if self.vect.length()!= 0: # eviter de faire des calculs pour rien ET ...
-        #     if self.vect.length() / (self.speed *dt + 10 **-10) > 1:
-        #         self.vect = self.vect.normalize() * self.speed *dt
-        #     # if self.pos[0] - 0 < 0: # le -0 sert a faire une collision simple eviter de sortir de la map niveau image du joueur et le nb devrait etre taille image / 2
-        #     #     self.pos[0] = 0 
-        #     # if self.pos[1] - 0 < 0:
-        #     #     self.pos[1] = 0
-        #     self.do_collision_check(self.vect,self.pos,Actual_map,LEN_SQUARE)
-
-        #     self.pos[0],self.pos[1] = round(self.pos[0],2),round(self.pos[1],2)
-        # self.blit_center_self(screen,self.pos,last_key_pressed)
 
 
 
