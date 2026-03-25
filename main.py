@@ -584,6 +584,7 @@ while running:
 
 
         # verification du mouvement du joueur
+        has_not_moove = True
         vect_mvt = pygame.math.Vector2(0,0)
         if keys[touche_direction_gauche]:
             vect_mvt[0] -= Robot.speed * dt
@@ -596,19 +597,26 @@ while running:
         if vect_mvt.length() != 0:
             if vect_mvt.length() / (Robot.speed * dt + 0.00001) > 1:
                 vect_mvt = vect_mvt.normalize() * Robot.speed * dt
-            new_pos = Robot.pos + vect_mvt
+            has_not_moove = True 
+
+            
         else:
+            has_not_moove = False
             new_pos = Robot.pos
 
         new_pos = Robot.pos + pygame.math.Vector2(vect_mvt[0],0)
-        rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,64)
+        rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
         if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe x
             Robot.pos = new_pos
 
         new_pos = Robot.pos + pygame.math.Vector2(0,vect_mvt[1])
-        rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,64)
+        rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
         if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe y
             Robot.pos = new_pos
+
+
+        Robot.moove_this_frame = has_not_moove
+        print(Robot.moove_this_frame,has_not_moove)
         Robot.pos = (round(Robot.pos[0],5),round(Robot.pos[1],5))
 
 

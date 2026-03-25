@@ -34,21 +34,21 @@ class Humanoid:
         self.inventory_size = 20
         self.range_pickup = 2.5
 
+        self.last_direction = 1
+        self.moove_this_frame = False
+
         self.image = pygame.image.load(os.path.join(Robot_dir, image)).convert_alpha()
         self.image = pygame.transform.scale(self.image,(64,96))
 
-        if list_images != None:
-            self.True_list_images = []
-            for liste in list_images:
-                liste_temp = []
-                for img in liste:
-                    image = pygame.image.load(os.path.join(Robot_dir, img)).convert_alpha()
-                    image = pygame.transform.scale(image,(64,96))
-                    liste_temp.append(image)
-                self.True_list_images.append(liste_temp)
-        else:
-            self.True_list_images = []
-        self.indice_animation_en_cours = 0
+        self.True_list_images = []
+        for liste in list_images:
+            liste_temp = []
+            for img in liste:
+                image = pygame.image.load(os.path.join(Robot_dir, img)).convert_alpha()
+                image = pygame.transform.scale(image,(64,96))
+                liste_temp.append(image)
+            self.True_list_images.append(liste_temp)
+        self.indice_animation_en_cours = time.time()
 
     def blit_self(self,screen,pos,key_pressed):
         vrai_pos = pos[0]-32,pos[1]-48
@@ -59,26 +59,34 @@ class Humanoid:
             screen.blit(self.True_list_images[0],vrai_pos)
         self.blit_center_self(screen,key_pressed)
         
-    def blit_center_self(self,screen,last_mvt):
+    def blit_center_self(self,screen,mooves):
         H,W = pygame.Surface.get_height(screen),pygame.Surface.get_width(screen) #self.image_length[1]/2
-        self.indice_animation_en_cours = (round(time.time()-math.floor(time.time())*16))%4
-        if last_mvt[0]:
-            image = self.True_list_images[1][self.indice_animation_en_cours]
-        elif last_mvt[1]:
-            image = self.True_list_images[2][self.indice_animation_en_cours]
-        elif last_mvt[2]:
-            image = self.True_list_images[3][self.indice_animation_en_cours]
-        elif last_mvt[3]:
-            image = self.True_list_images[4][self.indice_animation_en_cours]
-        else:
-            image = self.True_list_images[0][0]
+        # self.indice_animation_en_cours = (round(time.time()-math.floor(time.time())*16))%4
+        indice_actu = int((time.time() - self.indice_animation_en_cours ) *4) % 4
+        new_image = self.image
+        
+        if mooves[2] and self.moove_this_frame:             # rajouter que si tu change danimations ca revienne a 0
+            new_image = self.True_list_images[3][indice_actu]
+            self.last_direction = 3
+        if mooves[3] and self.moove_this_frame:
+            new_image = self.True_list_images[4][indice_actu]
+            self.last_direction = 4
+        if mooves[1] and self.moove_this_frame:
+            new_image = self.True_list_images[2][indice_actu]
+            self.last_direction = 2
+        if mooves[0] and self.moove_this_frame:
+            new_image = self.True_list_images[1][indice_actu]
+            self.last_direction = 1
+        print(self.moove_this_frame)
+        if self.moove_this_frame == False:
+            print(self.last_direction)
+            new_image = self.True_list_images[self.last_direction][2]
+        
         if self.True_list_images == []:
-            image = self.image
-        print(last_mvt)
-        screen.blit(image,(W/2-self.image_length[0]/2,H/2-self.image_length[1]/2))
+            new_image = self.image
+        # print(self.moove_this_frame)
+        screen.blit(new_image,(W/2-self.image_length[0]/2,H/2-self.image_length[1]/2))
 
-        # pygame.draw.line(screen,"green",(W/2,H/2-100),(W/2,H/2+100)) # Croix central
-        # pygame.draw.line(screen,"green",(W/2-100,H/2),(W/2+100,H/2)) # Croix central
 
     def do_collision_check(self,vect_mvt,pos,Map,LEN_SQUARE):
         fake_pos = pos + vect_mvt
