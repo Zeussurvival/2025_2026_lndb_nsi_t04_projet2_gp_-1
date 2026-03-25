@@ -324,7 +324,11 @@ can_see_pollution = True
 cd_see_pollution = True
 
 hotbar = [bush,machine_depo_1_obj,None,None,None]
-Robot = CH.Humanoid((8*LEN_SQUARE,16*LEN_SQUARE),100,5,5,"robot_v5.png",[["robot_v0.png"],["robot_v1.png"],["robot_v2.png"],["robot_v3.png"],["robot_v4.png"]],\
+Robot = CH.Humanoid((8*LEN_SQUARE,16*LEN_SQUARE),100,5,5,"robot_front/front1.png",[["robot_front/front1.png"],\
+                                                                         ["robot_back/back1.png","robot_back/back2.png","robot_back/back3.png","robot_back/back4.png"],\
+                                                                         ["robot_front/front1.png","robot_front/front2.png","robot_front/front3.png","robot_front/front4.png"],\
+                                                                         ["robot_left/left_0.png","robot_left/left_1.png","robot_left/left_2.png","robot_left/left_3.png"],\
+                                                                         ["robot_right/right_0.png","robot_right/right_1.png","robot_right/right_2.png","robot_right/right_3.png"]], \
                     LEN_SQUARE,hotbar)
 time_for_every_sec = int(time.time())
 time_for_every_30_sec = int(time.time())

@@ -1,5 +1,7 @@
 import numpy
 import pygame
+import time
+import math
 import random
 import os
 
@@ -59,6 +61,7 @@ class Humanoid:
         
     def blit_center_self(self,screen,last_mvt):
         H,W = pygame.Surface.get_height(screen),pygame.Surface.get_width(screen) #self.image_length[1]/2
+        self.indice_animation_en_cours = (round(time.time()-math.floor(time.time())*16))%4
         if last_mvt[0]:
             image = self.True_list_images[1][self.indice_animation_en_cours]
         elif last_mvt[1]:
