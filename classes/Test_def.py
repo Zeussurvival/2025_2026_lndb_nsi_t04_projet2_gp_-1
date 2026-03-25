@@ -18,8 +18,8 @@ def place_matrice_big_then_small_addition(matrice,house_matrice,positions):
 def replace_matrice_big_then_small(matrice,house_matrice,positions):
     for y in range(house_matrice.shape[0]):
         for x in range(house_matrice.shape[1]):
-            if 0 <= positions[0] + x < matrice.shape[1] and 0 <= positions[1] + y < matrice.shape[1]:
-                matrice[positions[0]+x, positions[1]+y] = house_matrice[y,x]
+            if 0 <= positions[0] + x < matrice.shape[0] and 0 <= positions[1] + y < matrice.shape[1]:
+                matrice[positions[1]+y, positions[0]+x] = house_matrice[y,x]
     pass
 
 def creation_map_rectangle(width,height,num):
