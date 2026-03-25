@@ -281,8 +281,10 @@ for bat in List_batiments_raw: # enregistre une matrice en fct de lindice de lim
         temp_list.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
     List_batiments_net.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_list))
 Bats_zones_in_map = []
-
-List_batiments_zones_collision = []
+print(Actual_map.shape[0]*LEN_SQUARE+256)
+print(pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE+256,0),pygame.Rect(-128,-128,0,Actual_map.shape[1]*LEN_SQUARE+256))
+List_batiments_zones_collision = [pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE+256,128),pygame.Rect(-128,-128,128,Actual_map.shape[1]*LEN_SQUARE+256),\
+                                  pygame.Rect(-128,Actual_map.shape[0]*LEN_SQUARE+256,Actual_map.shape[0]*LEN_SQUARE+256,128),pygame.Rect(Actual_map.shape[0]*LEN_SQUARE+256,-128,128,Actual_map.shape[1]*LEN_SQUARE+256)]
 
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[0],(0,0))
 List_batiments_zones_collision.append(pygame.Rect((0+List_batiments_zones_collision_fix[0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[0][1])*LEN_SQUARE,List_batiments_zones_collision_fix[0][2]*LEN_SQUARE,List_batiments_zones_collision_fix[0][3]*LEN_SQUARE))
@@ -291,14 +293,15 @@ List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_colli
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[2],(15,0))
 List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[2][1])*LEN_SQUARE,List_batiments_zones_collision_fix[2][2]*LEN_SQUARE,List_batiments_zones_collision_fix[2][3]*LEN_SQUARE))
 
-print(List_batiments_net)
 
 # KEYBINDS
 touche_direction_gauche = pygame.K_q
 touche_direction_droite = pygame.K_d
 touche_direction_haut = pygame.K_z
 touche_direction_bas = pygame.K_s
-
+touche_affichage_pollution = pygame.K_F3
+touche_jet_ditem = pygame.K_n
+touche_recuperation_ditem = pygame.K_e
 
 
 ### AUTRES
@@ -307,8 +310,9 @@ machine_depo_1_obj = CO.Machine_objet("Depollution_machine_t_1_objet.png","MAchi
 
 
 List_ground_objets = []
-pomme = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
-List_ground_objets.append((pomme,(300,200)))
+Pomme_basique = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
+pomme = Pomme_basique
+List_ground_objets.append((pomme,(1024,2048)))
 Bush_basique = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",tileset[dict_image_bats[os.path.join(autres_tiles_dir,"Bush_tile.png")]],len(tileset)-3)
 bush = Bush_basique
 Liste_bush_on_map = []
@@ -320,7 +324,8 @@ can_see_pollution = True
 cd_see_pollution = True
 
 hotbar = [bush,machine_depo_1_obj,None,None,None]
-Robot = CH.Humanoid((8*LEN_SQUARE,16*LEN_SQUARE),100,5,5,"robot_front_walking.png",["robot_front_walking.png"],LEN_SQUARE,hotbar)
+Robot = CH.Humanoid((8*LEN_SQUARE,16*LEN_SQUARE),100,5,5,"robot_v5.png",[["robot_v0.png"],["robot_v1.png"],["robot_v2.png"],["robot_v3.png"],["robot_v4.png"]],\
+                    LEN_SQUARE,hotbar)
 time_for_every_sec = int(time.time())
 time_for_every_30_sec = int(time.time())
 
@@ -475,7 +480,7 @@ while running:
                     screen.blit(tile_surface,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
 
 
-        if keys[pygame.K_e]: #recuperer objets
+        if keys[touche_recuperation_ditem]: #recuperer objets
             for obj in List_ground_objets:
                 if (Robot.pos[0] - obj[1][0])**2 +(Robot.pos[1] - obj[1][1])**2 <= (LEN_SQUARE*Robot.range_pickup)**2 and can_pickup:
                     can_pickup = False
@@ -485,14 +490,14 @@ while running:
         else:
             can_pickup = True               
 
-        if keys[pygame.K_F3]: # afficher pollution
+        if keys[touche_affichage_pollution]: # afficher pollution
             if cd_see_pollution == False:
                 can_see_pollution = not can_see_pollution
                 cd_see_pollution = True
         else:
             cd_see_pollution = False
 
-        if keys[pygame.K_n]: # jeter item
+        if keys[touche_jet_ditem]: # jeter item
             if Robot.hotbar[Robot.held_item_indice] != None:
                 List_ground_objets.append((Robot.hotbar[Robot.held_item_indice],Robot.pos))
                 Robot.hotbar[Robot.held_item_indice] = None
@@ -517,7 +522,6 @@ while running:
 
                 screen_pos=(W/2-(Robot.pos[0]-tile_souris[0]),H/2-(Robot.pos[1]-tile_souris[1]))
                 pygame.draw.rect(screen,"red",(screen_pos[0],screen_pos[1],LEN_SQUARE,LEN_SQUARE),2)
-                print( Actual_map_objects_layer[int(tile_souris[1]//64),int(tile_souris[0])//64])
                 
                 if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/LEN_SQUARE) < Actual_map.shape[0] and 0<= int(tile_souris[1]/LEN_SQUARE) < Actual_map.shape[1] and \
                 Actual_map_objects_layer[int(tile_souris[1]//64),int(tile_souris[0])//64] == -1:
@@ -538,7 +542,7 @@ while running:
             for bush in Liste_bush_on_map:
                 if bush[1] <= int(time.time()):
                     bush[1] = int(time.time())+random.randint(30,50)
-                    List_ground_objets.append([Bush_basique,(bush[0][1]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
+                    List_ground_objets.append([pomme,(bush[0][1]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
                                                             bush[0][0]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
             time_for_every_sec = int(time.time())+1
 
@@ -577,7 +581,6 @@ while running:
 
         # verification du mouvement du joueur
         vect_mvt = pygame.math.Vector2(0,0)
-        # last_mvt = []   -----> pour faire les animations mais la jai pas le temps ptdr
         if keys[touche_direction_gauche]:
             vect_mvt[0] -= Robot.speed * dt
         if keys[touche_direction_droite]:
@@ -590,29 +593,29 @@ while running:
             if vect_mvt.length() / (Robot.speed * dt + 0.00001) > 1:
                 vect_mvt = vect_mvt.normalize() * Robot.speed * dt
             new_pos = Robot.pos + vect_mvt
-            if new_pos[0] - Robot.image_length[0]/2 < 0:
-                new_pos[0] = Robot.image_length[0]/2
-            if new_pos[1] - Robot.image_length[1]/2 < 0:
-                new_pos[1] = Robot.image_length[1]/2
-            if new_pos[0] + Robot.image_length[0]/2 > Actual_map.shape[1]*LEN_SQUARE:
-                new_pos[0] = Actual_map.shape[1]*LEN_SQUARE - Robot.image_length[0]/2
-            if new_pos[1] + Robot.image_length[1]/2 > Actual_map.shape[0]*LEN_SQUARE:
-                new_pos[1] = Actual_map.shape[0]*LEN_SQUARE - Robot.image_length[1]/2
         else:
             new_pos = Robot.pos
+
+        new_pos = Robot.pos + pygame.math.Vector2(vect_mvt[0],0)
         rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,64)
-        indice = rect_robot.collidelist(List_batiments_zones_collision)
-        if indice == -1:
+        if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe x
             Robot.pos = new_pos
 
+        new_pos = Robot.pos + pygame.math.Vector2(0,vect_mvt[1])
+        rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,64)
+        if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe y
+            Robot.pos = new_pos
+        Robot.pos = (round(Robot.pos[0],5),round(Robot.pos[1],5))
 
 
-
-        Robot.do_all(keys,screen)
+        last_mvt = [keys[touche_direction_haut],keys[touche_direction_bas],keys[touche_direction_gauche],keys[touche_direction_droite]]   # -----> pour faire les animations mais la jai pas le temps ptdr
+        # print(last_mvt)
+        Robot.do_all(keys,screen,last_mvt)
 
 ###-------------------------------------------------------
 ### ------------- CODE EUDOCIE
 ###-------------------------------------------------------
+
     if fade_alpha > 0 : # permet de faire le fade si yen a a faire dans le current state
         fade_surface = pygame.Surface((screen.get_width(),screen.get_height()))
         fade_surface.set_alpha(fade_alpha)
