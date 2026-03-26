@@ -83,7 +83,7 @@ class Humanoid:
         if self.moove_this_frame == False:
             # print(self.last_direction)
             new_image = self.True_list_images[self.last_direction][2]
-        print(mooves,self.moove_this_frame)
+
         if self.True_list_images == []:
             new_image = self.image
         screen.blit(new_image,(W/2-self.image_length[0]/2,H/2-self.image_length[1]/2))
