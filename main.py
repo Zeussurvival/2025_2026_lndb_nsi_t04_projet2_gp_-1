@@ -145,7 +145,7 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
-see_animations = False 
+see_animations = True 
 cooldown_dialogue = False
 
 #MINIMAP
