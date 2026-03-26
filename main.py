@@ -368,21 +368,22 @@ if mode == "load" and file_path and os.path.exists(file_path):
     if os.path.exists(machines_path):
         with open(machines_path, "r") as f:
             machines_data = json.load(f)
-        List_machines_depollution = [
-            CM.Depollution(
-                tuple(m["location"]),
-                m["polu_reduced_per_30_sec"],
-                m["range_depo"],
-                1,
-                polu_capa_max=m["polu_capa_max"]
-            ) for m in machines_data
-        ]
+    List_machines_depollution = [
+        CM.Depollution(
+            tuple(m["location"]),
+            m["polu_reduced_per_30_sec"],
+            m["range_depo"],
+            1,
+            polu_capa_max=m["polu_capa_max"]
+        ) for m in machines_data
+    ]
 
-        for i, machine in enumerate(List_machines_depollution):
-            machine.polu_capa = machines_data[i]["polu_capa"]
+    for i, machine in enumerate(List_machines_depollution):
+        machine.polu_capa = machines_data[i]["polu_capa"]
+        machine.image_path = machines_data[i].get("image_path", "Depollution_machine_t_1.png")  
         for machine in List_machines_depollution:
             x, y = machine.location
-            Actual_map_objects_layer[y][x] = dict_image_bats[machine.image_path]
+            Actual_map_objects_layer[y][x] = dict_image_bats[os.path.join(autres_tiles_dir, machine.image_path)]
 
     else:
 
@@ -812,16 +813,16 @@ with open(os.path.join(save_dir, f"{save_name}_bushes.json"), "w") as f:
     json.dump(Liste_bush_on_map, f)
 
 machines_data = []
-List_machines_depollution = [
-    CM.Depollution(
-        tuple(m["location"]),
-        m["polu_reduced_per_30_sec"],
-        m["range_depo"],
-        1,
-        polu_capa_max=m["polu_capa_max"]
-    )
-    for m in machines_data
-]
+for m in List_machines_depollution:
+    machines_data.append({
+        "location": [int(m.location[0]), int(m.location[1])],  # garder l'ordre que tu utilises partout
+        "polu_reduced_per_30_sec": m.polu_reduced_per_30_sec,
+        "range_depo": m.range_depo,
+        "polu_capa": m.polu_capa,
+        "polu_capa_max": m.polu_capa_max,
+        "image_path": m.image_path if hasattr(m, "image_path") else "Depollution_machine_t_1.png"
+    })
+
 
 for machine, m in zip(List_machines_depollution, machines_data):
     machine.polu_capa = m["polu_capa"]
