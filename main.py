@@ -58,7 +58,6 @@ SHOW_TEXT_2 = 6
 FADE_TO_DIALOGUE = 7 
 SHOW_DIALOGUE = 8
 GAME_PLAY = 9
-IN_HOUSE = 10
 current_state = FADE_BLACK
 
 earth_timer = 180*60/fps
@@ -241,7 +240,7 @@ for img in os.listdir(batiments_tiles_dir):
     tileset_paths.append(true_img)
     tileset.append(CT.Tile(true_img,None,0))
 
-temp_list = ["Depollution_machine_t_1.png","Bush_tile.png","pollution_texture.png","transparent.png"]
+temp_list = ["Depollution_machine_t_1.png","plank.png","Bush_tile.png","pollution_texture.png","transparent.png"]
 for tile in temp_list:
     true_path = os.path.join(autres_tiles_dir,tile)
     if true_path not in dict_image_bats:
@@ -255,10 +254,6 @@ machine_depo_1_obj = CO.Machine_objet("Depollution_machine_t_1_objet.png","MAchi
 
 
 List_ground_objets = []
-# ferraille_path = os.path.join(autres_tiles_dir, "ferraille_v1.png")
-# tileset_paths += [ferraille_path]
-# tileset += [CT.Tile("ferraille_v1.png", None, 0)]
-# dict_image_bats[ferraille_path] = len(tileset_paths) - 1
 Pomme_basique = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
 pomme = Pomme_basique
 List_ground_objets.append((pomme,(1024,2048)))
@@ -275,12 +270,12 @@ can_see_pollution = True
 cd_see_pollution = True
 
 hotbar = [bush,machine_depo_1_obj,None,None,None]
-Robot = CH.Humanoid((8*LEN_SQUARE,16*LEN_SQUARE),100,5,5,"robot_front/front1.png",[["robot_front/front1.png"],\
+Robot = CH.Humanoid((8*64,16*64),100,5,5,"robot_front/front1.png",[["robot_front/front1.png"],\
                                                                          ["robot_back/back1.png","robot_back/back2.png","robot_back/back3.png","robot_back/back4.png"],\
                                                                          ["robot_front/front1.png","robot_front/front2.png","robot_front/front3.png","robot_front/front4.png"],\
                                                                          ["robot_left/left_0.png","robot_left/left_1.png","robot_left/left_2.png","robot_left/left_3.png"],\
                                                                          ["robot_right/right_0.png","robot_right/right_1.png","robot_right/right_2.png","robot_right/right_3.png"]], \
-                    LEN_SQUARE,hotbar)
+                    64,hotbar)
 
 
 ### SYSTEME DE SAUVEGARDE
@@ -364,9 +359,26 @@ else:
     Liste_bush_on_map = []
     List_machines_depollution = []
 
+
+
+
 ## Creation de la dimension pour les maisons
-Map_House = numpy.full((1000,40),0)
+Map_House = numpy.full((10000,100),-1)
 indice_maison = 0
+decallage = 40
+
+# def collision des portes
+def verif_collis(souris_pos,liste_collision_portes):
+    i = 0
+    for rect in liste_collision_portes:
+        if rect.collidepoint(souris_pos):
+            return i
+        i += 1
+    return False
+
+
+
+
 
 ## Batiments et collisions
 List_batiments_raw = []
@@ -379,9 +391,9 @@ for file in os.listdir(os.path.join("assets","Building_txt")): # va enregistrer 
     List_batiments_raw.append(bat_actuel)
 
 
-List_batiments_zones_collision_fix = [[0,0,10,8,5],[1,3,10,6,3],[1,0,10,9,3]]
-List_batiments_zones_collision_portes_fix = [[4,6,6,8],[3,7,4,9],[6,7,8,9]]
-List_batiments_zones_collision_en_plus_fix = [[  ],[ [0,6,1,2], [4,0,6,3] ],[ [11,4,1,3], [3,9,2,1], [8,9,1,1] ]]
+List_bats_zones_collision_fix = [[0,0,10,8,5],[1,3,10,6,3],[1,0,10,9,3]]
+List_bats_zones_collision_portes_fix = [[4,6,2,2],[3,7,1,2],[6,7,2,2]]
+List_bats_zones_collision_en_plus_fix = [[  ],[ [0,6,1,2], [4,0,6,3] ],[ [11,4,1,3], [3,9,2,1], [8,9,1,1] ]]
 List_batiments_net = []
 for bat in List_batiments_raw: # enregistre une matrice en fct de lindice de limage dans la tileset
     temp_list = []
@@ -391,26 +403,29 @@ for bat in List_batiments_raw: # enregistre une matrice en fct de lindice de lim
     List_batiments_net.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_list))
 Bats_zones_in_map = []
 
-
-List_batiments_zones_collision = [pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE,128),pygame.Rect(-128,-128,128,Actual_map.shape[1]*LEN_SQUARE),\
-                                  pygame.Rect(-128,Actual_map.shape[0]*LEN_SQUARE,Actual_map.shape[0]*LEN_SQUARE+128,128),pygame.Rect(Actual_map.shape[0]*LEN_SQUARE,-128,128,Actual_map.shape[1]*LEN_SQUARE+128)]
-List_batiments_zones_collision_portes = []
+List_batiments_zones_collision = [pygame.Rect(-128,-128,Actual_map.shape[0]*64,128),pygame.Rect(-128,-128,128,Actual_map.shape[1]*64),\
+                                  pygame.Rect(-128,Actual_map.shape[0]*64,Actual_map.shape[0]*64+128,128),pygame.Rect(Actual_map.shape[0]*64,-128,128,Actual_map.shape[1]*64+128)]
+List_bats_zones_collision_portes = []
 
 
 # Ajout des Bats a la map
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[0],(0,0))
-List_batiments_zones_collision.append(pygame.Rect((0+List_batiments_zones_collision_fix[0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[0][1])*LEN_SQUARE,List_batiments_zones_collision_fix[0][2]*LEN_SQUARE,List_batiments_zones_collision_fix[0][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((0+List_bats_zones_collision_fix[0][0])*64,(0+List_bats_zones_collision_fix[0][1])*64,List_bats_zones_collision_fix[0][2]*64,List_bats_zones_collision_fix[0][3]*64))
+List_bats_zones_collision_portes.append(pygame.Rect((0+List_bats_zones_collision_portes_fix[0][0])*64,(0+List_bats_zones_collision_portes_fix[0][1])*64,List_bats_zones_collision_portes_fix[0][2]*64,List_bats_zones_collision_portes_fix[0][3]*64))
 
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[1],(15,15))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[1][0])*LEN_SQUARE,(15+List_batiments_zones_collision_fix[1][1])*LEN_SQUARE,List_batiments_zones_collision_fix[1][2]*LEN_SQUARE,List_batiments_zones_collision_fix[1][3]*LEN_SQUARE))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[1][0][0])*LEN_SQUARE,(15+List_batiments_zones_collision_en_plus_fix[1][0][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][0][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][0][3]*LEN_SQUARE))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[1][1][0])*LEN_SQUARE,(15+List_batiments_zones_collision_en_plus_fix[1][1][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][1][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][1][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_fix[1][0])*64,(15+List_bats_zones_collision_fix[1][1])*64,List_bats_zones_collision_fix[1][2]*64,List_bats_zones_collision_fix[1][3]*64))
+List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[1][0][0])*64,(15+List_bats_zones_collision_en_plus_fix[1][0][1])*64,List_bats_zones_collision_en_plus_fix[1][0][2]*64,List_bats_zones_collision_en_plus_fix[1][0][3]*64))
+List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[1][1][0])*64,(15+List_bats_zones_collision_en_plus_fix[1][1][1])*64,List_bats_zones_collision_en_plus_fix[1][1][2]*64,List_bats_zones_collision_en_plus_fix[1][1][3]*64))
+List_bats_zones_collision_portes.append(pygame.Rect((15+List_bats_zones_collision_portes_fix[1][0])*64,(15+List_bats_zones_collision_portes_fix[1][1])*64,List_bats_zones_collision_portes_fix[1][2]*64,List_bats_zones_collision_portes_fix[1][3]*64))
 
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[2],(15,0))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[2][1])*LEN_SQUARE,List_batiments_zones_collision_fix[2][2]*LEN_SQUARE,List_batiments_zones_collision_fix[2][3]*LEN_SQUARE))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][0][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][0][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][0][3]*LEN_SQUARE))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][1][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][1][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][1][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][1][3]*LEN_SQUARE))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][2][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][2][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][2][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_fix[2][0])*64,(0+List_bats_zones_collision_fix[2][1])*64,List_bats_zones_collision_fix[2][2]*64,List_bats_zones_collision_fix[2][3]*64))
+List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[2][0][0])*64,(0+List_bats_zones_collision_en_plus_fix[2][0][1])*64,List_bats_zones_collision_en_plus_fix[2][0][2]*64,List_bats_zones_collision_en_plus_fix[2][0][3]*64))
+List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[2][1][0])*64,(0+List_bats_zones_collision_en_plus_fix[2][1][1])*64,List_bats_zones_collision_en_plus_fix[2][1][2]*64,List_bats_zones_collision_en_plus_fix[2][1][3]*64))
+List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[2][2][0])*64,(0+List_bats_zones_collision_en_plus_fix[2][2][1])*64,List_bats_zones_collision_en_plus_fix[2][2][2]*64,List_bats_zones_collision_en_plus_fix[2][2][3]*64))
+List_bats_zones_collision_portes.append(pygame.Rect((15+List_bats_zones_collision_portes_fix[2][0])*64,(0+List_bats_zones_collision_portes_fix[2][1])*64,List_bats_zones_collision_portes_fix[2][2]*64,List_bats_zones_collision_portes_fix[2][3]*64))
+
 
 
 
@@ -422,19 +437,19 @@ touche_direction_bas = pygame.K_s
 touche_affichage_pollution = pygame.K_F3
 touche_jet_ditem = pygame.K_n
 touche_recuperation_ditem = pygame.K_e
+touche_utiliser_porte = pygame.K_f
 
 
-
-
+# Pollu encore
 pollution_initiale = numpy.sum(Actual_map_pollution)
 pollution_actuelle = pollution_initiale
 pollution_max_possible = pollution_initiale *2
 
-
 time_for_every_sec = int(time.time())
 time_for_every_30_sec = int(time.time())
-
-List_ground_objets.append((ferraille, (10*LEN_SQUARE + LEN_SQUARE//2, 10*LEN_SQUARE + LEN_SQUARE//2)))
+List_ground_objets.append((ferraille, (10*64 + 64//2, 10*64 + 64//2)))
+IN_HOUSE = False
+Pos_souris_monde = (0,0)
 
 print("running now")
 while running:
@@ -447,10 +462,10 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((0,0,0))
-    if not see_animations and current_state != IN_HOUSE:
+    if not see_animations:
         current_state = GAME_PLAY
         fade_alpha = 0
-    if current_state != GAME_PLAY and current_state != IN_HOUSE:
+    if current_state != GAME_PLAY:
         if current_state == FADE_BLACK:
             if timer > 0:
                 timer -=1
@@ -572,186 +587,200 @@ while running:
 ### ------------- CODE EMIL
 ###-------------------------------------------------------  
     if current_state == GAME_PLAY:
-        see_minimap = True
-        coin_haut = (math.floor((Robot.pos[0]-W_2)/LEN_SQUARE),math.floor((Robot.pos[1]-H_2)/LEN_SQUARE))
-        coin_bas = (math.ceil((Robot.pos[0]+W_2)/LEN_SQUARE),math.ceil((Robot.pos[1]+H_2)/LEN_SQUARE))
+        if not IN_HOUSE:
+            see_minimap = True
+            coin_haut = (math.floor((Robot.pos[0]-W_2)/LEN_SQUARE),math.floor((Robot.pos[1]-H_2)/LEN_SQUARE))
+            coin_bas = (math.ceil((Robot.pos[0]+W_2)/LEN_SQUARE),math.ceil((Robot.pos[1]+H_2)/LEN_SQUARE))
 
-        for y in range(max(coin_haut[1],0),min(coin_bas[1],Actual_map.shape[0])): # montre la map, polution et objet_layer
-            for x in range(max(coin_haut[0],0),min(coin_bas[0],Actual_map.shape[1])):
-                tileset[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
-                tileset[Actual_map_objects_layer[y,x]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
-                if can_see_pollution:
-                    tile_surface = tileset[-2].image.copy()
-                    tile_surface.set_alpha(Actual_map_pollution[x,y]*10)
-                    screen.blit(tile_surface,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
-
-
-        if keys[touche_recuperation_ditem]: #recuperer objets
-            for obj in List_ground_objets:
-                if (Robot.pos[0] - obj[1][0])**2 +(Robot.pos[1] - obj[1][1])**2 <= (LEN_SQUARE*Robot.range_pickup)**2 and can_pickup:
-                    can_pickup = False
-                    if Robot.pickup(obj[0]):
-                        List_ground_objets.remove(obj)
-
-        else:
-            can_pickup = True               
-
-        if keys[touche_affichage_pollution]: # afficher pollution
-            if cd_see_pollution == False:
-                can_see_pollution = not can_see_pollution
-                cd_see_pollution = True
-        else:
-            cd_see_pollution = False
-
-        if keys[touche_jet_ditem]: # jeter item
-            if Robot.hotbar[Robot.held_item_indice] != None:
-                List_ground_objets.append((Robot.hotbar[Robot.held_item_indice],Robot.pos))
-                Robot.hotbar[Robot.held_item_indice] = None
+            for y in range(max(coin_haut[1],0),min(coin_bas[1],Actual_map.shape[0])): # montre la map, polution et objet_layer
+                for x in range(max(coin_haut[0],0),min(coin_bas[0],Actual_map.shape[1])):
+                    tileset[Actual_map[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
+                    tileset[Actual_map_objects_layer[y,x]].blit_self(screen,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
+                    if can_see_pollution:
+                        tile_surface = tileset[-2].image.copy()
+                        tile_surface.set_alpha(Actual_map_pollution[x,y]*10)
+                        screen.blit(tile_surface,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
 
 
-        for obj in List_ground_objets: # mettre le texte pick up
-            if (Robot.pos[0] - obj[1][0])**2 +(Robot.pos[1] - obj[1][1])**2 <= (LEN_SQUARE*Robot.range_pickup)**2:
-                screen.blit(Surface_text_pickup, (obj[1][0]-Robot.pos[0]+W/2-Surface_text_pickup.get_size()[0]/2, obj[1][1]-Robot.pos[1]+H/2-Surface_text_pickup.get_size()[1]/2 - 32 - 10 - 8*math.cos(time.time())))
-            screen.blit(pygame.transform.scale(obj[0].image,(32,32)),(obj[1][0]-Robot.pos[0]+W/2 - 16,obj[1][1]-Robot.pos[1]+H/2 - 16))
+            if keys[touche_recuperation_ditem]: #recuperer objets
+                for obj in List_ground_objets:
+                    if (Robot.pos[0] - obj[1][0])**2 +(Robot.pos[1] - obj[1][1])**2 <= (LEN_SQUARE*Robot.range_pickup)**2 and can_pickup:
+                        can_pickup = False
+                        if Robot.pickup(obj[0]):
+                            List_ground_objets.remove(obj)
+            else:
+                can_pickup = True     
+
+                      
+            result = verif_collis(Pos_souris_monde,List_bats_zones_collision_portes) # collision pour les portes
+            if type(result) is int:
+                indice_maison = result
+            else:
+                indice_maison = -1
+
+
+            if keys[touche_affichage_pollution]: # afficher pollution
+                if cd_see_pollution == False:
+                    can_see_pollution = not can_see_pollution
+                    cd_see_pollution = True
+            else:
+                cd_see_pollution = False
+
+            if keys[touche_jet_ditem]: # jeter item
+                if Robot.hotbar[Robot.held_item_indice] != None:
+                    List_ground_objets.append((Robot.hotbar[Robot.held_item_indice],Robot.pos))
+                    Robot.hotbar[Robot.held_item_indice] = None
+
+
+            for obj in List_ground_objets: # mettre le texte pick up
+                if (Robot.pos[0] - obj[1][0])**2 +(Robot.pos[1] - obj[1][1])**2 <= (LEN_SQUARE*Robot.range_pickup)**2:
+                    screen.blit(Surface_text_pickup, (obj[1][0]-Robot.pos[0]+W/2-Surface_text_pickup.get_size()[0]/2, obj[1][1]-Robot.pos[1]+H/2-Surface_text_pickup.get_size()[1]/2 - 32 - 10 - 8*math.cos(time.time())))
+                screen.blit(pygame.transform.scale(obj[0].image,(32,32)),(obj[1][0]-Robot.pos[0]+W/2 - 16,obj[1][1]-Robot.pos[1]+H/2 - 16))
 
 
 
-        Pos_souris_monde=(Robot.pos[0]-W/2+mouse_pos[0],Robot.pos[1]-H/2+mouse_pos[1]) # position de la souris ds le monde en pixels
-        tile_souris = ((Pos_souris_monde[0]//LEN_SQUARE)*LEN_SQUARE,(Pos_souris_monde[1]//LEN_SQUARE)*LEN_SQUARE) # on va floor (si victor a raison que cest un floor mdr) la position a la case 
-        centre_tile = (tile_souris[0]+32,tile_souris[1]+32) # on prends dcp le centre de la tile, en gros c juste len_square /2 mais on va simplifier
-        diff = (centre_tile[0]-Robot.pos[0],centre_tile[1]-Robot.pos[1]) # reconversion en pos ecran
+            Pos_souris_monde=(Robot.pos[0]-W/2+mouse_pos[0],Robot.pos[1]-H/2+mouse_pos[1]) # position de la souris ds le monde en pixels
+            tile_souris = ((Pos_souris_monde[0]//LEN_SQUARE)*LEN_SQUARE,(Pos_souris_monde[1]//LEN_SQUARE)*LEN_SQUARE) # on va floor (si victor a raison que cest un floor mdr) la position a la case 
+            centre_tile = (tile_souris[0]+32,tile_souris[1]+32) # on prends dcp le centre de la tile, en gros c juste len_square /2 mais on va simplifier
+            diff = (centre_tile[0]-Robot.pos[0],centre_tile[1]-Robot.pos[1]) # reconversion en pos ecran
 
-
-        if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True:
 
             if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
+                if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True: # affichage des carrés et voir si on peut utiliser items
 
-                screen_pos=(W/2-(Robot.pos[0]-tile_souris[0]),H/2-(Robot.pos[1]-tile_souris[1]))
-                pygame.draw.rect(screen,"red",(screen_pos[0],screen_pos[1],LEN_SQUARE,LEN_SQUARE),2)
+                    screen_pos=(W/2-(Robot.pos[0]-tile_souris[0]),H/2-(Robot.pos[1]-tile_souris[1]))
+                    pygame.draw.rect(screen,"red",(screen_pos[0],screen_pos[1],LEN_SQUARE,LEN_SQUARE),2)
+                    
+                    if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/LEN_SQUARE) < Actual_map.shape[0] and 0<= int(tile_souris[1]/LEN_SQUARE) < Actual_map.shape[1] and \
+                    Actual_map_objects_layer[int(tile_souris[1]//64),int(tile_souris[0])//64] == -1:
+
+                        if Robot.hotbar[Robot.held_item_indice].type == "Plant":
+                            Actual_map_objects_layer[int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
+                            Robot.hotbar[Robot.held_item_indice] = None
+                            Liste_bush_on_map.append([(int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
+                            
+                        elif Robot.hotbar[Robot.held_item_indice].type == "Machine_objet":
+                            List_machines_depollution.append(CM.Depollution((int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)),0.1,5,1,polu_capa_max=40))
+                            Actual_map_objects_layer[int(tile_souris[1]/64),int(tile_souris[0]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
+                            Robot.hotbar[Robot.held_item_indice] = None
+                if keys[touche_utiliser_porte]:
+                    if indice_maison >= 0:
+                        IN_HOUSE = True
+
+
+            if time_for_every_sec +1 <= int(time.time()):
+                for bush in Liste_bush_on_map:
+                    if bush[1] <= int(time.time()):
+                        bush[1] = int(time.time())+random.randint(30,50)
+                        List_ground_objets.append([pomme,(bush[0][1]*64+32 + 64*(random.random() *2 -1),
+                                                                bush[0][0]*64+ 32+ 64*(random.random() *2 -1))])
+                        List_ground_objets.append([ferraille,(bush[0][1]*64+ 32 + 64*(random.random() *2 -1),
+                                                                bush[0][0]*64+ 32+ 64*(random.random() *2 -1))])
+                time_for_every_sec = int(time.time())+1
+
+            if time_for_every_30_sec + 30 <= int(time.time()):
+                for machine in List_machines_depollution:
+                    if machine.polu_capa < machine.polu_capa_max:
+                        print("ca a change")
+                        chng = D.to_remove_bro(Actual_map_pollution,machine.location,machine.range_depo,machine.polu_reduced_per_30_sec,machine.polu_capa_max - machine.polu_capa)
+                        machine.polu_capa += chng
+                time_for_every_30_sec = int(time.time()) + 30
+                pollution_actuelle = numpy.sum(Actual_map_pollution)
+
+
+            #AFFICHAGE INDICE POLLUTION
+            if pollution_max_possible > 0:
+                pourcentage_pollution = round(pollution_actuelle,4)
+            else:
+                pourcentage_pollution = 0
+            indice_width = 200
+            indice_height = 30
+            indice_x = W - indice_width - 20
+            indice_y = 20
+            interface_padding = 12
+            interface_rect = pygame.Rect(indice_x - interface_padding, 
+                                        indice_y - interface_padding, 
+                                        indice_width + 2*interface_padding, 
+                                        indice_height + 50)
+            interface_surface = pygame.Surface((interface_rect.width, interface_rect.height))
+            interface_surface.set_alpha(200)
+            interface_surface.fill((20, 20, 20))
+            screen.blit(interface_surface, interface_rect.topleft)
+            pollution_value_font = pygame.font.Font(font_1, 20)
+            pollution_value_text = pollution_value_font.render(f"{pourcentage_pollution:.1f}g totale.", 1, (255, 255, 255))
+            value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
+            screen.blit(pollution_value_text, value_rect)
+
+
+            # verification du mouvement du joueur
+            has_not_moove = True
+            vect_mvt = pygame.math.Vector2(0,0)
+            if keys[touche_direction_gauche]:
+                vect_mvt[0] -= Robot.speed * dt
+            if keys[touche_direction_droite]:
+                vect_mvt[0] += Robot.speed * dt
+            if keys[touche_direction_haut]:
+                vect_mvt[1] -= Robot.speed * dt
+            if keys[touche_direction_bas]:
+                vect_mvt[1] += Robot.speed * dt
+            if vect_mvt.length() != 0:
+                if vect_mvt.length() / (Robot.speed * dt + 0.00001) > 1:
+                    vect_mvt = vect_mvt.normalize() * Robot.speed * dt
+                has_not_moove = True 
+
                 
-                if pygame.mouse.get_pressed() == (True,False,False) and 0 <= int(tile_souris[0]/LEN_SQUARE) < Actual_map.shape[0] and 0<= int(tile_souris[1]/LEN_SQUARE) < Actual_map.shape[1] and \
-                Actual_map_objects_layer[int(tile_souris[1]//64),int(tile_souris[0])//64] == -1:
+            else:
+                if Robot.moove_this_frame:
+                    Robot.indice_animation_en_cours = time.time()
+                has_not_moove = False
+                new_pos = Robot.pos
 
-                    if Robot.hotbar[Robot.held_item_indice].type == "Plant":
-                        Actual_map_objects_layer[int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
-                        Robot.hotbar[Robot.held_item_indice] = None
-                        Liste_bush_on_map.append([(int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
-                        
-                    elif Robot.hotbar[Robot.held_item_indice].type == "Machine_objet":
-                        List_machines_depollution.append(CM.Depollution((int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)),0.1,5,1,polu_capa_max=40))
-                        Actual_map_objects_layer[int(tile_souris[1]/64),int(tile_souris[0]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
-                        Robot.hotbar[Robot.held_item_indice] = None
-                        
+            new_pos = Robot.pos + pygame.math.Vector2(vect_mvt[0],0)
+            rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
+            if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe x
+                Robot.pos = new_pos
 
-        if time_for_every_sec +1 <= int(time.time()):
-            for bush in Liste_bush_on_map:
-                if bush[1] <= int(time.time()):
-                    bush[1] = int(time.time())+random.randint(30,50)
-                    List_ground_objets.append([pomme,(bush[0][1]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
-                                                            bush[0][0]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
-                    List_ground_objets.append([ferraille,(bush[0][1]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
-                                                            bush[0][0]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
-            time_for_every_sec = int(time.time())+1
-
-        if time_for_every_30_sec + 30 <= int(time.time()):
-            for machine in List_machines_depollution:
-                if machine.polu_capa < machine.polu_capa_max:
-                    chng = D.to_remove_bro(Actual_map_pollution,machine.location,machine.range_depo,machine.polu_reduced_per_30_sec,machine.polu_capa_max - machine.polu_capa)
-                    machine.polu_capa += chng
-            time_for_every_30_sec = int(time.time()) + 30
-            pollution_actuelle = numpy.sum(Actual_map_pollution)
-
-
-        #AFFICHAGE INDICE POLLUTION
-        if pollution_max_possible > 0:
-            pourcentage_pollution = round(pollution_actuelle,4)
-        else:
-            pourcentage_pollution = 0
-        indice_width = 200
-        indice_height = 30
-        indice_x = W - indice_width - 20
-        indice_y = 20
-        interface_padding = 12
-        interface_rect = pygame.Rect(indice_x - interface_padding, 
-                                     indice_y - interface_padding, 
-                                     indice_width + 2*interface_padding, 
-                                     indice_height + 50)
-        interface_surface = pygame.Surface((interface_rect.width, interface_rect.height))
-        interface_surface.set_alpha(200)
-        interface_surface.fill((20, 20, 20))
-        screen.blit(interface_surface, interface_rect.topleft)
-        pollution_value_font = pygame.font.Font(font_1, 20)
-        pollution_value_text = pollution_value_font.render(f"{pourcentage_pollution:.1f}g totale.", 1, (255, 255, 255))
-        value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
-        screen.blit(pollution_value_text, value_rect)
-
-
-        # verification du mouvement du joueur
-        has_not_moove = True
-        vect_mvt = pygame.math.Vector2(0,0)
-        if keys[touche_direction_gauche]:
-            vect_mvt[0] -= Robot.speed * dt
-        if keys[touche_direction_droite]:
-            vect_mvt[0] += Robot.speed * dt
-        if keys[touche_direction_haut]:
-            vect_mvt[1] -= Robot.speed * dt
-        if keys[touche_direction_bas]:
-            vect_mvt[1] += Robot.speed * dt
-        if vect_mvt.length() != 0:
-            if vect_mvt.length() / (Robot.speed * dt + 0.00001) > 1:
-                vect_mvt = vect_mvt.normalize() * Robot.speed * dt
-            has_not_moove = True 
-
+            new_pos = Robot.pos + pygame.math.Vector2(0,vect_mvt[1])
+            rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
+            if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe y
+                Robot.pos = new_pos
             
-        else:
-            if Robot.moove_this_frame:
-                Robot.indice_animation_en_cours = time.time()
-            has_not_moove = False
-            new_pos = Robot.pos
 
-        new_pos = Robot.pos + pygame.math.Vector2(vect_mvt[0],0)
-        rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
-        if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe x
-            Robot.pos = new_pos
+            Robot.moove_this_frame = has_not_moove
+            # print(Robot.moove_this_frame,has_not_moove)
+            Robot.pos = (round(Robot.pos[0],5),round(Robot.pos[1],5))
 
-        new_pos = Robot.pos + pygame.math.Vector2(0,vect_mvt[1])
-        rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
-        if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe y
-            Robot.pos = new_pos
-        
-
-        Robot.moove_this_frame = has_not_moove
-        # print(Robot.moove_this_frame,has_not_moove)
-        Robot.pos = (round(Robot.pos[0],5),round(Robot.pos[1],5))
+            # print(List_bats_zones_collision_portes)
+            # print(verif_collis(Pos_souris_monde,List_bats_zones_collision_portes))
 
 
-        last_mvt = [keys[touche_direction_haut],keys[touche_direction_bas],keys[touche_direction_gauche],keys[touche_direction_droite]]   # -----> pour faire les animations mais la jai pas le temps ptdr
-        # print(last_mvt)
-        Robot.do_all(keys,screen,last_mvt)
+            last_mvt = [keys[touche_direction_haut],keys[touche_direction_bas],keys[touche_direction_gauche],keys[touche_direction_droite]]   # -----> pour faire les animations mais la jai pas le temps ptdr
+            Robot.do_all(keys,screen,last_mvt)
 
-###-------------------------------------------------------
-### ------------- CODE EUDOCIE
-###-------------------------------------------------------
+    ###-------------------------------------------------------
+    ### ------------- CODE EUDOCIE
+    ###-------------------------------------------------------
 
-        if fade_alpha > 0 : # permet de faire le fade si yen a a faire dans le current state
-            fade_surface = pygame.Surface((screen.get_width(),screen.get_height()))
-            fade_surface.set_alpha(fade_alpha)
-            fade_surface.fill((0, 0, 0))  
-            screen.blit(fade_surface, (0, 0))
-        if see_minimap == True :
-            draw_minimap(screen, Robot, Actual_map_objects_layer, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
+            if fade_alpha > 0 : # permet de faire le fade si yen a a faire dans le current state
+                fade_surface = pygame.Surface((screen.get_width(),screen.get_height()))
+                fade_surface.set_alpha(fade_alpha)
+                fade_surface.fill((0, 0, 0))  
+                screen.blit(fade_surface, (0, 0))
+            if see_minimap == True :
+                draw_minimap(screen, Robot, Actual_map_objects_layer, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
 
-        if keys[pygame.K_h] and not cd_h:
-            current_state = IN_HOUSE
-            cd_h = True
+            if keys[pygame.K_h] and not cd_h:
+                IN_HOUSE = True
+                cd_h = True
 
-        if not keys[pygame.K_h]:
-            cd_h = False
+            if not keys[pygame.K_h]:
+                cd_h = False
 
 
-    if current_state == IN_HOUSE:
-        keys = pygame.key.get_pressed()
+        if IN_HOUSE:
+            keys = pygame.key.get_pressed()
 
+<<<<<<< Updated upstream
         if keys[pygame.K_h] and not cd_h:
             current_state = GAME_PLAY
             cd_h = True
@@ -762,6 +791,14 @@ while running:
         fade_surface.set_alpha(fade_alpha)
         fade_surface.fill((0, 0, 0))
         screen.blit(fade_surface, (0, 0))
+=======
+            if keys[pygame.K_h] and not cd_h:
+                IN_HOUSE = False
+                cd_h = True
+            if not keys[pygame.K_h]:
+                cd_h = False
+
+>>>>>>> Stashed changes
     pygame.display.flip()
     dt = clock.tick(fps) / 1000
 pygame.quit()
