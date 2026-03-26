@@ -757,7 +757,11 @@ while running:
             cd_h = True
         if not keys[pygame.K_h]:
             cd_h = False
-
+    if fade_alpha > 0:
+        fade_surface = pygame.Surface((screen.get_width(), screen.get_height()))
+        fade_surface.set_alpha(fade_alpha)
+        fade_surface.fill((0, 0, 0))
+        screen.blit(fade_surface, (0, 0))
     pygame.display.flip()
     dt = clock.tick(fps) / 1000
 pygame.quit()
