@@ -21,6 +21,8 @@ objects_path = sys.argv[5] if len(sys.argv) > 5 else None
 pollution_path = sys.argv[6] if len(sys.argv) > 6 else None
 first_machine_placed = False
 machine_dialogue_active = False
+first_craft = False
+craft_dialogue_active = False
 
 # Chemins
 main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -690,6 +692,24 @@ while running:
                             first_machine_placed = True
 
                             dialogue_1.dialogue_text = [
+                                "Bravo, voici ta première machine.", 
+                                "Elle va te permettre de purifier ton environnement.",
+                                "Ta mission est simple… en apparence.",
+                                "Récupère de la ferraille pour en construire plus.",
+                            ]
+
+                            active_message = 0
+                            counter = 0
+                            done = False
+                            message = dialogue_1.dialogue_text[active_message]
+
+                            machine_dialogue_active = True
+                            see_animations = True
+                            cooldown_dialogue = True
+                        if not first_craft:
+                            first_craft = True
+
+                            dialogue_1.dialogue_text = [
                                 "Regarde autour de toi… Ce paysage était autrefois vivant.", 
                                 "La nature peut encore renaître… mais elle a besoin de toi.",
                                 "Ta mission est simple… en apparence.",
@@ -704,7 +724,7 @@ while running:
                             done = False
                             message = dialogue_1.dialogue_text[active_message]
 
-                            machine_dialogue_active = True
+                            craft_dialogue_active = True
                             see_animations = True
                             cooldown_dialogue = True
 
