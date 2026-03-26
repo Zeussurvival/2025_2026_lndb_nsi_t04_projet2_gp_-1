@@ -13,6 +13,7 @@ import classes.Test_classe_humain as CH
 import classes.Test_classe_objets as CO
 import classes.Test_classe_machines as CM
 import sys
+import json
 
 mode = sys.argv[3] if len(sys.argv) > 3 else "new"
 file_path = sys.argv[4] if len(sys.argv) > 4 else None
@@ -24,6 +25,7 @@ main_dir = os.path.split(os.path.abspath(__file__))[0]
 assets_dir = os.path.join(main_dir,"assets")
 police_dir = os.path.join(assets_dir,"polices")
 sounds_dir = os.path.join(assets_dir, "sounds")
+saves_dir = os.path.join(main_dir, "saves")
 font_1 = os.path.join(police_dir, "test_1.ttf")
 font_2 = os.path.join(police_dir, "test_2.ttf")
 def audio_device_available():
@@ -214,26 +216,6 @@ seed = random.seed(time.time()) # creation de la map des settings de la pollu et
 # Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
 
 
-if mode == "load" and file_path and os.path.exists(file_path):
-    Actual_map = numpy.loadtxt(file_path, dtype=int)
-    Actual_map_objects_layer = numpy.loadtxt(objects_path, dtype=int)
-    Actual_map_pollution = numpy.loadtxt(pollution_path, dtype=float)
-    result = D.set_pollution_map_rectangle(pt_pollution, seed, Actual_map, 5, 10, 1, 10)
-    Liste_dechets = result[1]  # juste pour avoir la liste
-else:
-    Actual_map = D.creation_map_rectangle(Taille_map, Taille_map, 0)
-    Actual_map_objects_layer = D.creation_map_rectangle(Taille_map, Taille_map, -1)
-    result = D.set_pollution_map_rectangle(pt_pollution, seed, Actual_map, 5, 10, 1, 10)
-    Actual_map_pollution = result[0]
-    Liste_dechets = result[1]
-    for y in range(Actual_map.shape[0]):
-        for x in range(Actual_map.shape[1]):
-            Actual_map[x,y] = random.randint(0,7)
-
-
-pollution_initiale = numpy.sum(Actual_map_pollution)
-pollution_actuelle = pollution_initiale
-pollution_max_possible = pollution_initiale *2
 
 
 
@@ -262,36 +244,6 @@ for tile in temp_list:
         tileset_paths += [true_path]
         tileset += [CT.Tile(os.path.join(true_path),None,0)]
 
-# Batiments
-List_batiments_raw = []
-
-for file in os.listdir(os.path.join("assets","Building_txt")): # va enregistrer les lignes du txt en element dans une liste
-    bat_actuel = []
-    with open(os.path.join("assets","Building_txt", file),"r") as f:
-        for line in f:
-            bat_actuel.append(line.strip())
-    List_batiments_raw.append(bat_actuel)
-
-List_batiments_net = []
-List_batiments_zones_collision_fix = [[0,0,10,8,5],[1,3,10,6,3],[1,0,10,9,3]]
-for bat in List_batiments_raw: # enregistre une matrice en fct de lindice de limage dans la tileset
-    temp_list = []
-    x,y = bat[0],bat[1]
-    for elmt in bat[2:]:
-        temp_list.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
-    List_batiments_net.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_list))
-Bats_zones_in_map = []
-print(Actual_map.shape[0]*LEN_SQUARE+256)
-print(pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE+256,0),pygame.Rect(-128,-128,0,Actual_map.shape[1]*LEN_SQUARE+256))
-List_batiments_zones_collision = [pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE+256,128),pygame.Rect(-128,-128,128,Actual_map.shape[1]*LEN_SQUARE+256),\
-                                  pygame.Rect(-128,Actual_map.shape[0]*LEN_SQUARE+256,Actual_map.shape[0]*LEN_SQUARE+256,128),pygame.Rect(Actual_map.shape[0]*LEN_SQUARE+256,-128,128,Actual_map.shape[1]*LEN_SQUARE+256)]
-
-D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[0],(0,0))
-List_batiments_zones_collision.append(pygame.Rect((0+List_batiments_zones_collision_fix[0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[0][1])*LEN_SQUARE,List_batiments_zones_collision_fix[0][2]*LEN_SQUARE,List_batiments_zones_collision_fix[0][3]*LEN_SQUARE))
-D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[1],(15,15))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[1][0])*LEN_SQUARE,(15+List_batiments_zones_collision_fix[1][1])*LEN_SQUARE,List_batiments_zones_collision_fix[1][2]*LEN_SQUARE,List_batiments_zones_collision_fix[1][3]*LEN_SQUARE))
-D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[2],(15,0))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[2][1])*LEN_SQUARE,List_batiments_zones_collision_fix[2][2]*LEN_SQUARE,List_batiments_zones_collision_fix[2][3]*LEN_SQUARE))
 
 
 # KEYBINDS
@@ -330,6 +282,99 @@ Robot = CH.Humanoid((8*LEN_SQUARE,16*LEN_SQUARE),100,5,5,"robot_front/front1.png
                                                                          ["robot_left/left_0.png","robot_left/left_1.png","robot_left/left_2.png","robot_left/left_3.png"],\
                                                                          ["robot_right/right_0.png","robot_right/right_1.png","robot_right/right_2.png","robot_right/right_3.png"]], \
                     LEN_SQUARE,hotbar)
+
+
+if mode == "load" and file_path and os.path.exists(file_path):
+    bushes_path = os.path.join(saves_dir, f"{sys.argv[7]}_bushes.json")
+    machines_path = os.path.join(saves_dir, f"{sys.argv[7]}_machines.json")
+    
+    if os.path.exists(bushes_path):
+        with open(bushes_path, "r") as f:
+            Liste_bush_on_map = json.load(f)
+
+    if os.path.exists(machines_path):
+        with open(machines_path, "r") as f:
+            machines_data = json.load(f)
+        List_machines_depollution = [
+            CM.Depollution(
+                tuple(m["location"]),
+                m["polu_reduced_per_30_sec"],
+                m["range_depo"],
+                1,
+                polu_capa_max=m["polu_capa_max"]
+            ) for m in machines_data
+        ]
+
+        for i, machine in enumerate(List_machines_depollution):
+            machine.polu_capa = machines_data[i]["polu_capa"]
+    else:
+
+        Actual_map = numpy.loadtxt(file_path, dtype=int)
+        Actual_map_objects_layer = numpy.loadtxt(objects_path, dtype=int)
+        Actual_map_pollution = numpy.loadtxt(pollution_path, dtype=float)
+        result = D.set_pollution_map_rectangle(pt_pollution, seed, Actual_map, 5, 10, 1, 10)
+        Liste_dechets = result[1]  # juste pour avoir la liste
+    inventory_path = os.path.join(saves_dir, f"{sys.argv[7]}_inventory.json")
+
+    if os.path.exists(inventory_path):
+        with open(inventory_path, "r") as f:
+            inventory_data = json.load(f)
+
+        Robot.hotbar = []
+        for item in inventory_data:
+            if item is None:
+                Robot.hotbar.append(None)
+            elif item["type"] == "Plant":
+                Robot.hotbar.append(bush)
+            elif item["type"] == "Machine_objet":
+                Robot.hotbar.append(machine_depo_1_obj)
+else:
+    Actual_map = D.creation_map_rectangle(Taille_map, Taille_map, 0)
+    Actual_map_objects_layer = D.creation_map_rectangle(Taille_map, Taille_map, -1)
+    result = D.set_pollution_map_rectangle(pt_pollution, seed, Actual_map, 5, 10, 1, 10)
+    Actual_map_pollution = result[0]
+    Liste_dechets = result[1]
+    for y in range(Actual_map.shape[0]):
+        for x in range(Actual_map.shape[1]):
+            Actual_map[x,y] = random.randint(0,7)
+    Liste_bush_on_map = []
+    List_machines_depollution = []
+
+pollution_initiale = numpy.sum(Actual_map_pollution)
+pollution_actuelle = pollution_initiale
+pollution_max_possible = pollution_initiale *2
+# Batiments
+List_batiments_raw = []
+
+for file in os.listdir(os.path.join("assets","Building_txt")): # va enregistrer les lignes du txt en element dans une liste
+    bat_actuel = []
+    with open(os.path.join("assets","Building_txt", file),"r") as f:
+        for line in f:
+            bat_actuel.append(line.strip())
+    List_batiments_raw.append(bat_actuel)
+
+List_batiments_net = []
+List_batiments_zones_collision_fix = [[0,0,10,8,5],[1,3,10,6,3],[1,0,10,9,3]]
+for bat in List_batiments_raw: # enregistre une matrice en fct de lindice de limage dans la tileset
+    temp_list = []
+    x,y = bat[0],bat[1]
+    for elmt in bat[2:]:
+        temp_list.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
+    List_batiments_net.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_list))
+Bats_zones_in_map = []
+print(Actual_map.shape[0]*LEN_SQUARE+256)
+print(pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE+256,0),pygame.Rect(-128,-128,0,Actual_map.shape[1]*LEN_SQUARE+256))
+List_batiments_zones_collision = [pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE+256,128),pygame.Rect(-128,-128,128,Actual_map.shape[1]*LEN_SQUARE+256),\
+                                  pygame.Rect(-128,Actual_map.shape[0]*LEN_SQUARE+256,Actual_map.shape[0]*LEN_SQUARE+256,128),pygame.Rect(Actual_map.shape[0]*LEN_SQUARE+256,-128,128,Actual_map.shape[1]*LEN_SQUARE+256)]
+
+D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[0],(0,0))
+List_batiments_zones_collision.append(pygame.Rect((0+List_batiments_zones_collision_fix[0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[0][1])*LEN_SQUARE,List_batiments_zones_collision_fix[0][2]*LEN_SQUARE,List_batiments_zones_collision_fix[0][3]*LEN_SQUARE))
+D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[1],(15,15))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[1][0])*LEN_SQUARE,(15+List_batiments_zones_collision_fix[1][1])*LEN_SQUARE,List_batiments_zones_collision_fix[1][2]*LEN_SQUARE,List_batiments_zones_collision_fix[1][3]*LEN_SQUARE))
+D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[2],(15,0))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[2][1])*LEN_SQUARE,List_batiments_zones_collision_fix[2][2]*LEN_SQUARE,List_batiments_zones_collision_fix[2][3]*LEN_SQUARE))
+
+
 time_for_every_sec = int(time.time())
 time_for_every_30_sec = int(time.time())
 
@@ -658,7 +703,45 @@ else:
         save_index += 1
     save_name = f"save_{save_index}"
 
+
+
+
+
 numpy.savetxt(os.path.join(save_dir, f"{save_name}_map.txt"), Actual_map, fmt="%d")
 numpy.savetxt(os.path.join(save_dir, f"{save_name}_objects.txt"), Actual_map_objects_layer, fmt="%d")
 numpy.savetxt(os.path.join(save_dir, f"{save_name}_pollution.txt"), Actual_map_pollution, fmt="%.4f")
+
+with open(os.path.join(save_dir, f"{save_name}_bushes.json"), "w") as f:
+    json.dump(Liste_bush_on_map, f)
+
+machines_data = []
+List_machines_depollution = [
+    CM.Depollution(
+        tuple(m["location"]),
+        m["polu_reduced_per_30_sec"],
+        m["range_depo"],
+        1,
+        polu_capa_max=m["polu_capa_max"]
+    )
+    for m in machines_data
+]
+
+for machine, m in zip(List_machines_depollution, machines_data):
+    machine.polu_capa = m["polu_capa"]
+with open(os.path.join(save_dir, f"{save_name}_machines.json"), "w") as f:
+    json.dump(machines_data, f)
+
+inventory_data = []
+for item in Robot.hotbar:
+    if item is None:
+        inventory_data.append(None)
+    else:
+        inventory_data.append({
+            "type": item.type,
+            "name": item.name
+        })
+
+with open(os.path.join(save_dir, f"{save_name}_inventory.json"), "w") as f:
+    json.dump(inventory_data, f)
+    
 print(f"Partie sauvegardée : {save_name}")
