@@ -73,7 +73,8 @@ see_minimap = False
 # Variables dialogue
 
 counter = 0
-speed = round(25 * 60/fps)
+# speed = round(25 * 60/fps)
+speed = 2
 done = False
 active_message = 0
 
@@ -576,7 +577,7 @@ while running:
                 object.draw(screen)
             previous_counter = counter 
             if counter < speed * len(message) :
-                counter +=1
+                counter += dt * 60
             elif counter >= speed * len(message):
                 done = True
                 text_sound.stop()
