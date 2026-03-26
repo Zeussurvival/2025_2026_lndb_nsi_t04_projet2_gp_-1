@@ -348,10 +348,22 @@ Robot = CH.Humanoid((8*LEN_SQUARE,16*LEN_SQUARE),100,5,5,"robot_front/front1.png
 if mode == "load" and file_path and os.path.exists(file_path):
     bushes_path = os.path.join(saves_dir, f"{sys.argv[7]}_bushes.json")
     machines_path = os.path.join(saves_dir, f"{sys.argv[7]}_machines.json")
-    
+    Actual_map = numpy.loadtxt(file_path, dtype=int)
+    Actual_map_objects_layer = numpy.loadtxt(objects_path, dtype=int)
+    Actual_map_pollution = numpy.loadtxt(pollution_path, dtype=float)
+
     if os.path.exists(bushes_path):
         with open(bushes_path, "r") as f:
             Liste_bush_on_map = json.load(f)
+        
+
+    for bush_data in Liste_bush_on_map:
+        # bush_data == [ (y,x), next_time ]
+        pos, next_time = bush_data
+        y, x = pos
+     
+        Actual_map_objects_layer[y, x] = dict_image_bats[os.path.join(autres_tiles_dir, "Bush_tile.png")]
+
 
     if os.path.exists(machines_path):
         with open(machines_path, "r") as f:
@@ -368,6 +380,10 @@ if mode == "load" and file_path and os.path.exists(file_path):
 
         for i, machine in enumerate(List_machines_depollution):
             machine.polu_capa = machines_data[i]["polu_capa"]
+        for machine in List_machines_depollution:
+            x, y = machine.location
+            Actual_map_objects_layer[y][x] = dict_image_bats[machine.image_path]
+
     else:
 
         Actual_map = numpy.loadtxt(file_path, dtype=int)
@@ -382,6 +398,7 @@ if mode == "load" and file_path and os.path.exists(file_path):
             inventory_data = json.load(f)
 
         Robot.hotbar = []
+
         for item in inventory_data:
             if item is None:
                 Robot.hotbar.append(None)
@@ -389,6 +406,11 @@ if mode == "load" and file_path and os.path.exists(file_path):
                 Robot.hotbar.append(bush)
             elif item["type"] == "Machine_objet":
                 Robot.hotbar.append(machine_depo_1_obj)
+            elif item["type"] == "Consumable":
+                Robot.hotbar.append(pomme)
+
+        while len(Robot.hotbar) < 5:
+            Robot.hotbar.append(None)
 else:
     Actual_map = D.creation_map_rectangle(Taille_map, Taille_map, 0)
     Actual_map_objects_layer = D.creation_map_rectangle(Taille_map, Taille_map, -1)
@@ -784,6 +806,7 @@ else:
 numpy.savetxt(os.path.join(save_dir, f"{save_name}_map.txt"), Actual_map, fmt="%d")
 numpy.savetxt(os.path.join(save_dir, f"{save_name}_objects.txt"), Actual_map_objects_layer, fmt="%d")
 numpy.savetxt(os.path.join(save_dir, f"{save_name}_pollution.txt"), Actual_map_pollution, fmt="%.4f")
+
 
 with open(os.path.join(save_dir, f"{save_name}_bushes.json"), "w") as f:
     json.dump(Liste_bush_on_map, f)
