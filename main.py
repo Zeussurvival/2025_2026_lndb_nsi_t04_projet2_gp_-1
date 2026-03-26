@@ -139,8 +139,19 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
+
+
+
+
+### VOIR ANIMATIONS
 see_animations = False 
 cooldown_dialogue = False
+
+
+
+
+
+
 
 #MINIMAP
 def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H):
@@ -410,16 +421,20 @@ List_bats_zones_collision_portes = []
 
 
 # Ajout des Bats a la map
+# bat 1
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[0],(0,0))
 List_batiments_zones_collision.append(pygame.Rect((0+List_bats_zones_collision_fix[0][0])*64,(0+List_bats_zones_collision_fix[0][1])*64,List_bats_zones_collision_fix[0][2]*64,List_bats_zones_collision_fix[0][3]*64))
 List_bats_zones_collision_portes.append(pygame.Rect((0+List_bats_zones_collision_portes_fix[0][0])*64,(0+List_bats_zones_collision_portes_fix[0][1])*64,List_bats_zones_collision_portes_fix[0][2]*64,List_bats_zones_collision_portes_fix[0][3]*64))
+matrice_temp = numpy.full((List_bats_zones_collision_fix[0][2],List_bats_zones_collision_fix[0][3]),dict_image_bats[os.path.join(autres_tiles_dir,"plank.png")])
 
+# bat 2
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[1],(15,15))
 List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_fix[1][0])*64,(15+List_bats_zones_collision_fix[1][1])*64,List_bats_zones_collision_fix[1][2]*64,List_bats_zones_collision_fix[1][3]*64))
 List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[1][0][0])*64,(15+List_bats_zones_collision_en_plus_fix[1][0][1])*64,List_bats_zones_collision_en_plus_fix[1][0][2]*64,List_bats_zones_collision_en_plus_fix[1][0][3]*64))
 List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[1][1][0])*64,(15+List_bats_zones_collision_en_plus_fix[1][1][1])*64,List_bats_zones_collision_en_plus_fix[1][1][2]*64,List_bats_zones_collision_en_plus_fix[1][1][3]*64))
 List_bats_zones_collision_portes.append(pygame.Rect((15+List_bats_zones_collision_portes_fix[1][0])*64,(15+List_bats_zones_collision_portes_fix[1][1])*64,List_bats_zones_collision_portes_fix[1][2]*64,List_bats_zones_collision_portes_fix[1][3]*64))
 
+# bat 3
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[2],(15,0))
 List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_fix[2][0])*64,(0+List_bats_zones_collision_fix[2][1])*64,List_bats_zones_collision_fix[2][2]*64,List_bats_zones_collision_fix[2][3]*64))
 List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[2][0][0])*64,(0+List_bats_zones_collision_en_plus_fix[2][0][1])*64,List_bats_zones_collision_en_plus_fix[2][0][2]*64,List_bats_zones_collision_en_plus_fix[2][0][3]*64))
