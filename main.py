@@ -61,6 +61,7 @@ GAME_PLAY = 9
 IN_HOUSE = 10
 current_state = FADE_BLACK
 
+first_machine_posed = False
 earth_timer = 180*60/fps
 fade_alpha = 255 
 fade_speed = 1*60/fps
@@ -68,6 +69,7 @@ timer = 70*60/fps
 text_timer = 70*60/fps
 
 see_minimap = False 
+
 
 # Variables dialogue
 
@@ -122,8 +124,12 @@ dialogue_1 = C_D.Dialogue(640, 600, 894, 200, dialogue_image, police_dialogue_pa
                           ["Initialisation…", "Unité de nettoyage autonome : Xénia.", 
                            "Statut de la planète : inhabitable.", 
                            "Mission prioritaire : nettoyer."], next)
-
 message = dialogue_1.dialogue_text[active_message]
+
+dialogue_machine = C_D.Dialogue(640, 600, 894, 200, dialogue_image, police_dialogue_path,
+                          ["Première machine déployée.", 
+                           "Dépollution en cours…",
+                           "Continuez à nettoyer la zone."], next)
 
 
 frames = []
@@ -435,7 +441,7 @@ time_for_every_sec = int(time.time())
 time_for_every_30_sec = int(time.time())
 
 List_ground_objets.append((ferraille, (10*LEN_SQUARE + LEN_SQUARE//2, 10*LEN_SQUARE + LEN_SQUARE//2)))
-
+dialogue_actif = dialogue_1
 print("running now")
 while running:
     time_0 = time.time()
@@ -447,7 +453,7 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((0,0,0))
-    if not see_animations and current_state != IN_HOUSE:
+    if not see_animations and current_state != IN_HOUSE and current_state != SHOW_DIALOGUE:
         current_state = GAME_PLAY
         fade_alpha = 0
     if current_state != GAME_PLAY and current_state != IN_HOUSE:
@@ -534,6 +540,7 @@ while running:
                 fade_alpha = 0
                 
         elif current_state == SHOW_DIALOGUE: 
+
             for object in objects:
                 object.process()
                 object.draw(screen)
@@ -547,15 +554,15 @@ while running:
             previous_char = previous_counter // speed
             if current_char == 1 and previous_char == 0 and not done:
                 text_sound.play()
-            dialogue_1.snip = message[0:counter//speed]
+            dialogue_actif.snip = message[0:counter//speed]
 
             if keys[pygame.K_RETURN] or keys[pygame.K_SPACE] and cooldown_dialogue == False:
                 cooldown_dialogue = True
                 if done:
-                    if active_message < len(dialogue_1.dialogue_text) - 1:
+                    if active_message < len(dialogue_actif.dialogue_text) - 1:
                         active_message += 1
                         done = False
-                        message = dialogue_1.dialogue_text[active_message]
+                        message = dialogue_actif.dialogue_text[active_message]
                         counter = 0
                         text_sound.stop()
                     else:  
@@ -641,6 +648,15 @@ while running:
                         List_machines_depollution.append(CM.Depollution((int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)),0.1,5,1,polu_capa_max=40))
                         Actual_map_objects_layer[int(tile_souris[1]/64),int(tile_souris[0]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
+
+                        if not first_machine_posed:        
+                            first_machine_posed = True
+                            dialogue_actif = dialogue_machine 
+                            current_state = SHOW_DIALOGUE    
+                            active_message = 0
+                            counter = 0
+                            done = False
+                            message = dialogue_machine.dialogue_text[0]  
                         
 
         if time_for_every_sec +1 <= int(time.time()):
