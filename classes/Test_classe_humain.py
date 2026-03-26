@@ -23,6 +23,7 @@ class Humanoid:
     def __init__(self,pos,pv,base_damage,speed,image,list_images,LEN_SQUARE, hotbar):
         self.vect = pygame.math.Vector2(0,0)
         self.pos = pos
+        self.pos_in_houses = (5,5)
         self.pv = pv
         self.speed = speed * LEN_SQUARE
         self.base_damage = base_damage
@@ -33,6 +34,7 @@ class Humanoid:
         self.inventory = []
         self.inventory_size = 20
         self.range_pickup = 2.5
+
 
         self.last_direction = 1
         self.moove_this_frame = False

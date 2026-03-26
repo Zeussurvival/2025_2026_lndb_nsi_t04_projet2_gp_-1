@@ -56,6 +56,7 @@ SHOW_TEXT_2 = 6
 FADE_TO_DIALOGUE = 7 
 SHOW_DIALOGUE = 8
 GAME_PLAY = 9
+IN_HOUSE = 10
 current_state = FADE_BLACK
 
 earth_timer = 180*60/fps
@@ -262,7 +263,12 @@ for tile in temp_list:
         tileset_paths += [true_path]
         tileset += [CT.Tile(os.path.join(true_path),None,0)]
 
-# Batiments
+
+## Creation de la dimension pour les maisons
+Map_House = numpy.full((1000,40),0)
+indice_maison = 0
+
+## Batiments et collisions
 List_batiments_raw = []
 
 for file in os.listdir(os.path.join("assets","Building_txt")): # va enregistrer les lignes du txt en element dans une liste
@@ -272,8 +278,11 @@ for file in os.listdir(os.path.join("assets","Building_txt")): # va enregistrer 
             bat_actuel.append(line.strip())
     List_batiments_raw.append(bat_actuel)
 
-List_batiments_net = []
+
 List_batiments_zones_collision_fix = [[0,0,10,8,5],[1,3,10,6,3],[1,0,10,9,3]]
+List_batiments_zones_collision_portes_fix = [[4,6,6,8],[3,7,4,9],[6,7,8,9]]
+List_batiments_zones_collision_en_plus_fix = [[  ],[ [0,6,1,2], [4,0,6,3] ],[ [11,4,1,3], [3,9,2,1], [8,9,1,1] ]]
+List_batiments_net = []
 for bat in List_batiments_raw: # enregistre une matrice en fct de lindice de limage dans la tileset
     temp_list = []
     x,y = bat[0],bat[1]
@@ -281,17 +290,28 @@ for bat in List_batiments_raw: # enregistre une matrice en fct de lindice de lim
         temp_list.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
     List_batiments_net.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_list))
 Bats_zones_in_map = []
-print(Actual_map.shape[0]*LEN_SQUARE+256)
-print(pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE+256,0),pygame.Rect(-128,-128,0,Actual_map.shape[1]*LEN_SQUARE+256))
-List_batiments_zones_collision = [pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE+256,128),pygame.Rect(-128,-128,128,Actual_map.shape[1]*LEN_SQUARE+256),\
-                                  pygame.Rect(-128,Actual_map.shape[0]*LEN_SQUARE+256,Actual_map.shape[0]*LEN_SQUARE+256,128),pygame.Rect(Actual_map.shape[0]*LEN_SQUARE+256,-128,128,Actual_map.shape[1]*LEN_SQUARE+256)]
 
+
+List_batiments_zones_collision = [pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE,128),pygame.Rect(-128,-128,128,Actual_map.shape[1]*LEN_SQUARE),\
+                                  pygame.Rect(-128,Actual_map.shape[0]*LEN_SQUARE,Actual_map.shape[0]*LEN_SQUARE+128,128),pygame.Rect(Actual_map.shape[0]*LEN_SQUARE,-128,128,Actual_map.shape[1]*LEN_SQUARE+128)]
+List_batiments_zones_collision_portes = []
+
+
+# Ajout des Bats a la map
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[0],(0,0))
 List_batiments_zones_collision.append(pygame.Rect((0+List_batiments_zones_collision_fix[0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[0][1])*LEN_SQUARE,List_batiments_zones_collision_fix[0][2]*LEN_SQUARE,List_batiments_zones_collision_fix[0][3]*LEN_SQUARE))
+
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[1],(15,15))
 List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[1][0])*LEN_SQUARE,(15+List_batiments_zones_collision_fix[1][1])*LEN_SQUARE,List_batiments_zones_collision_fix[1][2]*LEN_SQUARE,List_batiments_zones_collision_fix[1][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[1][0][0])*LEN_SQUARE,(15+List_batiments_zones_collision_en_plus_fix[1][0][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][0][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][0][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[1][1][0])*LEN_SQUARE,(15+List_batiments_zones_collision_en_plus_fix[1][1][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][1][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][1][3]*LEN_SQUARE))
+
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[2],(15,0))
 List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[2][1])*LEN_SQUARE,List_batiments_zones_collision_fix[2][2]*LEN_SQUARE,List_batiments_zones_collision_fix[2][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][0][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][0][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][0][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][1][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][1][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][1][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][1][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][2][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][2][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][2][3]*LEN_SQUARE))
+
 
 
 # KEYBINDS
@@ -302,6 +322,8 @@ touche_direction_bas = pygame.K_s
 touche_affichage_pollution = pygame.K_F3
 touche_jet_ditem = pygame.K_n
 touche_recuperation_ditem = pygame.K_e
+
+
 
 
 ### AUTRES
@@ -345,10 +367,10 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((0,0,0))
-    if not see_animations:
+    if not see_animations and current_state != IN_HOUSE:
         current_state = GAME_PLAY
         fade_alpha = 0
-    if current_state != GAME_PLAY:
+    if current_state != GAME_PLAY and current_state != IN_HOUSE:
         if current_state == FADE_BLACK:
             if timer > 0:
                 timer -=1
@@ -536,7 +558,6 @@ while running:
                         Liste_bush_on_map.append([(int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
                         
                     elif Robot.hotbar[Robot.held_item_indice].type == "Machine_objet":
-                        print(Robot.hotbar[Robot.held_item_indice].indice_in_map)
                         List_machines_depollution.append(CM.Depollution((int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)),0.1,5,1,polu_capa_max=40))
                         Actual_map_objects_layer[int(tile_souris[1]/64),int(tile_souris[0]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
@@ -630,16 +651,30 @@ while running:
 ### ------------- CODE EUDOCIE
 ###-------------------------------------------------------
 
-    if fade_alpha > 0 : # permet de faire le fade si yen a a faire dans le current state
-        fade_surface = pygame.Surface((screen.get_width(),screen.get_height()))
-        fade_surface.set_alpha(fade_alpha)
-        fade_surface.fill((0, 0, 0))  
-        screen.blit(fade_surface, (0, 0))
-    if see_minimap == True :
-        draw_minimap(screen, Robot, Actual_map_objects_layer, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
+        if fade_alpha > 0 : # permet de faire le fade si yen a a faire dans le current state
+            fade_surface = pygame.Surface((screen.get_width(),screen.get_height()))
+            fade_surface.set_alpha(fade_alpha)
+            fade_surface.fill((0, 0, 0))  
+            screen.blit(fade_surface, (0, 0))
+        if see_minimap == True :
+            draw_minimap(screen, Robot, Actual_map_objects_layer, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
 
-    # if time.time()-time_0 > dt:
-    #     print(" OH SHIT", time.time()-time_0- dt)
+        if keys[pygame.K_h] and not cd_h:
+            current_state = IN_HOUSE
+            cd_h = True
+
+        if not keys[pygame.K_h]:
+            cd_h = False
+
+
+    if current_state == IN_HOUSE:
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_h] and not cd_h:
+            current_state = GAME_PLAY
+            cd_h = True
+        if not keys[pygame.K_h]:
+            cd_h = False
 
     pygame.display.flip()
     dt = clock.tick(fps) / 1000
