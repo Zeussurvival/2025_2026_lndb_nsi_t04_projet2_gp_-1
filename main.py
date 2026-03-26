@@ -645,9 +645,7 @@ while running:
             centre_tile = (tile_souris[0]+32,tile_souris[1]+32) # on prends dcp le centre de la tile, en gros c juste len_square /2 mais on va simplifier
             diff = (centre_tile[0]-Robot.pos[0],centre_tile[1]-Robot.pos[1]) # reconversion en pos ecran
 
-        print("Item actuel :", Robot.hotbar[Robot.held_item_indice])
-        if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True:
-
+            print("Item actuel :", Robot.hotbar[Robot.held_item_indice])
             if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
                 if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True: # affichage des carrés et voir si on peut utiliser items
 
@@ -666,6 +664,25 @@ while running:
                             List_machines_depollution.append(CM.Depollution((int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)),0.1,5,1,polu_capa_max=40))
                             Actual_map_objects_layer[int(tile_souris[1]/64),int(tile_souris[0]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                             Robot.hotbar[Robot.held_item_indice] = None
+                        if not first_machine_placed:
+                            first_machine_placed = True
+
+                            dialogue_1.dialogue_text = [
+                                "Machine détectée.",
+                                "Analyse en cours...",
+                                "Pollution en baisse.",
+                                "Continuez comme ça."
+                            ]
+
+                            active_message = 0
+                            counter = 0
+                            done = False
+                            message = dialogue_1.dialogue_text[active_message]
+
+                            current_state = SHOW_DIALOGUE
+                            see_animations = True
+                            cooldown_dialogue = True
+
                 if keys[touche_utiliser_porte]:
                     if indice_maison >= 0:
                         IN_HOUSE = True
@@ -730,113 +747,22 @@ while running:
                 if vect_mvt.length() / (Robot.speed * dt + 0.00001) > 1:
                     vect_mvt = vect_mvt.normalize() * Robot.speed * dt
                 has_not_moove = True 
+                new_pos = Robot.pos + pygame.math.Vector2(vect_mvt[0],0)
+                rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
+                if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe x
+                    Robot.pos = new_pos
 
-                
-            else:
-                if Robot.moove_this_frame:
-                    Robot.indice_animation_en_cours = time.time()
-                has_not_moove = False
-                new_pos = Robot.pos
+                new_pos = Robot.pos + pygame.math.Vector2(0,vect_mvt[1])
+                rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
+                if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe y
+                    Robot.pos = new_pos
 
-                if Robot.hotbar[Robot.held_item_indice].type == "Plant":
-                    Actual_map_objects_layer[int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
-                    Robot.hotbar[Robot.held_item_indice] = None
-                    Liste_bush_on_map.append([(int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
                     
-                elif Robot.hotbar[Robot.held_item_indice].type == "Machine_objet":
-                    print("Machine en train d'être placée")
-                    List_machines_depollution.append(CM.Depollution((int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)),0.1,5,1,polu_capa_max=40))
-                    Actual_map_objects_layer[int(tile_souris[1]/64),int(tile_souris[0]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
-                    Robot.hotbar[Robot.held_item_indice] = None
-
-                    if not first_machine_placed:
-                        first_machine_placed = True
-
-                        dialogue_1.dialogue_text = [
-                            "Machine détectée.",
-                            "Analyse en cours...",
-                            "Pollution en baisse.",
-                            "Continuez comme ça."
-                        ]
-
-                        active_message = 0
-                        counter = 0
-                        done = False
-                        message = dialogue_1.dialogue_text[active_message]
-
-                        current_state = SHOW_DIALOGUE
-                        see_animations = True
-                        cooldown_dialogue = True
-
-        if time_for_every_sec +1 <= int(time.time()):
-            for bush in Liste_bush_on_map:
-                if bush[1] <= int(time.time()):
-                    bush[1] = int(time.time())+random.randint(30,50)
-                    List_ground_objets.append([pomme,(bush[0][1]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
-                                                            bush[0][0]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
-                    List_ground_objets.append([ferraille,(bush[0][1]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
-                                                            bush[0][0]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
-            time_for_every_sec = int(time.time())+1
-
-        if time_for_every_30_sec + 30 <= int(time.time()):
-            for machine in List_machines_depollution:
-                if machine.polu_capa < machine.polu_capa_max:
-                    chng = D.to_remove_bro(Actual_map_pollution,machine.location,machine.range_depo,machine.polu_reduced_per_30_sec,machine.polu_capa_max - machine.polu_capa)
-                    machine.polu_capa += chng
-            time_for_every_30_sec = int(time.time()) + 30
-            pollution_actuelle = numpy.sum(Actual_map_pollution)
+                
 
 
-        #AFFICHAGE INDICE POLLUTION
-        if pollution_max_possible > 0:
-            pourcentage_pollution = round(pollution_actuelle,4)
-        else:
-            pourcentage_pollution = 0
-        indice_width = 200
-        indice_height = 30
-        indice_x = W - indice_width - 20
-        indice_y = 20
-        interface_padding = 12
-        interface_rect = pygame.Rect(indice_x - interface_padding, 
-                                     indice_y - interface_padding, 
-                                     indice_width + 2*interface_padding, 
-                                     indice_height + 50)
-        interface_surface = pygame.Surface((interface_rect.width, interface_rect.height))
-        interface_surface.set_alpha(200)
-        interface_surface.fill((20, 20, 20))
-        screen.blit(interface_surface, interface_rect.topleft)
-        pollution_value_font = pygame.font.Font(font_1, 20)
-        pollution_value_text = pollution_value_font.render(f"{pourcentage_pollution:.1f}g totale.", 1, (255, 255, 255))
-        value_rect = pollution_value_text.get_rect(center=(indice_x + indice_width/2, indice_y + 30))
-        screen.blit(pollution_value_text, value_rect)
 
-
-        # verification du mouvement du joueur
-        has_not_moove = True
-        vect_mvt = pygame.math.Vector2(0,0)
-        if keys[touche_direction_gauche]:
-            vect_mvt[0] -= Robot.speed * dt
-        if keys[touche_direction_droite]:
-            vect_mvt[0] += Robot.speed * dt
-        if keys[touche_direction_haut]:
-            vect_mvt[1] -= Robot.speed * dt
-        if keys[touche_direction_bas]:
-            vect_mvt[1] += Robot.speed * dt
-        if vect_mvt.length() != 0:
-            if vect_mvt.length() / (Robot.speed * dt + 0.00001) > 1:
-                vect_mvt = vect_mvt.normalize() * Robot.speed * dt
-            has_not_moove = True 
-            new_pos = Robot.pos + pygame.math.Vector2(vect_mvt[0],0)
-            rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
-            if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe x
-                Robot.pos = new_pos
-
-            new_pos = Robot.pos + pygame.math.Vector2(0,vect_mvt[1])
-            rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
-            if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe y
-                Robot.pos = new_pos
-            
-
+    
             Robot.moove_this_frame = has_not_moove
             # print(Robot.moove_this_frame,has_not_moove)
             Robot.pos = (round(Robot.pos[0],5),round(Robot.pos[1],5))
