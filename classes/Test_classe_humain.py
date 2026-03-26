@@ -23,7 +23,7 @@ class Humanoid:
     def __init__(self,pos,pv,base_damage,speed,image,list_images,LEN_SQUARE, hotbar):
         self.vect = pygame.math.Vector2(0,0)
         self.pos = pos
-        self.pos_in_houses = (5,5)
+        self.pos_in_houses = (5*64,5*64)
         self.pv = pv
         self.speed = speed * LEN_SQUARE
         self.base_damage = base_damage
@@ -36,7 +36,7 @@ class Humanoid:
         self.range_pickup = 2.5
 
 
-        self.last_direction = 1
+        self.last_direction = 2
         self.moove_this_frame = False
 
         self.image = pygame.image.load(os.path.join(Robot_dir, image)).convert_alpha()
@@ -83,7 +83,7 @@ class Humanoid:
         if self.moove_this_frame == False:
             # print(self.last_direction)
             new_image = self.True_list_images[self.last_direction][2]
-        
+        print(mooves,self.moove_this_frame)
         if self.True_list_images == []:
             new_image = self.image
         screen.blit(new_image,(W/2-self.image_length[0]/2,H/2-self.image_length[1]/2))

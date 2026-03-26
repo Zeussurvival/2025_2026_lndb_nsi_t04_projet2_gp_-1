@@ -426,6 +426,8 @@ D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[0],
 List_batiments_zones_collision.append(pygame.Rect((0+List_bats_zones_collision_fix[0][0])*64,(0+List_bats_zones_collision_fix[0][1])*64,List_bats_zones_collision_fix[0][2]*64,List_bats_zones_collision_fix[0][3]*64))
 List_bats_zones_collision_portes.append(pygame.Rect((0+List_bats_zones_collision_portes_fix[0][0])*64,(0+List_bats_zones_collision_portes_fix[0][1])*64,List_bats_zones_collision_portes_fix[0][2]*64,List_bats_zones_collision_portes_fix[0][3]*64))
 matrice_temp = numpy.full((List_bats_zones_collision_fix[0][2],List_bats_zones_collision_fix[0][3]),dict_image_bats[os.path.join(autres_tiles_dir,"plank.png")])
+D.replace_matrice_big_then_small(Map_House,matrice_temp,(List_bats_zones_collision_fix[0][3],List_bats_zones_collision_fix[0][2]+indice_maison*100))
+indice_maison += 1
 
 # bat 2
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[1],(15,15))
@@ -433,6 +435,9 @@ List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_
 List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[1][0][0])*64,(15+List_bats_zones_collision_en_plus_fix[1][0][1])*64,List_bats_zones_collision_en_plus_fix[1][0][2]*64,List_bats_zones_collision_en_plus_fix[1][0][3]*64))
 List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[1][1][0])*64,(15+List_bats_zones_collision_en_plus_fix[1][1][1])*64,List_bats_zones_collision_en_plus_fix[1][1][2]*64,List_bats_zones_collision_en_plus_fix[1][1][3]*64))
 List_bats_zones_collision_portes.append(pygame.Rect((15+List_bats_zones_collision_portes_fix[1][0])*64,(15+List_bats_zones_collision_portes_fix[1][1])*64,List_bats_zones_collision_portes_fix[1][2]*64,List_bats_zones_collision_portes_fix[1][3]*64))
+matrice_temp = numpy.full((List_bats_zones_collision_fix[1][2],List_bats_zones_collision_fix[1][3]),dict_image_bats[os.path.join(autres_tiles_dir,"plank.png")])
+D.replace_matrice_big_then_small(Map_House,matrice_temp,(List_bats_zones_collision_fix[1][3],List_bats_zones_collision_fix[1][2]+indice_maison*100))
+indice_maison += 1
 
 # bat 3
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[2],(15,0))
@@ -442,7 +447,7 @@ List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_
 List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[2][2][0])*64,(0+List_bats_zones_collision_en_plus_fix[2][2][1])*64,List_bats_zones_collision_en_plus_fix[2][2][2]*64,List_bats_zones_collision_en_plus_fix[2][2][3]*64))
 List_bats_zones_collision_portes.append(pygame.Rect((15+List_bats_zones_collision_portes_fix[2][0])*64,(0+List_bats_zones_collision_portes_fix[2][1])*64,List_bats_zones_collision_portes_fix[2][2]*64,List_bats_zones_collision_portes_fix[2][3]*64))
 
-
+indice_maison = -1
 
 
 # KEYBINDS
@@ -660,7 +665,7 @@ while running:
             centre_tile = (tile_souris[0]+32,tile_souris[1]+32) # on prends dcp le centre de la tile, en gros c juste len_square /2 mais on va simplifier
             diff = (centre_tile[0]-Robot.pos[0],centre_tile[1]-Robot.pos[1]) # reconversion en pos ecran
 
-            print("Item actuel :", Robot.hotbar[Robot.held_item_indice])
+            # print("Item actuel :", Robot.hotbar[Robot.held_item_indice])
             if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
                 if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True: # affichage des carrés et voir si on peut utiliser items
 
@@ -776,16 +781,9 @@ while running:
 
                     
                 
-
-
-
     
             Robot.moove_this_frame = has_not_moove
-            # print(Robot.moove_this_frame,has_not_moove)
             Robot.pos = (round(Robot.pos[0],5),round(Robot.pos[1],5))
-
-            # print(List_bats_zones_collision_portes)
-            # print(verif_collis(Pos_souris_monde,List_bats_zones_collision_portes))
 
 
             last_mvt = [keys[touche_direction_haut],keys[touche_direction_bas],keys[touche_direction_gauche],keys[touche_direction_droite]]   # -----> pour faire les animations mais la jai pas le temps ptdr
@@ -811,8 +809,53 @@ while running:
                 cd_h = False
 
 
+
+
+
+
+
+
         if IN_HOUSE:
             keys = pygame.key.get_pressed()
+            coin_haut = (math.floor((Robot.pos_in_houses[0]-W_2)/LEN_SQUARE),math.floor((Robot.pos_in_houses[1]-H_2)/LEN_SQUARE))
+            coin_bas = (math.ceil((Robot.pos_in_houses[0]+W_2)/LEN_SQUARE),math.ceil((Robot.pos_in_houses[1]+H_2)/LEN_SQUARE))
+
+            for y in range(max(coin_haut[1],0),min(coin_bas[1],Map_House.shape[0])): # montre la map, polution et objet_layer
+                for x in range(max(coin_haut[0],0),min(coin_bas[0],Map_House.shape[1])):
+                    tileset[Map_House[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos_in_houses[0]+W_2, y*LEN_SQUARE-Robot.pos_in_houses[1]+H_2))
+            print(Robot.pos_in_houses,Map_House[5,5])
+
+
+            ### Mouvement
+            has_not_moove = True
+            vect_mvt = pygame.math.Vector2(0,0)
+            if keys[touche_direction_gauche]:
+                vect_mvt[0] -= Robot.speed * dt
+            if keys[touche_direction_droite]:
+                vect_mvt[0] += Robot.speed * dt
+            if keys[touche_direction_haut]:
+                vect_mvt[1] -= Robot.speed * dt
+            if keys[touche_direction_bas]:
+                vect_mvt[1] += Robot.speed * dt
+            if vect_mvt.length() != 0:
+                if vect_mvt.length() / (Robot.speed * dt + 0.00001) > 1:
+                    vect_mvt = vect_mvt.normalize() * Robot.speed * dt
+                has_not_moove = True 
+                new_pos = Robot.pos_in_houses + pygame.math.Vector2(vect_mvt[0],0)
+                rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
+                if rect_robot.collidelist([]) == -1: # verif sur laxe x
+                    Robot.pos_in_houses = new_pos
+
+                new_pos = Robot.pos_in_houses + pygame.math.Vector2(0,vect_mvt[1])
+                rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
+                if rect_robot.collidelist([]) == -1: # verif sur laxe y
+                    Robot.pos_in_houses = new_pos
+            else:
+                has_not_moove = False
+
+            Robot.moove_this_frame = has_not_moove
+            last_mvt = [keys[touche_direction_haut],keys[touche_direction_bas],keys[touche_direction_gauche],keys[touche_direction_droite]]  
+            Robot.do_all(keys,screen,last_mvt)
 
             if keys[pygame.K_h] and not cd_h:
                 IN_HOUSE = False
@@ -820,9 +863,12 @@ while running:
             if not keys[pygame.K_h]:
                 cd_h = False
 
+
+
+
     pygame.display.flip()
     dt = clock.tick(fps) / 1000
-pygame.quit()
+
 
 save_dir = os.path.join(main_dir, "saves")
 os.makedirs(save_dir, exist_ok=True)
