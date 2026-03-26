@@ -19,6 +19,7 @@ mode = sys.argv[3] if len(sys.argv) > 3 else "new"
 file_path = sys.argv[4] if len(sys.argv) > 4 else None
 objects_path = sys.argv[5] if len(sys.argv) > 5 else None
 pollution_path = sys.argv[6] if len(sys.argv) > 6 else None
+first_machine_placed = False
 
 # Chemins
 main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -139,7 +140,7 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
-see_animations = True 
+see_animations = False 
 cooldown_dialogue = False
 
 #MINIMAP
@@ -621,7 +622,7 @@ while running:
         centre_tile = (tile_souris[0]+32,tile_souris[1]+32) # on prends dcp le centre de la tile, en gros c juste len_square /2 mais on va simplifier
         diff = (centre_tile[0]-Robot.pos[0],centre_tile[1]-Robot.pos[1]) # reconversion en pos ecran
 
-
+        print("Item actuel :", Robot.hotbar[Robot.held_item_indice])
         if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True:
 
             if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
@@ -638,10 +639,29 @@ while running:
                         Liste_bush_on_map.append([(int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)) ,math.floor(time.time())+random.randint(30,50)])
                         
                     elif Robot.hotbar[Robot.held_item_indice].type == "Machine_objet":
+                        print("Machine en train d'être placée")
                         List_machines_depollution.append(CM.Depollution((int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)),0.1,5,1,polu_capa_max=40))
                         Actual_map_objects_layer[int(tile_souris[1]/64),int(tile_souris[0]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                         Robot.hotbar[Robot.held_item_indice] = None
-                        
+
+                        if not first_machine_placed:
+                            first_machine_placed = True
+
+                            dialogue_1.dialogue_text = [
+                                "Machine détectée.",
+                                "Analyse en cours...",
+                                "Pollution en baisse.",
+                                "Continuez comme ça."
+                            ]
+
+                            active_message = 0
+                            counter = 0
+                            done = False
+                            message = dialogue_1.dialogue_text[active_message]
+
+                            current_state = SHOW_DIALOGUE
+                            see_animations = True
+                            cooldown_dialogue = True
 
         if time_for_every_sec +1 <= int(time.time()):
             for bush in Liste_bush_on_map:
