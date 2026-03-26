@@ -57,12 +57,12 @@ class Humanoid:
             screen.blit(self.image,vrai_pos)
         else:
             screen.blit(self.True_list_images[0],vrai_pos)
-        self.blit_center_self(screen,key_pressed)
+        # self.blit_center_self(screen,key_pressed)
         
     def blit_center_self(self,screen,mooves):
         H,W = pygame.Surface.get_height(screen),pygame.Surface.get_width(screen) #self.image_length[1]/2
         # self.indice_animation_en_cours = (round(time.time()-math.floor(time.time())*16))%4
-        indice_actu = int((time.time() - self.indice_animation_en_cours ) *4) % 4
+        indice_actu = int((time.time() - self.indice_animation_en_cours ) *6) % 4
         new_image = self.image
         
         if mooves[2] and self.moove_this_frame:             # rajouter que si tu change danimations ca revienne a 0
@@ -77,14 +77,13 @@ class Humanoid:
         if mooves[0] and self.moove_this_frame:
             new_image = self.True_list_images[1][indice_actu]
             self.last_direction = 1
-        print(self.moove_this_frame)
+        
         if self.moove_this_frame == False:
-            print(self.last_direction)
+            # print(self.last_direction)
             new_image = self.True_list_images[self.last_direction][2]
         
         if self.True_list_images == []:
             new_image = self.image
-        # print(self.moove_this_frame)
         screen.blit(new_image,(W/2-self.image_length[0]/2,H/2-self.image_length[1]/2))
 
 
