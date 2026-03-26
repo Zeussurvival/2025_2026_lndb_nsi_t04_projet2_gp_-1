@@ -88,6 +88,8 @@ BLUE = (0, 0, 255)
 DARK_BLUE = (0, 0, 200)
 SEMI_TRANSPARENT = (0,0,0,180)
 
+scroll_offset = 0
+MAX_VISIBLE_SAVES = 5
 selected_file = None
 mode = "new"
 
@@ -367,11 +369,12 @@ def fonction ():
 
 
 def go_fichier():
-    global show_fichier, mode, selected_save_index
+    global show_fichier, mode, selected_save_index, scroll_offset
     show_fichier = not show_fichier
     if show_fichier:
         mode = "load"
         selected_save_index = 0
+        scroll_offset = 0
 
 def go_nouveau():
     global mode, selected_file
@@ -416,6 +419,16 @@ while running:
             if event.key == pygame.K_ESCAPE :
                 if show_fichier:
                     show_fichier = False
+            if show_fichier:
+                saves = get_saves()
+                if event.key == pygame.K_UP:
+                    scroll_offset = max(0, scroll_offset - 1)
+                if event.key == pygame.K_DOWN:
+                    scroll_offset = min(max(0, len(saves) - MAX_VISIBLE_SAVES), scroll_offset + 1)
+        if event.type == pygame.MOUSEWHEEL and show_fichier:
+            saves = get_saves()
+            scroll_offset -= event.y 
+            scroll_offset = max(0, min(max(0, len(saves) - MAX_VISIBLE_SAVES), scroll_offset))
     # fill the screen with a color to wipe away anything from last frame
     # screen.fill("purple")
     mouse_pos = pygame.mouse.get_pos()
@@ -441,18 +454,22 @@ while running:
             no_save_text = font_text.render("Aucun save trouvé", True, WHITE)
             screen.blit(no_save_text, no_save_text.get_rect(center=(400, 310)))
         else:
-            for i, save_name in enumerate(saves):
+            visible_saves = saves[scroll_offset:scroll_offset + MAX_VISIBLE_SAVES]
+            for i, save_name in enumerate(visible_saves):
+                real_index = i + scroll_offset
                 y_pos = 260 + i * 45
-                color = (0, 255, 200) if i == selected_save_index else WHITE
+                color = (0, 255, 200) if real_index == selected_save_index else WHITE
                 save_surf = font_text.render(save_name, True, color)
                 save_rect = save_surf.get_rect(center=(400, y_pos))
                 screen.blit(save_surf, save_rect)
 
-    
                 if save_rect.collidepoint(pygame.mouse.get_pos()):
                     pygame.draw.rect(screen, (0, 255, 200), save_rect.inflate(20, 8), 2)
                     if pygame.mouse.get_pressed()[0]:
-                        select_save(i)
+                        select_save(real_index)
+
+            
+
         for object in fichier_buttons:
             object.process()
     if not show_fichier:
