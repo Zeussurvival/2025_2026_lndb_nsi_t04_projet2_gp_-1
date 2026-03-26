@@ -221,6 +221,8 @@ tileset = []
 tileset_paths = []
 tileset_paths += [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_2.png"),os.path.join(autres_tiles_dir,"background_3.png"),os.path.join(autres_tiles_dir,"background_4.png")]\
                + [os.path.join(autres_tiles_dir,"background_5.png"),os.path.join(autres_tiles_dir,"background_6.png"),os.path.join(autres_tiles_dir,"background_7.png"),os.path.join(autres_tiles_dir,"background_8.png")]
+
+
 dict_image_bats = {}
 
 
@@ -246,6 +248,7 @@ for tile in temp_list:
         dict_image_bats[true_path] = len(tileset)
         tileset_paths += [true_path]
         tileset += [CT.Tile(os.path.join(true_path),None,0)]
+
 ### AUTRES
 List_machines_depollution = []
 machine_depo_1_obj = CO.Machine_objet("Depollution_machine_t_1_objet.png","MAchine de dépollution","Une machine pour dépolluer les environs",1,"Depollution_machine_t_1.png",dict_image_bats[os.path.join(autres_tiles_dir,"Depollution_machine_t_1.png")])
@@ -419,8 +422,6 @@ touche_direction_bas = pygame.K_s
 touche_affichage_pollution = pygame.K_F3
 touche_jet_ditem = pygame.K_n
 touche_recuperation_ditem = pygame.K_e
-
-
 
 
 
@@ -822,3 +823,5 @@ with open(os.path.join(save_dir, f"{save_name}_inventory.json"), "w") as f:
     json.dump(inventory_data, f)
     
 print(f"Partie sauvegardée : {save_name}")
+
+pygame.quit()
