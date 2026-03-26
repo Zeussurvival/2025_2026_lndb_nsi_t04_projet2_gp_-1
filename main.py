@@ -20,6 +20,7 @@ file_path = sys.argv[4] if len(sys.argv) > 4 else None
 objects_path = sys.argv[5] if len(sys.argv) > 5 else None
 pollution_path = sys.argv[6] if len(sys.argv) > 6 else None
 first_machine_placed = False
+machine_dialogue_active = False
 
 # Chemins
 main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -139,7 +140,7 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
-see_animations = False 
+see_animations = True
 cooldown_dialogue = False
 
 #MINIMAP
@@ -668,10 +669,13 @@ while running:
                             first_machine_placed = True
 
                             dialogue_1.dialogue_text = [
-                                "Machine détectée.",
-                                "Analyse en cours...",
-                                "Pollution en baisse.",
-                                "Continuez comme ça."
+                                "Regarde autour de toi… Ce paysage était autrefois vivant.", 
+                                "La nature peut encore renaître… mais elle a besoin de toi.",
+                                "Ta mission est simple… en apparence.",
+                                "Nettoyer, reconstruire, et redonner vie à cet environnement.",
+                                "Avec les ressources récupérées, tu peux construire des machines.",
+                                "Ces machines permettent de purifier la terre et l’air."
+                            
                             ]
 
                             active_message = 0
@@ -679,7 +683,7 @@ while running:
                             done = False
                             message = dialogue_1.dialogue_text[active_message]
 
-                            current_state = SHOW_DIALOGUE
+                            machine_dialogue_active = True
                             see_animations = True
                             cooldown_dialogue = True
 
@@ -802,7 +806,43 @@ while running:
                 cd_h = True
             if not keys[pygame.K_h]:
                 cd_h = False
+        if machine_dialogue_active:
+            for object in objects:
+                object.process()
+                object.draw(screen)
 
+            previous_counter = counter 
+            if counter < speed * len(message):
+                counter +=1
+            else:
+                done = True
+                text_sound.stop()
+
+            current_char = counter // speed
+            previous_char = previous_counter // speed
+
+            if current_char == 1 and previous_char == 0 and not done:
+                text_sound.play()
+
+            dialogue_1.snip = message[0:counter//speed]
+
+            if keys[pygame.K_RETURN] or keys[pygame.K_SPACE]:
+                if done:
+                    if active_message < len(dialogue_1.dialogue_text) - 1:
+                        active_message += 1
+                        done = False
+                        message = dialogue_1.dialogue_text[active_message]
+                        counter = 0
+                    else:
+                        machine_dialogue_active = False
+                else:
+                    counter = speed * len(message)
+                    done = True
+    if fade_alpha > 0:
+        fade_surface = pygame.Surface((screen.get_width(), screen.get_height()))
+        fade_surface.set_alpha(fade_alpha)
+        fade_surface.fill((0, 0, 0))
+        screen.blit(fade_surface, (0, 0))
     pygame.display.flip()
     dt = clock.tick(fps) / 1000
 pygame.quit()
