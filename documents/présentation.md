@@ -24,6 +24,7 @@ Nous avons passé plusieurs moi sur ce projet au total environ 4 mois et demi. N
 Quand nous avons lu le sujet "Nature & Informatique", nous avons eu des débats intense sur comment faire un projet qui nous représentait tous. Ainsi nous avons choisi de faire un jeu.  
 Puis on devait choisi un thème tout en restant dans le thème, ainsi imspiré par le film wall-e nous avons décider de faire un jeu qui reprennait le sens de l'histoire initiale de ce film. Il fallait par la suite réfléchir sur comment l'utilisateur va pourvoir jouer a ce jeu, l'idée est donc de faire en sorte que le joueur est pour but de nettoyer une planète et de la rendre saine a vivre.
 Après avoir choisi les principaux point du projet nous avons commencé à crée les bases du projet. Par la suite, nous avons commencé a faire différents dossier pour les assets, un dossier pour les différentes classes, la documentation ert différents test pour par modifier direcetement le code principale.  
+A partir de ce moment la nous avons commencé a dévellopper les différents menu, la map, l'implantation de batiment.  
 4 - Validation de l’opérationnalité du projet/de son fonctionnement :
 ● état d’avancement du projet au moment du dépôt,
 ● approches mis en œuvre pour vérifier l’absence de bugs,
