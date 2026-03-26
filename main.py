@@ -780,25 +780,12 @@ while running:
         if IN_HOUSE:
             keys = pygame.key.get_pressed()
 
-<<<<<<< Updated upstream
-        if keys[pygame.K_h] and not cd_h:
-            current_state = GAME_PLAY
-            cd_h = True
-        if not keys[pygame.K_h]:
-            cd_h = False
-    if fade_alpha > 0:
-        fade_surface = pygame.Surface((screen.get_width(), screen.get_height()))
-        fade_surface.set_alpha(fade_alpha)
-        fade_surface.fill((0, 0, 0))
-        screen.blit(fade_surface, (0, 0))
-=======
             if keys[pygame.K_h] and not cd_h:
                 IN_HOUSE = False
                 cd_h = True
             if not keys[pygame.K_h]:
                 cd_h = False
 
->>>>>>> Stashed changes
     pygame.display.flip()
     dt = clock.tick(fps) / 1000
 pygame.quit()
