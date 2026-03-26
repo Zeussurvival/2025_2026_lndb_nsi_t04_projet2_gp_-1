@@ -212,19 +212,6 @@ pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 3
 pt_pollution *= 3
 seed = random.seed(time.time()) # creation de la map des settings de la pollu et autres
 
-Actual_map = D.creation_map_rectangle(Taille_map, Taille_map, 0)
-Actual_map_objects_layer = D.creation_map_rectangle(Taille_map, Taille_map, -1)
-result = D.set_pollution_map_rectangle(pt_pollution, seed, Actual_map, 5, 10, 1, 10)
-Actual_map_pollution = result[0]
-Liste_dechets = result[1]
-for y in range(Actual_map.shape[0]):
-    for x in range(Actual_map.shape[1]):
-        Actual_map[x,y] = random.randint(0,7)
-Liste_bush_on_map = []
-List_machines_depollution = []
-
-# Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
-
 
 
 
@@ -253,70 +240,6 @@ for tile in temp_list:
         dict_image_bats[true_path] = len(tileset)
         tileset_paths += [true_path]
         tileset += [CT.Tile(os.path.join(true_path),None,0)]
-
-
-## Creation de la dimension pour les maisons
-Map_House = numpy.full((1000,40),0)
-indice_maison = 0
-
-## Batiments et collisions
-List_batiments_raw = []
-
-for file in os.listdir(os.path.join("assets","Building_txt")): # va enregistrer les lignes du txt en element dans une liste
-    bat_actuel = []
-    with open(os.path.join("assets","Building_txt", file),"r") as f:
-        for line in f:
-            bat_actuel.append(line.strip())
-    List_batiments_raw.append(bat_actuel)
-
-
-List_batiments_zones_collision_fix = [[0,0,10,8,5],[1,3,10,6,3],[1,0,10,9,3]]
-List_batiments_zones_collision_portes_fix = [[4,6,6,8],[3,7,4,9],[6,7,8,9]]
-List_batiments_zones_collision_en_plus_fix = [[  ],[ [0,6,1,2], [4,0,6,3] ],[ [11,4,1,3], [3,9,2,1], [8,9,1,1] ]]
-List_batiments_net = []
-for bat in List_batiments_raw: # enregistre une matrice en fct de lindice de limage dans la tileset
-    temp_list = []
-    x,y = bat[0],bat[1]
-    for elmt in bat[2:]:
-        temp_list.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
-    List_batiments_net.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_list))
-Bats_zones_in_map = []
-
-
-List_batiments_zones_collision = [pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE,128),pygame.Rect(-128,-128,128,Actual_map.shape[1]*LEN_SQUARE),\
-                                  pygame.Rect(-128,Actual_map.shape[0]*LEN_SQUARE,Actual_map.shape[0]*LEN_SQUARE+128,128),pygame.Rect(Actual_map.shape[0]*LEN_SQUARE,-128,128,Actual_map.shape[1]*LEN_SQUARE+128)]
-List_batiments_zones_collision_portes = []
-
-
-# Ajout des Bats a la map
-D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[0],(0,0))
-List_batiments_zones_collision.append(pygame.Rect((0+List_batiments_zones_collision_fix[0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[0][1])*LEN_SQUARE,List_batiments_zones_collision_fix[0][2]*LEN_SQUARE,List_batiments_zones_collision_fix[0][3]*LEN_SQUARE))
-
-D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[1],(15,15))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[1][0])*LEN_SQUARE,(15+List_batiments_zones_collision_fix[1][1])*LEN_SQUARE,List_batiments_zones_collision_fix[1][2]*LEN_SQUARE,List_batiments_zones_collision_fix[1][3]*LEN_SQUARE))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[1][0][0])*LEN_SQUARE,(15+List_batiments_zones_collision_en_plus_fix[1][0][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][0][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][0][3]*LEN_SQUARE))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[1][1][0])*LEN_SQUARE,(15+List_batiments_zones_collision_en_plus_fix[1][1][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][1][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][1][3]*LEN_SQUARE))
-
-D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[2],(15,0))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[2][1])*LEN_SQUARE,List_batiments_zones_collision_fix[2][2]*LEN_SQUARE,List_batiments_zones_collision_fix[2][3]*LEN_SQUARE))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][0][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][0][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][0][3]*LEN_SQUARE))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][1][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][1][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][1][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][1][3]*LEN_SQUARE))
-List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][2][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][2][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][2][3]*LEN_SQUARE))
-
-
-
-# KEYBINDS
-touche_direction_gauche = pygame.K_q
-touche_direction_droite = pygame.K_d
-touche_direction_haut = pygame.K_z
-touche_direction_bas = pygame.K_s
-touche_affichage_pollution = pygame.K_F3
-touche_jet_ditem = pygame.K_n
-touche_recuperation_ditem = pygame.K_e
-
-
-
-
 ### AUTRES
 List_machines_depollution = []
 machine_depo_1_obj = CO.Machine_objet("Depollution_machine_t_1_objet.png","MAchine de dépollution","Une machine pour dépolluer les environs",1,"Depollution_machine_t_1.png",dict_image_bats[os.path.join(autres_tiles_dir,"Depollution_machine_t_1.png")])
@@ -345,6 +268,7 @@ Robot = CH.Humanoid((8*LEN_SQUARE,16*LEN_SQUARE),100,5,5,"robot_front/front1.png
                     LEN_SQUARE,hotbar)
 
 
+### SYSTEME DE SAUVEGARDE
 if mode == "load" and file_path and os.path.exists(file_path):
     bushes_path = os.path.join(saves_dir, f"{sys.argv[7]}_bushes.json")
     machines_path = os.path.join(saves_dir, f"{sys.argv[7]}_machines.json")
@@ -424,10 +348,11 @@ else:
     Liste_bush_on_map = []
     List_machines_depollution = []
 
-pollution_initiale = numpy.sum(Actual_map_pollution)
-pollution_actuelle = pollution_initiale
-pollution_max_possible = pollution_initiale *2
-# Batiments
+## Creation de la dimension pour les maisons
+Map_House = numpy.full((1000,40),0)
+indice_maison = 0
+
+## Batiments et collisions
 List_batiments_raw = []
 
 for file in os.listdir(os.path.join("assets","Building_txt")): # va enregistrer les lignes du txt en element dans une liste
@@ -437,8 +362,11 @@ for file in os.listdir(os.path.join("assets","Building_txt")): # va enregistrer 
             bat_actuel.append(line.strip())
     List_batiments_raw.append(bat_actuel)
 
-List_batiments_net = []
+
 List_batiments_zones_collision_fix = [[0,0,10,8,5],[1,3,10,6,3],[1,0,10,9,3]]
+List_batiments_zones_collision_portes_fix = [[4,6,6,8],[3,7,4,9],[6,7,8,9]]
+List_batiments_zones_collision_en_plus_fix = [[  ],[ [0,6,1,2], [4,0,6,3] ],[ [11,4,1,3], [3,9,2,1], [8,9,1,1] ]]
+List_batiments_net = []
 for bat in List_batiments_raw: # enregistre une matrice en fct de lindice de limage dans la tileset
     temp_list = []
     x,y = bat[0],bat[1]
@@ -446,17 +374,47 @@ for bat in List_batiments_raw: # enregistre une matrice en fct de lindice de lim
         temp_list.append(dict_image_bats[os.path.join(batiments_tiles_dir,elmt)])
     List_batiments_net.append(D.list_dindice_avec_param_en_indice_0_1_vers_matrice([int(x),int(y)]+temp_list))
 Bats_zones_in_map = []
-print(Actual_map.shape[0]*LEN_SQUARE+256)
-print(pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE+256,0),pygame.Rect(-128,-128,0,Actual_map.shape[1]*LEN_SQUARE+256))
-List_batiments_zones_collision = [pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE+256,128),pygame.Rect(-128,-128,128,Actual_map.shape[1]*LEN_SQUARE+256),\
-                                  pygame.Rect(-128,Actual_map.shape[0]*LEN_SQUARE+256,Actual_map.shape[0]*LEN_SQUARE+256,128),pygame.Rect(Actual_map.shape[0]*LEN_SQUARE+256,-128,128,Actual_map.shape[1]*LEN_SQUARE+256)]
 
+
+List_batiments_zones_collision = [pygame.Rect(-128,-128,Actual_map.shape[0]*LEN_SQUARE,128),pygame.Rect(-128,-128,128,Actual_map.shape[1]*LEN_SQUARE),\
+                                  pygame.Rect(-128,Actual_map.shape[0]*LEN_SQUARE,Actual_map.shape[0]*LEN_SQUARE+128,128),pygame.Rect(Actual_map.shape[0]*LEN_SQUARE,-128,128,Actual_map.shape[1]*LEN_SQUARE+128)]
+List_batiments_zones_collision_portes = []
+
+
+# Ajout des Bats a la map
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[0],(0,0))
 List_batiments_zones_collision.append(pygame.Rect((0+List_batiments_zones_collision_fix[0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[0][1])*LEN_SQUARE,List_batiments_zones_collision_fix[0][2]*LEN_SQUARE,List_batiments_zones_collision_fix[0][3]*LEN_SQUARE))
+
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[1],(15,15))
 List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[1][0])*LEN_SQUARE,(15+List_batiments_zones_collision_fix[1][1])*LEN_SQUARE,List_batiments_zones_collision_fix[1][2]*LEN_SQUARE,List_batiments_zones_collision_fix[1][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[1][0][0])*LEN_SQUARE,(15+List_batiments_zones_collision_en_plus_fix[1][0][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][0][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][0][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[1][1][0])*LEN_SQUARE,(15+List_batiments_zones_collision_en_plus_fix[1][1][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][1][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[1][1][3]*LEN_SQUARE))
+
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[2],(15,0))
 List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_fix[2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_fix[2][1])*LEN_SQUARE,List_batiments_zones_collision_fix[2][2]*LEN_SQUARE,List_batiments_zones_collision_fix[2][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][0][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][0][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][0][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][0][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][1][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][1][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][1][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][1][3]*LEN_SQUARE))
+List_batiments_zones_collision.append(pygame.Rect((15+List_batiments_zones_collision_en_plus_fix[2][2][0])*LEN_SQUARE,(0+List_batiments_zones_collision_en_plus_fix[2][2][1])*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][2][2]*LEN_SQUARE,List_batiments_zones_collision_en_plus_fix[2][2][3]*LEN_SQUARE))
+
+
+
+# KEYBINDS
+touche_direction_gauche = pygame.K_q
+touche_direction_droite = pygame.K_d
+touche_direction_haut = pygame.K_z
+touche_direction_bas = pygame.K_s
+touche_affichage_pollution = pygame.K_F3
+touche_jet_ditem = pygame.K_n
+touche_recuperation_ditem = pygame.K_e
+
+
+
+
+
+
+pollution_initiale = numpy.sum(Actual_map_pollution)
+pollution_actuelle = pollution_initiale
+pollution_max_possible = pollution_initiale *2
 
 
 time_for_every_sec = int(time.time())
