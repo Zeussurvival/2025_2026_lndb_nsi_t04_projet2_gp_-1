@@ -1,1 +1,1 @@
-[{"type": "Plant", "id": "Bush_tile.png"}, null, null, null, null]
+[{"type": "Plant", "id": "Bush_tile.png"}, {"type": "Consumable", "id": "apple.png", "count": 1}, null, null, null]
