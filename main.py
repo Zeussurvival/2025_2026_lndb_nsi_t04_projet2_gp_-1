@@ -210,9 +210,18 @@ batiments_tiles_dir = os.path.join(tiles_dir,"Batiment")
 Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 40
 pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 3
 pt_pollution *= 3
-
-
 seed = random.seed(time.time()) # creation de la map des settings de la pollu et autres
+
+Actual_map = D.creation_map_rectangle(Taille_map, Taille_map, 0)
+Actual_map_objects_layer = D.creation_map_rectangle(Taille_map, Taille_map, -1)
+result = D.set_pollution_map_rectangle(pt_pollution, seed, Actual_map, 5, 10, 1, 10)
+Actual_map_pollution = result[0]
+Liste_dechets = result[1]
+for y in range(Actual_map.shape[0]):
+    for x in range(Actual_map.shape[1]):
+        Actual_map[x,y] = random.randint(0,7)
+Liste_bush_on_map = []
+List_machines_depollution = []
 
 # Actual_map = D.creation_map_rectangle(Taille_map,Taille_map,0)
 
