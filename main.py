@@ -833,11 +833,14 @@ for item in Robot.hotbar:
     if item is None:
         inventory_data.append(None)
     else:
-        inventory_data.append({
-            "type": item.type,
-            "name": item.name
-        })
-
+        if isinstance(item, CO.Plant):
+            inventory_data.append({"type":"Plant", "id":"Bush_tile.png"})
+        elif isinstance(item, CO.Machine_objet):
+            inventory_data.append({"type":"Machine_objet", "id":"Depollution_machine_t_1.png"})
+        elif isinstance(item, CO.Consumable):
+            inventory_data.append({"type":"Consumable", "id":"apple.png", "count":1})
+        else:
+            inventory_data.append({"type":"Unknown"})
 with open(os.path.join(save_dir, f"{save_name}_inventory.json"), "w") as f:
     json.dump(inventory_data, f)
     
