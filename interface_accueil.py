@@ -66,7 +66,7 @@ icon_sound = pygame.image.load(os.path.join(icons, "sound.png"))
 icon_up = pygame.image.load(os.path.join(icons, "up.png"))
 icon_close = pygame.image.load(os.path.join(icons, "close.png"))
 icon_mute = pygame.image.load(os.path.join(icons, "mute.png"))
-perso_image = pygame.image.load(os.path.join(robot, "robot_v1.png"))
+perso_image = pygame.image.load(os.path.join(robot, "robot_front/front1.png"))
 title_image = pygame.image.load(os.path.join(assets_dir, "title.png"))
 
 settings_panel = pygame.image.load(os.path.join(X2_dir,"Card X2.png"))
