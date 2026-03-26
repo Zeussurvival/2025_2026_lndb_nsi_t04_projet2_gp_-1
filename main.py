@@ -771,6 +771,8 @@ while running:
                 rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
                 if rect_robot.collidelist(List_batiments_zones_collision) == -1: # verif sur laxe y
                     Robot.pos = new_pos
+            else:
+                has_not_moove = False
 
                     
                 
