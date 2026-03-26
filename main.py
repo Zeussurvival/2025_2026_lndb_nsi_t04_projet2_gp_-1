@@ -222,10 +222,16 @@ tileset_paths = []
 tileset_paths += [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_2.png"),os.path.join(autres_tiles_dir,"background_3.png"),os.path.join(autres_tiles_dir,"background_4.png")]\
                + [os.path.join(autres_tiles_dir,"background_5.png"),os.path.join(autres_tiles_dir,"background_6.png"),os.path.join(autres_tiles_dir,"background_7.png"),os.path.join(autres_tiles_dir,"background_8.png")]
 dict_image_bats = {}
+
+
+
+
 for i in range(len(tileset_paths)):
     tile = tileset_paths[i]
     dict_image_bats[tile] = len(tileset_paths)
     tileset.append(CT.Tile(tile,None,0))
+
+
 
 for img in os.listdir(batiments_tiles_dir):
     true_img = os.path.join(batiments_tiles_dir,img)
@@ -246,11 +252,17 @@ machine_depo_1_obj = CO.Machine_objet("Depollution_machine_t_1_objet.png","MAchi
 
 
 List_ground_objets = []
+# ferraille_path = os.path.join(autres_tiles_dir, "ferraille_v1.png")
+# tileset_paths += [ferraille_path]
+# tileset += [CT.Tile("ferraille_v1.png", None, 0)]
+# dict_image_bats[ferraille_path] = len(tileset_paths) - 1
 Pomme_basique = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
 pomme = Pomme_basique
 List_ground_objets.append((pomme,(1024,2048)))
 Bush_basique = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",tileset[dict_image_bats[os.path.join(autres_tiles_dir,"Bush_tile.png")]],len(tileset)-3)
 bush = Bush_basique
+Ferraille_basique = CO.Consumable("ferraille_v1.png", "Ferraille", "Un tas de ferraille rouillée")
+ferraille = Ferraille_basique
 Liste_bush_on_map = []
 
 Arial_font = pygame.font.SysFont('Arial', 30)
@@ -333,6 +345,7 @@ if mode == "load" and file_path and os.path.exists(file_path):
                 Robot.hotbar.append(machine_depo_1_obj)
             elif item["type"] == "Consumable":
                 Robot.hotbar.append(pomme)
+                Robot.hotbar.append(ferraille)
 
         while len(Robot.hotbar) < 5:
             Robot.hotbar.append(None)
@@ -420,6 +433,7 @@ pollution_max_possible = pollution_initiale *2
 time_for_every_sec = int(time.time())
 time_for_every_30_sec = int(time.time())
 
+List_ground_objets.append((ferraille, (10*LEN_SQUARE + LEN_SQUARE//2, 10*LEN_SQUARE + LEN_SQUARE//2)))
 
 print("running now")
 while running:
@@ -634,6 +648,8 @@ while running:
                     bush[1] = int(time.time())+random.randint(30,50)
                     List_ground_objets.append([pomme,(bush[0][1]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
                                                             bush[0][0]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
+                    List_ground_objets.append([ferraille,(bush[0][1]*LEN_SQUARE+LEN_SQUARE/2 + random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1),
+                                                            bush[0][0]*LEN_SQUARE+LEN_SQUARE/2+ random.randint(int(LEN_SQUARE/2),LEN_SQUARE)*(random.randint(0,1) *2 -1))])
             time_for_every_sec = int(time.time())+1
 
         if time_for_every_30_sec + 30 <= int(time.time()):
@@ -798,6 +814,8 @@ for item in Robot.hotbar:
             inventory_data.append({"type":"Machine_objet", "id":"Depollution_machine_t_1.png"})
         elif isinstance(item, CO.Consumable):
             inventory_data.append({"type":"Consumable", "id":"apple.png", "count":1})
+        elif item["type"] == "Consumable" and item.get("id") == "ferraille_v1.png":
+            Robot.hotbar.append(ferraille)
         else:
             inventory_data.append({"type":"Unknown"})
 with open(os.path.join(save_dir, f"{save_name}_inventory.json"), "w") as f:
