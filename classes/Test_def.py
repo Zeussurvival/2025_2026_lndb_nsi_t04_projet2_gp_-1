@@ -1,12 +1,6 @@
 import numpy as np
 import random
 
-def place_matrice_big_then_small(matrice,house_matrice,positions):
-    for true_y in range(house_matrice.shape[0]):
-        for true_x in range(house_matrice.shape[1]):
-            if 0 <= positions[1]+true_y < matrice.shape[1] and 0 <= positions[0]+true_x < matrice.shape[0]:
-                matrice[positions[1]+true_x,positions[0]+true_x] = house_matrice[true_y,true_x]
-    return matrice
 
 def place_matrice_big_then_small_addition(matrice,house_matrice,positions):
     for true_y in range(house_matrice.shape[0]):

@@ -39,42 +39,45 @@ main_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # print(to_remove_bro(center,range_depo,to_remove))
 # print(matrice)
 
-IMAGEEE = pygame.image.load(os.path.join(main_dir,"trophee_nsi/assets/Tiles/Autres/pollution_texture.png"))
-rect1 = pygame.rect.Rect(50,50,40,40)
-offset1 = 5
+# IMAGEEE = pygame.image.load(os.path.join(main_dir,"trophee_nsi/assets/Tiles/Autres/pollution_texture.png"))
+# rect1 = pygame.rect.Rect(50,50,40,40)
+# offset1 = 5
 
-pygame.init()
-screen = pygame.display.set_mode((1280, 720))
-clock = pygame.time.Clock()
-running = True
-dt = 0
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    screen.fill((0,0,0))
-
-
-    img_surface = IMAGEEE.copy()
-    img2 = img_surface.copy()
-    img2.set_alpha(10)
-    img3 = img_surface.copy()
-    img3.set_alpha(200)
-    img_surface.set_alpha(15.8)
-    screen.blit(img_surface,(10,10))
-    screen.blit(img2,(50,10))
-    screen.blit(img3,(90,10))
+# pygame.init()
+# screen = pygame.display.set_mode((1280, 720))
+# clock = pygame.time.Clock()
+# running = True
+# dt = 0
+# while running:
+#     for event in pygame.event.get():
+#         if event.type == pygame.QUIT:
+#             running = False
+#     screen.fill((0,0,0))
 
 
-    mouse_pos = pygame.mouse.get_pos()
-    mouse_rect = pygame.rect.Rect(mouse_pos[0]-offset1,mouse_pos[1]-offset1,offset1*2,offset1*2)
-    if mouse_rect.colliderect(rect1):
-        print("AH, Nous avons une collision avec l'un des elements")
-    pygame.draw.rect(screen,"red",rect1,0)
+#     img_surface = IMAGEEE.copy()
+#     img2 = img_surface.copy()
+#     img2.set_alpha(10)
+#     img3 = img_surface.copy()
+#     img3.set_alpha(200)
+#     img_surface.set_alpha(15.8)
+#     screen.blit(img_surface,(10,10))
+#     screen.blit(img2,(50,10))
+#     screen.blit(img3,(90,10))
 
 
-    pygame.display.flip()
-    dt = clock.tick(60) / 1000
+#     mouse_pos = pygame.mouse.get_pos()
+#     mouse_rect = pygame.rect.Rect(mouse_pos[0]-offset1,mouse_pos[1]-offset1,offset1*2,offset1*2)
+#     if mouse_rect.colliderect(rect1):
+#         print("AH, Nous avons une collision avec l'un des elements")
+#     pygame.draw.rect(screen,"red",rect1,0)
 
 
-pygame.quit()
+#     pygame.display.flip()
+#     dt = clock.tick(60) / 1000
+
+
+# pygame.quit()
+
+mat = numpy.full((5,5),-1)
+print(mat)

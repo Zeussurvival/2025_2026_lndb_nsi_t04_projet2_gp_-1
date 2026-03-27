@@ -423,37 +423,53 @@ List_batiments_zones_collision = [pygame.Rect(-128,-128,Actual_map.shape[0]*64,1
                                   pygame.Rect(-128,Actual_map.shape[0]*64,Actual_map.shape[0]*64+128,128),pygame.Rect(Actual_map.shape[0]*64,-128,128,Actual_map.shape[1]*64+128)]
 
 List_bats_zones_collision_portes = []
-List_sorties_entree_dans_maison = []
+List_entree_dans_maison = []
+List_sorti_hors_maison = []
+List_house_collision = []
 
 # Ajout des Bats a la map
 # bat 1
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[0],(0,0))
 List_batiments_zones_collision.append(pygame.Rect((0+List_bats_zones_collision_fix[0][0])*64,(0+List_bats_zones_collision_fix[0][1])*64,List_bats_zones_collision_fix[0][2]*64,List_bats_zones_collision_fix[0][3]*64))
 List_bats_zones_collision_portes.append(pygame.Rect((0+List_bats_zones_collision_portes_fix[0][0])*64,(0+List_bats_zones_collision_portes_fix[0][1])*64,List_bats_zones_collision_portes_fix[0][2]*64,List_bats_zones_collision_portes_fix[0][3]*64))
+
 matrice_temp = numpy.full((List_bats_zones_collision_fix[0][2],List_bats_zones_collision_fix[0][3]),dict_image_bats[os.path.join(autres_tiles_dir,"plank.png")])
-D.replace_matrice_big_then_small(Map_House,matrice_temp,(List_bats_zones_collision_fix[0][2],List_bats_zones_collision_fix[0][3]+indice_maison*decallage_houses))
+D.replace_matrice_big_then_small(Map_House,matrice_temp,(0,indice_maison*decallage_houses))
+List_entree_dans_maison += [(0+1+List_bats_zones_collision_portes_fix[0][0]+indice_maison*decallage_houses,0+1+List_bats_zones_collision_portes_fix[0][1])]
+List_sorti_hors_maison += [(0+List_bats_zones_collision_portes_fix[0][0]+List_bats_zones_collision_portes_fix[0][2],0+List_bats_zones_collision_portes_fix[0][1]+List_bats_zones_collision_portes_fix[0][3])]
+
 indice_maison += 1
 
 # bat 2
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[1],(15,15))
 List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_fix[1][0])*64,(15+List_bats_zones_collision_fix[1][1])*64,List_bats_zones_collision_fix[1][2]*64,List_bats_zones_collision_fix[1][3]*64))
+List_bats_zones_collision_portes.append(pygame.Rect((15+List_bats_zones_collision_portes_fix[1][0])*64,(15+List_bats_zones_collision_portes_fix[1][1])*64,List_bats_zones_collision_portes_fix[1][2]*64,List_bats_zones_collision_portes_fix[1][3]*64))
+
 for t in range(len(List_bats_zones_collision_en_plus_fix[1])):
     List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[1][t][0])*64,(15+List_bats_zones_collision_en_plus_fix[1][t][1])*64,List_bats_zones_collision_en_plus_fix[1][t][2]*64,List_bats_zones_collision_en_plus_fix[1][t][3]*64))
+
 matrice_temp = numpy.full((List_bats_zones_collision_fix[1][2],List_bats_zones_collision_fix[1][3]),dict_image_bats[os.path.join(autres_tiles_dir,"plank.png")])
-D.replace_matrice_big_then_small(Map_House,matrice_temp,(List_bats_zones_collision_fix[1][2],List_bats_zones_collision_fix[1][3]+indice_maison*decallage_houses))
+D.replace_matrice_big_then_small(Map_House,matrice_temp,(0,indice_maison*decallage_houses))
+List_entree_dans_maison += [(0+2+List_bats_zones_collision_portes_fix[1][0]+indice_maison*decallage_houses,0-2+List_bats_zones_collision_portes_fix[1][1])]
+List_sorti_hors_maison += [(15+List_bats_zones_collision_portes_fix[1][0]+0.5+List_bats_zones_collision_portes_fix[1][2],15+List_bats_zones_collision_portes_fix[1][1]+List_bats_zones_collision_portes_fix[1][3])]
+
 indice_maison += 1
+
+
 
 # bat 3
 D.replace_matrice_big_then_small(Actual_map_objects_layer,List_batiments_net[2],(15,0))
 List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_fix[2][0])*64,(0+List_bats_zones_collision_fix[2][1])*64,List_bats_zones_collision_fix[2][2]*64,List_bats_zones_collision_fix[2][3]*64))
+List_bats_zones_collision_portes.append(pygame.Rect((15+List_bats_zones_collision_portes_fix[2][0])*64,(0+List_bats_zones_collision_portes_fix[2][1])*64,List_bats_zones_collision_portes_fix[2][2]*64,List_bats_zones_collision_portes_fix[2][3]*64))
 
 for t in range(len(List_bats_zones_collision_en_plus_fix[2])):
     List_batiments_zones_collision.append(pygame.Rect((15+List_bats_zones_collision_en_plus_fix[2][t][0])*64,(0+List_bats_zones_collision_en_plus_fix[2][t][1])*64,List_bats_zones_collision_en_plus_fix[2][t][2]*64,List_bats_zones_collision_en_plus_fix[2][t][3]*64))
-List_bats_zones_collision_portes.append(pygame.Rect((15+List_bats_zones_collision_portes_fix[2][0])*64,(0+List_bats_zones_collision_portes_fix[2][1])*64,List_bats_zones_collision_portes_fix[2][2]*64,List_bats_zones_collision_portes_fix[2][3]*64))
+
 matrice_temp = numpy.full((List_bats_zones_collision_fix[2][2],List_bats_zones_collision_fix[2][3]),dict_image_bats[os.path.join(autres_tiles_dir,"plank.png")])
-D.replace_matrice_big_then_small(Map_House,matrice_temp,(List_bats_zones_collision_fix[2][2],List_bats_zones_collision_fix[2][3]+indice_maison*decallage_houses))
-indice_maison += 1
-print(Map_House)
+D.replace_matrice_big_then_small(Map_House,matrice_temp,(0,indice_maison*decallage_houses))
+List_entree_dans_maison += [(0-1+List_bats_zones_collision_portes_fix[2][0]+indice_maison*decallage_houses,0+1+List_bats_zones_collision_portes_fix[2][1])]
+List_sorti_hors_maison += [(15+List_bats_zones_collision_portes_fix[2][0]+List_bats_zones_collision_portes_fix[2][2],0+List_bats_zones_collision_portes_fix[2][1]+List_bats_zones_collision_portes_fix[2][3])]
+
 
 indice_maison = -1
 
@@ -735,6 +751,8 @@ while running:
                 if keys[touche_utiliser_porte]:
                     if indice_maison >= 0:
                         IN_HOUSE = True
+                        Robot.last_direction = 1
+                        Robot.pos_in_houses = (List_entree_dans_maison[indice_maison][0] * 64,List_entree_dans_maison[indice_maison][1]*64)
 
 
             if time_for_every_sec +1 <= int(time.time()):
@@ -818,9 +836,7 @@ while running:
             last_mvt = [keys[touche_direction_haut],keys[touche_direction_bas],keys[touche_direction_gauche],keys[touche_direction_droite]]   # -----> pour faire les animations mais la jai pas le temps ptdr
             Robot.do_all(keys,screen,last_mvt)
 
-    ###-------------------------------------------------------
-    ### ------------- CODE EUDOCIE
-    ###-------------------------------------------------------
+
 
             if fade_alpha > 0 : # permet de faire le fade si yen a a faire dans le current state
                 fade_surface = pygame.Surface((screen.get_width(),screen.get_height()))
@@ -836,9 +852,6 @@ while running:
 
             if not keys[pygame.K_h]:
                 cd_h = False
-
-
-
 
 
 
@@ -884,13 +897,18 @@ while running:
             Robot.moove_this_frame = has_not_moove
             last_mvt = [keys[touche_direction_haut],keys[touche_direction_bas],keys[touche_direction_gauche],keys[touche_direction_droite]]  
             Robot.do_all(keys,screen,last_mvt)
+            # fin mvt
+
 
             if keys[pygame.K_h] and not cd_h:
                 IN_HOUSE = False
+                Robot.last_direction = 2
+                Robot.pos = (List_sorti_hors_maison[indice_maison][0]*64 -64,List_sorti_hors_maison[indice_maison][1]*64)
                 cd_h = True
             if not keys[pygame.K_h]:
                 cd_h = False
-
+            
+            print(indice_maison)
 
         if machine_dialogue_active:
             for object in objects:
