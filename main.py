@@ -401,7 +401,6 @@ Map_House = numpy.full((10000,100),-1)
 indice_maison = 0
 decallage_houses = 40
 
-# def collision des portes
 def verif_collis(souris_pos,liste_collision_portes):
     i = 0
     for rect in liste_collision_portes:
@@ -409,8 +408,6 @@ def verif_collis(souris_pos,liste_collision_portes):
             return i
         i += 1
     return False
-
-
 
 
 
@@ -448,7 +445,6 @@ List_sorti_hors_maison = []
 List_house_collision = []
 
 # Ajout des Bats a la map
-# bat 1
 indice_maison = 0
 def ajout_de_linterieur_de_bat(position,indice):
     global List_entree_dans_maison
@@ -483,6 +479,8 @@ List_collision_house_map
 indice_maison = -1
 
 
+
+
 # KEYBINDS
 touche_direction_gauche = pygame.K_q
 touche_direction_droite = pygame.K_d
@@ -503,6 +501,7 @@ time_for_every_sec = int(time.time())
 time_for_every_30_sec = int(time.time())
 List_ground_objets.append((ferraille, (10*64 + 64//2, 10*64 + 64//2)))
 IN_HOUSE = False
+cd_porte = False
 Pos_souris_monde = (0,0)
 
 print("running now")
@@ -870,11 +869,14 @@ while running:
                             see_animations = True
                             cooldown_dialogue = True
 
-                if keys[touche_utiliser_porte]:
+                if keys[touche_utiliser_porte] and cd_porte == False:
                     if indice_maison >= 0:
                         IN_HOUSE = True
                         Robot.last_direction = 1
                         Robot.pos_in_houses = (List_entree_dans_maison[indice_maison][0] * 64,List_entree_dans_maison[indice_maison][1]*64)
+                        cd_porte = True
+                if not keys[touche_utiliser_porte]:
+                    cd_porte = False
 
 
             if time_for_every_sec +1 <= int(time.time()):
@@ -1024,13 +1026,13 @@ while running:
             # fin mvt
 
 
-            if keys[pygame.K_h] and not cd_h:
+            if keys[touche_utiliser_porte] and not cd_porte:
                 IN_HOUSE = False
                 Robot.last_direction = 2
                 Robot.pos = (List_sorti_hors_maison[indice_maison][0]*64 -64,List_sorti_hors_maison[indice_maison][1]*64)
-                cd_h = True
-            if not keys[pygame.K_h]:
-                cd_h = False
+                cd_porte = True
+            if not keys[touche_utiliser_porte]:
+                cd_porte = False
             
             print(indice_maison)
 
