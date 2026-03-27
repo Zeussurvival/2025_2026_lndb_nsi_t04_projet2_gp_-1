@@ -453,7 +453,7 @@ List_collision_slots = []
 
 for n in range(25):
     inventaire_surface.blit(surfacee,(first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5)))
-    List_collision_slots.append(pygame.Rect(pos_image_inventaire[0]+first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5),longueur_slot,longueur_slot))
+    List_collision_slots.append(pygame.Rect(pos_image_inventaire[0]+first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5)+longueur_slot,longueur_slot,longueur_slot))
 print(List_collision_slots)
 
 
