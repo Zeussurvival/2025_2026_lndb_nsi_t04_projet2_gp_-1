@@ -20,7 +20,7 @@ Pour bien débuter avec le projet, il est recommandé de comprendre le fonctionn
 ## ▶️ Démarrage
 
 - Ouvrir le projet dans le logiciel
-- Lancer le main
+- Lancer le interface_acceuil.py
 - Cliquer sur "Play" pour démarrer le jeu
 
 ## 🛠️ Fabriqué avec
@@ -28,6 +28,16 @@ Pour bien débuter avec le projet, il est recommandé de comprendre le fonctionn
 - Visual Studio Code
 - Python
 - Tiled, Piskel
+
+## ⌨️ Contrôles
+
+- Z: En haut
+- Q: A gauche
+- S: En bas
+- D: A droite
+- Tab: inventaire
+- E: Récupérer un objet
+- Click gauche: Placer un objet
 
 ## 🧪 Versions
 
