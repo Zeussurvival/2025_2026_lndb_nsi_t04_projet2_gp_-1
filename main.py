@@ -148,6 +148,7 @@ message = dialogue_1.dialogue_text[active_message]
 
 frames = []
 frames_pollution_earth = []
+frames_starship = []
 for i in range(30):
 
     img = pygame.image.load(f"assets/earth/sprite_{i:02d}.png")
@@ -159,6 +160,11 @@ for i in range(1, 6):
     img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
+
+for i in range(12):
+    img = pygame.image.load(f"assets/spaceship_long/ship_frame{i:02d}.png")
+    img = pygame.transform.scale(img,(256,256))
+    frames_starship.append(img)
 
 
 
@@ -401,6 +407,7 @@ Map_House = numpy.full((10000,100),-1)
 indice_maison = 0
 decallage_houses = 40
 
+# def collision des portes
 def verif_collis(souris_pos,liste_collision_portes):
     i = 0
     for rect in liste_collision_portes:
@@ -408,6 +415,8 @@ def verif_collis(souris_pos,liste_collision_portes):
             return i
         i += 1
     return False
+
+
 
 
 
