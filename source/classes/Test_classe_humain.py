@@ -104,28 +104,11 @@ class Humanoid:
                 screen.blit(pygame.transform.scale(self.hotbar[i].image,(lenght_square,lenght_square)),(first_x+width+(lenght_square+width+offset)*i,y+width))        
         pygame.draw.rect(screen,"white",(first_x+(lenght_square+width+offset)*self.held_item_indice  -2 ,y - 2,true_lenght + 4,true_lenght + 4 ),width+ 2)
 
-    def change_held_item(self,keys):
-        if keys[pygame.K_1]:
-            self.held_item_indice = 0
-            self.held_item = self.hotbar[0]
-        if keys[pygame.K_2]:
-            self.held_item_indice = 1
-            self.held_item = self.hotbar[1]
-        if keys[pygame.K_3]:
-            self.held_item_indice = 2
-            self.held_item = self.hotbar[2]
-        if keys[pygame.K_4]:
-            self.held_item_indice = 3
-            self.held_item = self.hotbar[3]
-        if keys[pygame.K_5]:
-            self.held_item_indice = 4
-            self.held_item = self.hotbar[4]
 
 
 
-    def do_all(self,keys,screen,last_mvt):
+    def do_all(self,screen,last_mvt):
         self.draw_hotbar(screen)
-        self.change_held_item(keys)
         self.blit_center_self(screen,last_mvt)
 
 
