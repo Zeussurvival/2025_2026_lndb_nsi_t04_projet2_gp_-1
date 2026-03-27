@@ -724,6 +724,7 @@ while running:
                 done = True
             current_char = counter // speed
             previous_char = previous_counter // speed
+            dialogue_1.snip = message[0:int(counter//speed)]
 
             if keys[pygame.K_RETURN] or keys[pygame.K_SPACE] and cooldown_dialogue == False:
                 cooldown_dialogue = True
@@ -832,7 +833,13 @@ while running:
 
         elif current_state == FADE_TO_END_6:
             # fade vers noir
+            text_surf = text_6.copy()
+            text_alpha = max(0, 255 - int(fade_alpha))
+            text_surf.set_alpha(text_alpha)
+            screen.blit(text_surf, text_rect_6)
             fade_alpha += fade_speed
+            if fade_alpha > 0:
+                fade_alpha -= fade_speed
             if fade_alpha >= 255:
                 fade_alpha = 255
                 current_state = SHOW_EARTH_END
@@ -1230,7 +1237,7 @@ while running:
             current_char = counter // speed
             previous_char = previous_counter // speed
 
-            dialogue_1.snip = message[0:counter//speed]
+            dialogue_1.snip = message[0:int(counter//speed)]
 
             current_time = pygame.time.get_ticks()
             if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and current_time - machine_dialogue_cooldown > machine_dialogue_cooldown_delay:
