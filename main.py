@@ -23,6 +23,9 @@ first_machine_placed = False
 machine_dialogue_active = False
 first_craft = False
 craft_dialogue_active = False
+ship_moving = True
+ship_finished = False
+ship_visible = True
 
 # Chemins
 main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -79,6 +82,14 @@ timer = 70*60/fps
 text_timer = 70*60/fps
 end_text_timer = 180*60/fps
 see_minimap = False 
+
+animation_ship_speed = 0.3*60/fps
+ship_y = 800
+ship_x = 640
+ship_target_y = 500
+ship_speed = 200
+ship_moving = True
+current_frame_ship = 0
 
 # Variables dialogue
 
@@ -161,9 +172,9 @@ for i in range(1, 6):
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
 
-for i in range(12):
+for i in range(11):
     img = pygame.image.load(f"assets/spaceship_long/ship_frame{i:02d}.png")
-    img = pygame.transform.scale(img,(256,256))
+    img = pygame.transform.scale_by(img, 2)
     frames_starship.append(img)
 
 
@@ -685,7 +696,7 @@ while running:
             earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
             screen.blit(frames[int(current_frame)], earth_rect) 
 
-            # texte avec fade
+
             text_surf = text_4.copy()
             text_alpha = max(0, 255 - int(fade_alpha))  
             text_surf.set_alpha(text_alpha)
@@ -699,17 +710,34 @@ while running:
                 end_text_timer = 180*60/fps
                 current_state = FADE_TO_END_5
                 fade_alpha = 255
-
         elif current_state == FADE_TO_END_5:
+
+   
             current_frame += animation_speed
             if current_frame >= len(frames):
                 current_frame = 0
             earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
-            screen.blit(frames[int(current_frame)], earth_rect) 
-# mettre ici vaisseau
-            # texte avec fade
+            screen.blit(frames[int(current_frame)], earth_rect)
+
+
+            if ship_moving and not ship_finished:
+                current_frame_ship += animation_ship_speed
+                if current_frame_ship >= len(frames_starship):
+                    current_frame_ship = len(frames_starship) - 1
+
+                ship_y -= ship_speed * dt
+                if ship_y <= ship_target_y:
+                    ship_y = ship_target_y
+                    ship_moving = False
+                    ship_finished = True
+                    ship_visible = False
+            if ship_visible:
+                ship_rect = frames_starship[int(current_frame_ship)].get_rect(center=(ship_x, ship_y))
+                screen.blit(frames_starship[int(current_frame_ship)], ship_rect)
+
+            # Texte
             text_surf = text_5.copy()
-            text_alpha = max(0, 255 - int(fade_alpha))  
+            text_alpha = max(0, 255 - int(fade_alpha))
             text_surf.set_alpha(text_alpha)
             screen.blit(text_surf, text_rect_5)
 
@@ -723,41 +751,29 @@ while running:
                 fade_alpha = 255
 
         elif current_state == FADE_TO_END_6:
-            current_frame += animation_speed
-            if current_frame >= len(frames):
-                current_frame = 0
-            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
-            screen.blit(frames[int(current_frame)], earth_rect) 
-
-            # texte avec fade
-            text_surf = text_6.copy()
-            text_alpha = max(0, 255 - int(fade_alpha))  
-            text_surf.set_alpha(text_alpha)
-            screen.blit(text_surf, text_rect_6)
-
-            if fade_alpha > 0:
-                fade_alpha -= fade_speed
-            elif end_text_timer > 0:
-                end_text_timer -= 1
-            else:
-                end_text_timer = 180*60/fps
-                current_state = SHOW_EARTH_END
+            # fade vers noir
+            fade_alpha += fade_speed
+            if fade_alpha >= 255:
                 fade_alpha = 255
-        
+                current_state = SHOW_EARTH_END
+
         elif current_state == SHOW_EARTH_END:
+            # afficher la terre finale
             current_frame += animation_speed
             if current_frame >= len(frames):
                 current_frame = 0
             earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
-            screen.blit(frames[int(current_frame)], earth_rect) 
-            current_frame_p += animation_p_speed
-            if current_frame_p >= len(frames_pollution_earth):
-                current_frame_p = 0
-            screen.blit(text_2, text_rect_2)  
-            earth_timer -= 1
-            if earth_timer <=0:
+            screen.blit(frames[int(current_frame)], earth_rect)
+
+            end_text_timer -= 1
+            if end_text_timer <= 0:
                 current_state = END
-                fade_alpha = 0
+
+        elif current_state == END:
+            # écran final noir
+            screen.fill((0,0,0))
+
+
 ##-------------------------------------------------------
 ### ------------- CODE EMIL
 ###-------------------------------------------------------  
