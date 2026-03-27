@@ -3,6 +3,7 @@ import os
 
 pygame.display.init()
 main_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+main_dir = os.path.split(os.path.abspath(main_dir))[0]
 assets_dir = os.path.join(main_dir,"assets") 
 img_dir = os.path.join(assets_dir,"Images") 
 bg_image_dir = os.path.join(assets_dir,"Tiles/Background_images")

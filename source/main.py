@@ -29,6 +29,8 @@ ship_visible = True
 
 # Chemins
 main_dir = os.path.split(os.path.abspath(__file__))[0]
+main_dir = os.path.split(os.path.abspath(main_dir))[0]
+
 assets_dir = os.path.join(main_dir,"assets")
 police_dir = os.path.join(assets_dir,"polices")
 sounds_dir = os.path.join(assets_dir, "sounds")
@@ -103,12 +105,6 @@ machine_dialogue_cooldown_delay = 200
 
 
 # Chargement des assets
-
-dialogue_sounds_path = os.path.join(sounds_dir, "typewriter.mp3")
-text_sound = pygame.mixer.Sound(dialogue_sounds_path)
-text_sound.set_volume(0.5)
-
-
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
 
@@ -124,9 +120,6 @@ animation_speed = 0.3*60/fps
 animation_p_speed = 0.05*60/fps
 dialogue_image = pygame.image.load(os.path.join(assets_dir, "dialogue_box.png"))
 police_dialogue_path = os.path.join(police_dir, "police_dialogue.ttf")
-dialogue_sounds_path = os.path.join(sounds_dir, "typewriter.mp3")
-text_sound = pygame.mixer.Sound(dialogue_sounds_path)
-text_sound.set_volume(1)
 
 dialogue_box_width = 400
 dialogue_box_height = 200
@@ -672,12 +665,8 @@ while running:
                 counter += dt * 60
             elif counter >= speed * len(message):
                 done = True
-                text_sound.stop()
             current_char = counter // speed
             previous_char = previous_counter // speed
-            if current_char == 1 and previous_char == 0 and not done:
-                text_sound.play()
-            dialogue_1.snip = message[0:int(counter//speed)]
 
             if keys[pygame.K_RETURN] or keys[pygame.K_SPACE] and cooldown_dialogue == False:
                 cooldown_dialogue = True
@@ -687,14 +676,11 @@ while running:
                         done = False
                         message = dialogue_1.dialogue_text[active_message]
                         counter = 0
-                        text_sound.stop()
                     else:  
-                        current_state = GAME_PLAY
-                        text_sound.stop()                        
+                        current_state = GAME_PLAY                       
                 else:
                     counter = speed * len(message)
                     done = True
-                    text_sound.stop()
             if not keys[pygame.K_RETURN] and not keys[pygame.K_SPACE]:
                 cooldown_dialogue = False
         elif current_state == FADE_BLACK_END:
@@ -1093,36 +1079,40 @@ while running:
             mouse_pos = pygame.mouse.get_pos()
             mouse_click = pygame.mouse.get_pressed()
             clique = False
-            changed = False
+
             collision = False
-            actual_slot = -1
-            if mouse_click[0] == False:
+            if mouse_click[0] == True:
                 clique = True
             else:
                 pass
             screen.blit(inventaire_surface,pos_image_inventaire)
 
+            indice = -1
             for i in range(Robot.inventory_size):
-                if List_collision_slots[i].collidepoint(mouse_pos):
+                if List_collision_slots[i].collidepoint(mouse_pos): #si collision
                     collision = True
-                    if picked_slot == -1 and clique:
-                        picked_slot = i
-                        changed = True
-                    else:
-                        changed = False
-                    if not clique:                   
-                        if picked_slot != -1:
-                            pass
+                    indice = i
 
                 obj = Robot.inventory[i]
                 if obj != None:
                     new_img = pygame.transform.scale(obj.image,(48,48))
                     screen.blit(new_img,(pos_image_inventaire[0] + first_slot_pos[0]+(decallage+longueur_slot)*(i%5), pos_image_inventaire[1] + first_slot_pos[1]+(decallage+longueur_slot)*(i//5)))
+            if collision:
+                if picked_slot == -1:
+                    if clique:
+                        picked_slot = indice
+                else:
+                    print("juste le slot",Robot.inventory[indice],indice)
+                    if not clique:
+                        Robot.inventory[indice],Robot.inventory[picked_slot] = Robot.inventory[picked_slot],Robot.inventory[indice]
+                        picked_slot = -1
+                        print("changement",Robot.inventory[indice])
+                    pass
             if not collision:
                 if not clique:
                     picked_slot = -1
                 
-            print(picked_slot,actual_slot)
+
             #first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5)
 
         current_time = pygame.time.get_ticks()
@@ -1136,13 +1126,9 @@ while running:
                 counter += 1
             else:
                 done = True
-                text_sound.stop()
 
             current_char = counter // speed
             previous_char = previous_counter // speed
-
-            if current_char == 1 and previous_char == 0 and not done:
-                text_sound.play()
 
             dialogue_1.snip = message[0:counter//speed]
 
@@ -1155,14 +1141,11 @@ while running:
                         done = False
                         message = dialogue_1.dialogue_text[active_message]
                         counter = 0
-                        text_sound.stop()
                     else:
                         machine_dialogue_active = False
-                        text_sound.stop()
                 else:
                     counter = speed * len(message)
                     done = True
-                    text_sound.stop()
 
         # if machine_dialogue_active:
         #     if (keys[pygame.K_SPACE] or keys[pygame.K_RETURN]) and current_time - machine_dialogue_cooldown > machine_dialogue_cooldown_delay:

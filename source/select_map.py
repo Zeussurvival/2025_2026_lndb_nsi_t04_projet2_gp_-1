@@ -4,6 +4,7 @@ import os
 import random
 import webbrowser
 import subprocess
+import sys
 
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
@@ -19,8 +20,10 @@ X2_dir = os.path.join(hologram_dir, "Card X2")
 button_1 = os.path.join(hologram_dir,"Button 1")
 icons = os.path.join(hologram_dir,"Icons")
 robot = os.path.join(assets_dir,"Robot")
+saves_dir = os.path.join(main_dir, "saves")
 
-
+Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 200
+pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 140
 
 # background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
 # background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
@@ -68,30 +71,29 @@ icon_sound = pygame.image.load(os.path.join(icons, "sound.png"))
 icon_up = pygame.image.load(os.path.join(icons, "up.png"))
 icon_close = pygame.image.load(os.path.join(icons, "close.png"))
 icon_mute = pygame.image.load(os.path.join(icons, "mute.png"))
-perso_image = pygame.image.load(os.path.join(robot, "robot_front/front1.png"))
+
 title_image = pygame.image.load(os.path.join(assets_dir, "title.png"))
 
-settings_panel = pygame.image.load(os.path.join(X2_dir,"Card X2.png"))
-settings_panel_rect = settings_panel.get_rect()
-settings_panel_rect.center = (400, 300)
-
-music_panel = pygame.image.load(os.path.join(X2_dir,"Card X2.png"))
-music_panel_rect = music_panel.get_rect()
-music_panel_rect.center = (400,300)
 
 font = pygame.font.Font(None, 33)
 
 font_difficult = pygame.font.Font(None, 23)
 font_text = pygame.font.Font(None, 30)
 font_map = pygame.font.Font(None, 3)
-# font_title 
 
+settings_panel = pygame.image.load(os.path.join(X2_dir,"Card X2.png"))
+settings_panel_rect = settings_panel.get_rect()
+settings_panel_rect.center = (400, 300)
 
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 DARK_BLUE = (0, 0, 200)
 SEMI_TRANSPARENT = (0,0,0,180)
 
+scroll_offset = 0
+MAX_VISIBLE_SAVES = 5
+selected_file = None
+mode = "new"
 
 title_image_resize = pygame.transform.scale(title_image,(256, int(92.75)))
 title_image_rect = title_image_resize.get_rect()
@@ -101,13 +103,7 @@ running = True
 dt = 0
 mouse_clicked_button = False
 objects = []
-show_settings = False
-show_music = False
-show_difficult = False
-pt_pollution = 30 #pour Emil pour avoir le nombre de pt de pollution
-map_size = 250
-show_pannel_map = False
-show_dons = False
+show_fichier = False
 
 
 class Button():
@@ -351,45 +347,20 @@ class Slider:
         pygame.draw.rect(screen, WHITE, pygame.Rect(self.x, self.y, self.handle_x - self.x, 6), border_radius=3)
         pygame.draw.circle(screen, WHITE, (self.handle_x, self.y + 3), self.handle_radius)
 
-def go_settings():
-    global show_settings
-    show_settings = not show_settings
-    print("settings ouverts/fermés")
-
-def change_volume():
-    print("changement volume")
-
-
 def launch_game():
-    global map_size
-    map_size = map_slider.value
     pygame.quit()
-    main_path = os.path.join(source_dir, "select_map.py")
-    subprocess.run(["python", main_path, str(map_size), str(pt_pollution)])
-
-def close_music():
-    global show_music
-    show_music = False
-    for btn in settings_buttons:
-        btn.alreadyPressed = True
-    print ("music fermé")
-
-def open_music():
-    global show_music
-    show_music = True
-    print("music ouvert")
-
-def mute():
-    print ("muted")
-
-def up():
-    print("music up")
-
-def down():
-    print("music_down")
-
-def redirect():
-    webbrowser.open("https://discord.gg/Dd9TjkC3")
+    main_path = os.path.join(source_dir, "main.py")
+    if mode == "load":
+        if selected_file and os.path.exists(selected_file):
+            save_base = os.path.basename(selected_file).replace("_map.txt", "")
+            objects_file = os.path.join(saves_dir, f"{save_base}_objects.txt")
+            pollution_file = os.path.join(saves_dir, f"{save_base}_pollution.txt")
+            subprocess.run(["python", main_path, str(Taille_map), str(pt_pollution), 
+                          "load", selected_file, objects_file, pollution_file, save_base])
+        else:
+            print("aucun save sélectionné")
+    else:
+        subprocess.run(["python", main_path, str(Taille_map), str(pt_pollution), "new"])
 
 def quit():
     global running
@@ -398,100 +369,45 @@ def quit():
 def fonction ():
     print ("à faire")
 
-def go_difficult():
-    global show_difficult
-    show_difficult = not show_difficult
-    print("open_difficult")
 
-def difficult_normal ():
-    global pt_pollution
-    pt_pollution = 50
-    print("difficulté normale")
+def go_fichier():
+    global show_fichier, mode, selected_save_index, scroll_offset
+    show_fichier = not show_fichier
+    if show_fichier:
+        mode = "load"
+        selected_save_index = 0
+        scroll_offset = 0
 
-def difficult_easy ():
-    global pt_pollution
-    pt_pollution = 30
-    print("difficulté facile")
+def go_nouveau():
+    global mode, selected_file
+    mode = "new"
+    selected_file = None
+    print("nouvelle map")
 
-def difficult_hard ():
-    global pt_pollution
-    pt_pollution = 90
-    print("difficulté difficile")
+def get_saves():
+    saves = []
+    if not os.path.exists(saves_dir):
+        return saves
+    i = 1
+    while os.path.exists(os.path.join(saves_dir, f"save_{i}_map.txt")):
+        saves.append(f"save_{i}")
+        i += 1
+    return saves
+selected_save_index = 0
 
-def pollution_up ():
-    global pt_pollution
-    pt_pollution +=1
-    print("pollution up")
+def select_save(index):
+    global selected_file, selected_save_index
+    selected_save_index = index
+    selected_file = os.path.join(saves_dir, f"save_{index + 1}_map.txt")
+    print(f"save sélectionné : save_{index + 1}")
 
-def pollution_down ():
-    global pt_pollution
-    if pt_pollution > 25 :
-        pt_pollution -=1
-    print("pollution down")
-
-
-def go_map():
-    global show_pannel_map
-    show_pannel_map = not show_pannel_map
-    print("open map")
-
-def go_dons():
-    global show_dons
-    show_dons = not show_dons
-
-def go_info():
-    webbrowser.open("https://github.com/Zeussurvival/2025_2026_lndb_nsi_t04_projet2_gp_-1?tab=readme-ov-file#relife")
-
-Button(400, 450, 140, 50, 'Jouer', launch_game, icon=icon_play)
-Button(70, 70, 50, 50, '', go_settings, icon=icon_settings, icon_only=True )
-Button(730, 70, 50, 50, "", go_info, icon=icon_info, icon_only=True)
-Button(730, 120, 50, 50, "", redirect, icon=icon_discord, icon_only=True)
-Button(730, 170, 50, 50, "", go_dons, icon=icon_dons, icon_only=True)
-Button(120, 70, 50, 50, "", quit, icon=icon_quit, icon_only=True)
-Button(700, 530, 140, 40, "Difficulté", go_difficult)
-Button(700, 470, 140, 40, "Taille map", go_map)
-
-
-settings_buttons = [
-    Settings_Button(400, 300, 50, 50, '', open_music, icon=icon_sound, icon_only=True),
-    Settings_Button(250, 160, 50, 50, '', go_settings, icon=icon_close, icon_only=True)    
+Button(400, 450, 170, 50, 'Continuer', launch_game, icon=icon_play)
+Button(50, 70, 50, 50, "", quit, icon=icon_quit, icon_only=True)
+Button(300, 300, 100, 40, "fichier", go_fichier)
+Button(500, 300, 120, 40, "nouveau", go_nouveau)
+fichier_buttons= [
+    Settings_Button(250, 160, 50, 50, '', go_fichier, icon=icon_close, icon_only=True),
 ]
-
-music_buttons = [
-    Music_Button(300, 335, 50, 50, '', mute, icon=icon_mute, icon_only=True),
-    Music_Button(400, 335, 50, 50, '', down, icon=icon_down, icon_only=True),
-    Music_Button(500, 335, 50, 50, '', up, icon=icon_up, icon_only=True),
-    Music_Button(250, 160, 50, 50, '', close_music, icon=icon_close, icon_only=True)
-]
-
-difficult_buttons = [
-    Settings_Button(250, 160, 50, 50, '', go_difficult, icon=icon_close, icon_only=True),
-    Settings_Button(400, 285, 85, 35, "normale", difficult_normal),
-    Settings_Button(300, 285, 85, 35, "facile", difficult_easy),
-    Settings_Button(500, 285, 85, 35, "difficile", difficult_hard),
-    Settings_Button(350, 385, 50, 50, '', pollution_down, icon=icon_down, icon_only=True),
-    Settings_Button(450, 385, 50, 50, '', pollution_up, icon=icon_up, icon_only=True),
-]
-
-map_buttons= [
-    Settings_Button(250, 160, 50, 50, '', go_map, icon=icon_close, icon_only=True),
-]
-map_slider = Slider(300, 320, 200, min_val=200, max_val=500, initial_val=250)
-dons_buttons= [
-    Settings_Button(250, 160, 50, 50, '', go_dons, icon=icon_close, icon_only=True),
-]
-
-
-
-perso_image_scaled = pygame.transform.scale(perso_image, (128, 188))        
-perso_image_rect = perso_image_scaled.get_rect ()
-# perso_image_rect = perso_image.get_rect ()
-perso_image_rect.center = (400, 300)
-
-perso_speed_x = random.choice([-200, -150, 150, 200]) 
-perso_speed_y = random.choice([-200, -150, 150, 200])
-
-
 
 while running:
 
@@ -503,17 +419,18 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE :
-                if show_music:
-                    show_music = False
-                elif show_settings:
-                    show_settings = False
-                elif show_difficult :
-                    show_difficult = False
-                elif show_pannel_map :
-                    show_pannel_map = False
-                elif show_dons :
-                    show_dons = False
-
+                if show_fichier:
+                    show_fichier = False
+            if show_fichier:
+                saves = get_saves()
+                if event.key == pygame.K_UP:
+                    scroll_offset = max(0, scroll_offset - 1)
+                if event.key == pygame.K_DOWN:
+                    scroll_offset = min(max(0, len(saves) - MAX_VISIBLE_SAVES), scroll_offset + 1)
+        if event.type == pygame.MOUSEWHEEL and show_fichier:
+            saves = get_saves()
+            scroll_offset -= event.y 
+            scroll_offset = max(0, min(max(0, len(saves) - MAX_VISIBLE_SAVES), scroll_offset))
     # fill the screen with a color to wipe away anything from last frame
     # screen.fill("purple")
     mouse_pos = pygame.mouse.get_pos()
@@ -522,109 +439,47 @@ while running:
     screen.blit(background,(0,0))
 
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_SPACE]:
-        pass
-
-    
-
-    perso_image_rect.x += perso_speed_x * dt
-    perso_image_rect.y += perso_speed_y * dt
-
-
-    if perso_image_rect.left <= 0 or perso_image_rect.right >= 800:
-        perso_speed_x = -perso_speed_x
-
-    if perso_image_rect.top <= 0 or perso_image_rect.bottom >= 600:
-        perso_speed_y = -perso_speed_y
-
-    screen.blit(perso_image_scaled, perso_image_rect)
     # screen.blit(perso_image, perso_image_rect)
     screen.blit(title_image_resize, title_image_rect)
 
-    for object in objects:
-        object.process()
-
-    if show_difficult :
+    if show_fichier:
         overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
         overlay.fill(SEMI_TRANSPARENT)
         screen.blit(overlay, (0, 0))
         screen.blit(settings_panel, settings_panel_rect)
-        difficult_title = font.render("Difficulté", True, WHITE)
-        difficult_title_rect = difficult_title.get_rect(center=(400, 200))
-        screen.blit(difficult_title, difficult_title_rect)
-        pollution_text = font_text.render("points de pollution", True, WHITE)
-        pollution_text_rect = pollution_text.get_rect(center=(400, 340))
-        screen.blit(pollution_text, pollution_text_rect)
-        pollution_pt = font_text.render(str(pt_pollution), True, WHITE)
-        pollution_pt_rect = pollution_pt.get_rect(center=(400, 385))
-        screen.blit(pollution_pt, pollution_pt_rect)
-        for btn in difficult_buttons:
-            btn.process()
 
-    if show_pannel_map :
-        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
-        overlay.fill(SEMI_TRANSPARENT)
-        screen.blit(overlay, (0, 0))
-        screen.blit(settings_panel, settings_panel_rect)
-        map_title = font.render("Taille de la map", True, WHITE)
-        map_title_rect = map_title.get_rect(center=(400, 200))
-        screen.blit(map_title, map_title_rect)
-        
-        for btn in map_buttons:
-            btn.process()
-        map_slider.process(events)  
+        fichier_title = font.render("Choisir une map", True, WHITE)
+        screen.blit(fichier_title, fichier_title.get_rect(center=(400, 200)))
 
-        slider_text = font_text.render(str(map_slider.value), True, WHITE)
-        screen.blit(slider_text, slider_text.get_rect(center=(400, 370)))
-        map_size = map_slider.value #pour Emil pour avoir la taille de la map
-                
-    if show_settings and not show_music:
-        # Créer un overlay semi-transparent
-        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
-        overlay.fill(SEMI_TRANSPARENT)
-        screen.blit(overlay, (0, 0))
-        
-        # Dessiner le panneau de réglages
-        # settings_panel = pygame.Rect(200, 150, 400, 300)
-        # pygame.draw.rect(screen, (20, 20, 40), settings_panel)
-        # pygame.draw.rect(screen, WHITE, settings_panel, 3)  # Bordure
-        screen.blit(settings_panel, settings_panel_rect)
-        settings_title = font.render("Réglages", True, WHITE)
-        settings_title_rect = settings_title.get_rect(center=(400, 200))
-        screen.blit(settings_title, settings_title_rect)
-        
+        saves = get_saves()
+        if not saves:
+            no_save_text = font_text.render("Aucun save trouvé", True, WHITE)
+            screen.blit(no_save_text, no_save_text.get_rect(center=(400, 310)))
+        else:
+            visible_saves = saves[scroll_offset:scroll_offset + MAX_VISIBLE_SAVES]
+            for i, save_name in enumerate(visible_saves):
+                real_index = i + scroll_offset
+                y_pos = 260 + i * 45
+                color = (0, 255, 200) if real_index == selected_save_index else WHITE
+                save_surf = font_text.render(save_name, True, color)
+                save_rect = save_surf.get_rect(center=(400, y_pos))
+                screen.blit(save_surf, save_rect)
 
-        for btn in settings_buttons:
-            btn.process()
-    if show_dons :
-        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
-        overlay.fill(SEMI_TRANSPARENT)
-        screen.blit(overlay, (0, 0))
-        screen.blit(settings_panel, settings_panel_rect)
-        map_title = font.render("Dons", True, WHITE)
-        map_title_rect = map_title.get_rect(center=(400, 200))
-        screen.blit(map_title, map_title_rect)  
-        for btn in dons_buttons:
-            btn.process()
-        slider_text = font_text.render(str("Ce projet est à but non lucratif"), True, WHITE)
-        screen.blit(slider_text, slider_text.get_rect(center=(400, 325)))
-    
+                if save_rect.collidepoint(pygame.mouse.get_pos()):
+                    pygame.draw.rect(screen, (0, 255, 200), save_rect.inflate(20, 8), 2)
+                    if pygame.mouse.get_pressed()[0]:
+                        select_save(real_index)
 
+            
 
-    elif show_music :
-        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
-        overlay.fill(SEMI_TRANSPARENT)
-        screen.blit(overlay, (0, 0))
-        
-        screen.blit(music_panel, music_panel_rect)
-        music_title = font.render("Sons", True, WHITE)
-        music_title_rect = music_title.get_rect(center=(400, 200))
-        screen.blit(music_title, music_title_rect)
-        
+        for object in fichier_buttons:
+            object.process()
+    if not show_fichier:
+        for object in objects:
+            object.process()
+  
 
-        for btn in music_buttons:
-            btn.process()
+         
     
     pygame.display.flip()
 
