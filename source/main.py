@@ -547,6 +547,12 @@ touche_jet_ditem = pygame.K_n
 touche_recuperation_ditem = pygame.K_e
 touche_utiliser_porte = pygame.K_f
 touche_affichage_inventaire = pygame.K_TAB
+touche_slot1 = pygame.K_1
+touche_slot2 = pygame.K_2
+touche_slot3 = pygame.K_3
+touche_slot4 = pygame.K_4
+touche_slot5 = pygame.K_5
+
 
 # Pollu encore
 pollution_initiale = numpy.sum(Actual_map_pollution)
@@ -557,6 +563,7 @@ time_for_every_sec = int(time.time())
 time_for_every_30_sec = int(time.time())
 List_ground_objets.append((ferraille, (10*64 + 64//2, 10*64 + 64//2)))
 IN_HOUSE = False
+cd_change = False
 cd_porte = False
 Pos_souris_monde = (0,0)
 
@@ -827,7 +834,6 @@ while running:
                         tile_surface.set_alpha(Actual_map_pollution[x,y]*10)
                         screen.blit(tile_surface,(x*LEN_SQUARE-Robot.pos[0]+W_2, y*LEN_SQUARE-Robot.pos[1]+H_2))
 
-
             if keys[touche_recuperation_ditem]: #recuperer objets
                 for obj in List_ground_objets:
                     if (Robot.pos[0] - obj[1][0])**2 +(Robot.pos[1] - obj[1][1])**2 <= (LEN_SQUARE*Robot.range_pickup)**2 and can_pickup:
@@ -836,15 +842,7 @@ while running:
                             List_ground_objets.remove(obj)
             else:
                 can_pickup = True     
-
-                      
-            result = verif_collis(Pos_souris_monde,List_bats_zones_collision_portes) # collision pour les portes
-            if type(result) is int:
-                indice_maison = result
-            else:
-                indice_maison = -1
-
-
+ 
             if keys[touche_affichage_pollution]: # afficher pollution
                 if cd_see_pollution == False:
                     can_see_pollution = not can_see_pollution
@@ -857,20 +855,22 @@ while running:
                     List_ground_objets.append((Robot.hotbar[Robot.held_item_indice],Robot.pos))
                     Robot.hotbar[Robot.held_item_indice] = None
 
-
             for obj in List_ground_objets: # mettre le texte pick up
                 if (Robot.pos[0] - obj[1][0])**2 +(Robot.pos[1] - obj[1][1])**2 <= (LEN_SQUARE*Robot.range_pickup)**2:
                     screen.blit(Surface_text_pickup, (obj[1][0]-Robot.pos[0]+W/2-Surface_text_pickup.get_size()[0]/2, obj[1][1]-Robot.pos[1]+H/2-Surface_text_pickup.get_size()[1]/2 - 32 - 10 - 8*math.cos(time.time())))
                 screen.blit(pygame.transform.scale(obj[0].image,(32,32)),(obj[1][0]-Robot.pos[0]+W/2 - 16,obj[1][1]-Robot.pos[1]+H/2 - 16))
 
-
+            result = verif_collis(Pos_souris_monde,List_bats_zones_collision_portes) # collision pour les portes
+            if type(result) is int:
+                indice_maison = result
+            else:
+                indice_maison = -1
 
             Pos_souris_monde=(Robot.pos[0]-W/2+mouse_pos[0],Robot.pos[1]-H/2+mouse_pos[1]) # position de la souris ds le monde en pixels
             tile_souris = ((Pos_souris_monde[0]//LEN_SQUARE)*LEN_SQUARE,(Pos_souris_monde[1]//LEN_SQUARE)*LEN_SQUARE) # on va floor (si victor a raison que cest un floor mdr) la position a la case 
             centre_tile = (tile_souris[0]+32,tile_souris[1]+32) # on prends dcp le centre de la tile, en gros c juste len_square /2 mais on va simplifier
             diff = (centre_tile[0]-Robot.pos[0],centre_tile[1]-Robot.pos[1]) # reconversion en pos ecran
 
-            # print("Item actuel :", Robot.hotbar[Robot.held_item_indice])
             if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2 and not IN_INV:
                 if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True: # affichage des carrés et voir si on peut utiliser items
 
@@ -889,27 +889,25 @@ while running:
                             List_machines_depollution.append(CM.Depollution((int(tile_souris[1]/LEN_SQUARE),int(tile_souris[0]/LEN_SQUARE)),0.1,5,1,polu_capa_max=40))
                             Actual_map_objects_layer[int(tile_souris[1]/64),int(tile_souris[0]/64)] = Robot.hotbar[Robot.held_item_indice].indice_in_map
                             Robot.hotbar[Robot.held_item_indice] = None
+
                         if not first_machine_placed:
                             first_machine_placed = True
-
                             dialogue_1.dialogue_text = [
                                 "Bravo, voici ta première machine.", 
                                 "Elle va te permettre de purifier ton environnement.",
                                 "Ta mission est simple… en apparence.",
                                 "Récupère de la ferraille pour en construire plus.",
                             ]
-
                             active_message = 0
                             counter = 0
                             done = False
                             message = dialogue_1.dialogue_text[active_message]
-
                             machine_dialogue_active = True
                             see_animations = True
                             cooldown_dialogue = True
+
                         if not first_craft:
                             first_craft = True
-
                             dialogue_1.dialogue_text = [
                                 "Regarde autour de toi… Ce paysage était autrefois vivant.", 
                                 "La nature peut encore renaître… mais elle a besoin de toi.",
@@ -917,14 +915,11 @@ while running:
                                 "Nettoyer, reconstruire, et redonner vie à cet environnement.",
                                 "Avec les ressources récupérées, tu peux construire des machines.",
                                 "Ces machines permettent de purifier la terre et l’air."
-                            
                             ]
-
                             active_message = 0
                             counter = 0
                             done = False
                             message = dialogue_1.dialogue_text[active_message]
-
                             craft_dialogue_active = True
                             see_animations = True
                             cooldown_dialogue = True
@@ -937,7 +932,6 @@ while running:
                         cd_porte = True
                 if not keys[touche_utiliser_porte]:
                     cd_porte = False
-
 
             if time_for_every_sec +1 <= int(time.time()):
                 for bush in Liste_bush_on_map:
@@ -1016,7 +1010,7 @@ while running:
             Robot.pos = (round(Robot.pos[0],5),round(Robot.pos[1],5))
         
             last_mvt = [keys[touche_direction_haut],keys[touche_direction_bas],keys[touche_direction_gauche],keys[touche_direction_droite]]   # -----> pour faire les animations mais la jai pas le temps ptdr
-            Robot.do_all(keys,screen,last_mvt)
+            Robot.do_all(screen,last_mvt)
 
             if fade_alpha > 0 : # permet de faire le fade si yen a a faire dans le current state
                 fade_surface = pygame.Surface((screen.get_width(),screen.get_height()))
@@ -1065,7 +1059,7 @@ while running:
 
             Robot.moove_this_frame = has_not_moove
             last_mvt = [keys[touche_direction_haut],keys[touche_direction_bas],keys[touche_direction_gauche],keys[touche_direction_droite]]  
-            Robot.do_all(keys,screen,last_mvt)
+            Robot.do_all(screen,last_mvt)
             # fin mvt
 
 
@@ -1085,23 +1079,51 @@ while running:
         if not keys[touche_affichage_inventaire]:
             cd_inv = False
 
+        if not IN_INV:
+            if keys[touche_slot1]:
+                Robot.held_item_indice = 0
+                Robot.held_item = Robot.hotbar[0]
+            if keys[touche_slot2]:
+                Robot.held_item_indice = 1
+                Robot.held_item = Robot.hotbar[1]
+            if keys[touche_slot3]:
+                Robot.held_item_indice = 2
+                Robot.held_item = Robot.hotbar[2]
+            if keys[touche_slot4]:
+                Robot.held_item_indice = 3
+                Robot.held_item = Robot.hotbar[3]
+            if keys[touche_slot5]:
+                Robot.held_item_indice = 4
+                Robot.held_item = Robot.hotbar[4]
+
         if IN_INV:
             mouse_pos = pygame.mouse.get_pos()
             mouse_click = pygame.mouse.get_pressed()
-            clique = False
-
+            clique = mouse_click[0]
             collision = False
-            if mouse_click[0] == True:
-                clique = True
-            else:
-                pass
             screen.blit(inventaire_surface,pos_image_inventaire)
-
+            print(cd_change)
             indice = -1
             for i in range(Robot.inventory_size):
                 if List_collision_slots[i].collidepoint(mouse_pos): #si collision
                     collision = True
                     indice = i
+                    if not cd_change:
+                        if keys[touche_slot1]:
+                            Robot.held_item_indice = 0
+                            Robot.inventory[i],Robot.hotbar[0] = Robot.hotbar[0],Robot.inventory[i]
+                        if keys[touche_slot2]:
+                            Robot.held_item_indice = 1
+                            Robot.inventory[i],Robot.hotbar[1] = Robot.hotbar[1],Robot.inventory[i]
+                        if keys[touche_slot3]:
+                            Robot.held_item_indice = 2
+                            Robot.inventory[i],Robot.hotbar[2] = Robot.hotbar[2],Robot.inventory[i]
+                        if keys[touche_slot4]:
+                            Robot.held_item_indice = 3
+                            Robot.inventory[i],Robot.hotbar[3] = Robot.hotbar[3],Robot.inventory[i]
+                        if keys[touche_slot5]:
+                            Robot.held_item_indice = 4
+                            Robot.inventory[i],Robot.hotbar[4] = Robot.hotbar[4],Robot.inventory[i]
 
                 obj = Robot.inventory[i]
                 if obj != None:
@@ -1112,19 +1134,17 @@ while running:
                     if clique:
                         picked_slot = indice
                 else:
-                    print("juste le slot",Robot.inventory[indice],indice)
                     if not clique:
                         Robot.inventory[indice],Robot.inventory[picked_slot] = Robot.inventory[picked_slot],Robot.inventory[indice]
                         picked_slot = -1
-                        print("changement",Robot.inventory[indice])
-                    pass
             if not collision:
                 if not clique:
                     picked_slot = -1
-                
 
-            #first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5)
-
+            if not keys[touche_slot1] and not keys[touche_slot2] and not keys[touche_slot3] and not keys[touche_slot4] and not keys[touche_slot5]:
+                cd_change = False
+            else:
+                cd_change = True
         current_time = pygame.time.get_ticks()
         if machine_dialogue_active:
             for object in objects:
@@ -1157,43 +1177,6 @@ while running:
                     counter = speed * len(message)
                     done = True
 
-        # if machine_dialogue_active:
-        #     if (keys[pygame.K_SPACE] or keys[pygame.K_RETURN]) and current_time - machine_dialogue_cooldown > machine_dialogue_cooldown_delay:
-        #         machine_dialogue_cooldown = current_time
-
-             
-        #         active_message += 1
-        #     for object in objects:
-        #         object.process()
-        #         object.draw(screen)
-
-        #     previous_counter = counter 
-        #     if counter < speed * len(message):
-        #         counter +=1
-        #     else:
-        #         done = True
-        #         text_sound.stop()
-
-        #     current_char = counter // speed
-        #     previous_char = previous_counter // speed
-
-        #     if current_char == 1 and previous_char == 0 and not done:
-        #         text_sound.play()
-
-        #     dialogue_1.snip = message[0:counter//speed]
-
-        #     if keys[pygame.K_RETURN] or keys[pygame.K_SPACE]:
-        #         if done:
-        #             if active_message < len(dialogue_1.dialogue_text) - 1:
-        #                 active_message += 1
-        #                 done = False
-        #                 message = dialogue_1.dialogue_text[active_message]
-        #                 counter = 0
-        #             else:
-        #                 machine_dialogue_active = False
-        #         else:
-        #             counter = speed * len(message)
-        #             done = True
     if fade_alpha > 0 and current_state not in (FADE_TO_END_4, FADE_TO_END_5, FADE_TO_END_6, SHOW_EARTH_END):
         fade_surface = pygame.Surface((screen.get_width(), screen.get_height()))
         fade_surface.set_alpha(fade_alpha)
