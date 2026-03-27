@@ -34,14 +34,14 @@ Nos objectifs sont multiples :
 - **Eudocie De Khoverine (17 ans):** j'ai toujours eu un attrait pour l'informatique depuis un jeune âge et j'ai un intéret pour découvrir et créer de nouveaux jeux vidéos.  
 - **Emil Gunnarsson (16 ans):** je code depuis la seconde car j'avais voulu comprendre comment les jeux vidéos fonctionnaient, j'apprécie créer des petits jeux et des programmes pratiques.  
 - **Mateo Leloup (17 ans):** j'aime l'idée de créer des jeux vidéo pour faire profiter les autres, j'aime particulièrement la partie design/création visuelle du projet.
-- **Tristan Bonnière (18 ans):** 
+- **Tristan Bonnière (18 ans):** j'ai rencronté au début la programmation à l'âge de 8 ans avec scratch. Puis en seconde j'ai pus redécouvrir la progammation avec Python et j'ai aggrandi mes connaissances sur le HTML et le CSS.
 ---
 
 ### ● Rôle de chacun et chacune  
-- **Eudocie** : 
-- **Emil** :   
-- **Mateo** : 
-- **Tristan** : 
+- **Eudocie** : Multitache en back end et front end  
+- **Emil** :  Responsable du back end  
+- **Mateo** : Responsable de font end  
+- **Tristan** : Responsable du front end
 
 ---
 
