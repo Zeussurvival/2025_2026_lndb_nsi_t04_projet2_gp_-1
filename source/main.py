@@ -186,7 +186,7 @@ for i in range(11):
 
 
 ### VOIR ANIMATIONS
-see_animations = False 
+see_animations = True
 cooldown_dialogue = False
 
 
@@ -423,7 +423,6 @@ else:
 for i in range(200):
     x = random.randint(0,Actual_map.shape[0]*64)
     y = random.randint(0,Actual_map.shape[1]*64)
-    print(x//64,y//64)
     if Actual_map_objects_layer[int(y//64)-1,int(x//64)-1] == -1:
         List_ground_objets.append((Ferraille_basique,(x,y)))
 
@@ -613,7 +612,6 @@ cd_change = False
 cd_porte = False
 Pos_souris_monde = (0,0)
 
-print("running now")
 while running:
     time_0 = time.time()
     keys = pygame.key.get_pressed()  
@@ -644,7 +642,6 @@ while running:
                 current_state = FADE_IN_TEXT_1
                 fade_alpha = 255 
         
-                print("fade1 finis")
 
         elif current_state == FADE_IN_TEXT_1:
 
@@ -653,7 +650,6 @@ while running:
             if fade_alpha <= 0:
                 fade_alpha = 0
                 current_state = SHOW_TEXT_1
-                print("Texte 1 ")
         elif current_state == SHOW_TEXT_1:
             screen.blit(text_1, text_rect_1)
             if text_timer > 0:
@@ -667,7 +663,6 @@ while running:
             if fade_alpha >= 255:
                 fade_alpha = 255
                 current_state = FADE_TO_EARTH
-                print("vers la terre")
         elif current_state == FADE_TO_EARTH:
             current_frame += animation_speed
             if current_frame >= len(frames):
@@ -684,7 +679,6 @@ while running:
             if fade_alpha <= 0:
                 fade_alpha = 0
                 current_state = SHOW_EARTH
-                print("terre visible")
         elif current_state == SHOW_EARTH:
             current_frame += animation_speed
             if current_frame >= len(frames):
@@ -753,7 +747,6 @@ while running:
                 current_state = FADE_TO_END_3
                 fade_alpha = 255 
         
-                print("fade1 finis")
         elif current_state == FADE_TO_END_3:
             current_frame += animation_speed
             if current_frame >= len(frames):
