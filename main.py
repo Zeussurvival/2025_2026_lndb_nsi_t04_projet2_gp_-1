@@ -98,6 +98,8 @@ counter = 0
 speed = 2
 done = False
 active_message = 0
+machine_dialogue_cooldown = 0
+machine_dialogue_cooldown_delay = 200 
 
 
 # Chargement des assets
@@ -152,7 +154,7 @@ text_rect_6 = text_6.get_rect(center=(640, 100))
 dialogue_1 = C_D.Dialogue(640, 600, 894, 200, dialogue_image, police_dialogue_path, 
                           ["Initialisation…", "Unité de nettoyage autonome : Xénia.", 
                            "Statut de la planète : inhabitable.", 
-                           "Mission prioritaire : nettoyer."], next)
+                           "Mission prioritaire : nettoyer."], lambda: None)
 
 message = dialogue_1.dialogue_text[active_message]
 
@@ -181,7 +183,7 @@ for i in range(11):
 
 
 ### VOIR ANIMATIONS
-see_animations = True 
+see_animations = False 
 cooldown_dialogue = False
 
 
@@ -1068,7 +1070,7 @@ while running:
 
 
 
-
+        current_time = pygame.time.get_ticks()
         if machine_dialogue_active:
             for object in objects:
                 object.process()
@@ -1076,7 +1078,7 @@ while running:
 
             previous_counter = counter 
             if counter < speed * len(message):
-                counter +=1
+                counter += 1
             else:
                 done = True
                 text_sound.stop()
@@ -1089,18 +1091,61 @@ while running:
 
             dialogue_1.snip = message[0:counter//speed]
 
-            if keys[pygame.K_RETURN] or keys[pygame.K_SPACE]:
+            current_time = pygame.time.get_ticks()
+            if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and current_time - machine_dialogue_cooldown > machine_dialogue_cooldown_delay:
+                machine_dialogue_cooldown = current_time
                 if done:
                     if active_message < len(dialogue_1.dialogue_text) - 1:
                         active_message += 1
                         done = False
                         message = dialogue_1.dialogue_text[active_message]
                         counter = 0
+                        text_sound.stop()
                     else:
                         machine_dialogue_active = False
+                        text_sound.stop()
                 else:
                     counter = speed * len(message)
                     done = True
+                    text_sound.stop()
+
+        # if machine_dialogue_active:
+        #     if (keys[pygame.K_SPACE] or keys[pygame.K_RETURN]) and current_time - machine_dialogue_cooldown > machine_dialogue_cooldown_delay:
+        #         machine_dialogue_cooldown = current_time
+
+             
+        #         active_message += 1
+        #     for object in objects:
+        #         object.process()
+        #         object.draw(screen)
+
+        #     previous_counter = counter 
+        #     if counter < speed * len(message):
+        #         counter +=1
+        #     else:
+        #         done = True
+        #         text_sound.stop()
+
+        #     current_char = counter // speed
+        #     previous_char = previous_counter // speed
+
+        #     if current_char == 1 and previous_char == 0 and not done:
+        #         text_sound.play()
+
+        #     dialogue_1.snip = message[0:counter//speed]
+
+        #     if keys[pygame.K_RETURN] or keys[pygame.K_SPACE]:
+        #         if done:
+        #             if active_message < len(dialogue_1.dialogue_text) - 1:
+        #                 active_message += 1
+        #                 done = False
+        #                 message = dialogue_1.dialogue_text[active_message]
+        #                 counter = 0
+        #             else:
+        #                 machine_dialogue_active = False
+        #         else:
+        #             counter = speed * len(message)
+        #             done = True
     if fade_alpha > 0 and current_state not in (FADE_TO_END_4, FADE_TO_END_5, FADE_TO_END_6, SHOW_EARTH_END):
         fade_surface = pygame.Surface((screen.get_width(), screen.get_height()))
         fade_surface.set_alpha(fade_alpha)
