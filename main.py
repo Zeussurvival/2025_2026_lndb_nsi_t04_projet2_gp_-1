@@ -321,12 +321,14 @@ can_see_pollution = True
 cd_see_pollution = True
 
 hotbar = [bush,machine_depo_1_obj,None,None,None]
+inventory = [None]*25
+inventory[3] = Pomme_basique
 Robot = CH.Humanoid((8*64,8*64),100,5,5,"robot_front/front1.png",[["robot_front/front1.png"],\
                                                                          ["robot_back/back1.png","robot_back/back2.png","robot_back/back3.png","robot_back/back4.png"],\
                                                                          ["robot_front/front1.png","robot_front/front2.png","robot_front/front3.png","robot_front/front4.png"],\
                                                                          ["robot_left/left_0.png","robot_left/left_1.png","robot_left/left_2.png","robot_left/left_3.png"],\
                                                                          ["robot_right/right_0.png","robot_right/right_1.png","robot_right/right_2.png","robot_right/right_3.png"]], \
-                    64,hotbar)
+                    64,hotbar,inventory)
 
 
 
@@ -432,6 +434,36 @@ def verif_collis(souris_pos,liste_collision_portes):
 
 
 
+### INVENTAIRE
+ingame_menu_dir = os.path.join(assets_dir,"ingame_menus")
+background_inventaire = pygame.image.load(os.path.join(ingame_menu_dir,"inventaire.png")).convert_alpha()
+background_inventaire = pygame.transform.scale2x(background_inventaire)
+background_craft = pygame.image.load(os.path.join(ingame_menu_dir,"craft.png")).convert_alpha()
+
+first_slot_pos = (104,136)
+decallage = 16
+longueur_slot = 48
+surfacee = pygame.Surface((longueur_slot, longueur_slot),pygame.SRCALPHA)
+surfacee.fill((0,0,0,0))
+pygame.draw.rect(surfacee, (150,150,150), (0, 0, longueur_slot, longueur_slot), 4)
+picked_slot = -1
+IN_INV = False
+cd_inv = False
+
+pos_image_inventaire = (150,50)
+
+inventaire_surface = pygame.Surface((512,512),pygame.SRCALPHA)
+inventaire_surface.blit(background_inventaire,(0,0))
+List_collision_slots = []
+
+# (pos_image_inventaire[0] + first_slot_pos[0]+(decallage+longueur_slot)*(i%5), pos_image_inventaire[1] + first_slot_pos[1]+(decallage+longueur_slot)*(i//5))
+
+for n in range(25):
+    inventaire_surface.blit(surfacee,(first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5)))
+    List_collision_slots.append(pygame.Rect(pos_image_inventaire[0]+first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5),longueur_slot,longueur_slot))
+print(List_collision_slots)
+
+
 
 ## Batiments et collisions
 List_batiments_raw = []
@@ -493,9 +525,8 @@ def ajout_de_linterieur_de_bat(position,indice):
 ajout_de_linterieur_de_bat((0,0),0)
 ajout_de_linterieur_de_bat((16,20),1)
 ajout_de_linterieur_de_bat((0,15),0)
+ajout_de_linterieur_de_bat((25,29),2)
 
-
-print(List_collision_house_map)
 List_batiments_zones_collision = [List_batiments_zones_collision,List_collision_house_map]
 List_collision_house_map
 indice_maison = -1
@@ -512,7 +543,7 @@ touche_affichage_pollution = pygame.K_F3
 touche_jet_ditem = pygame.K_n
 touche_recuperation_ditem = pygame.K_e
 touche_utiliser_porte = pygame.K_f
-
+touche_affichage_inventaire = pygame.K_TAB
 
 # Pollu encore
 pollution_initiale = numpy.sum(Actual_map_pollution)
@@ -786,6 +817,7 @@ while running:
 ###-------------------------------------------------------  
     if current_state == GAME_PLAY:
         if not IN_HOUSE:
+            
             see_minimap = True
             coin_haut = (math.floor((Robot.pos[0]-W_2)/LEN_SQUARE),math.floor((Robot.pos[1]-H_2)/LEN_SQUARE))
             coin_bas = (math.ceil((Robot.pos[0]+W_2)/LEN_SQUARE),math.ceil((Robot.pos[1]+H_2)/LEN_SQUARE))
@@ -843,7 +875,7 @@ while running:
             diff = (centre_tile[0]-Robot.pos[0],centre_tile[1]-Robot.pos[1]) # reconversion en pos ecran
 
             # print("Item actuel :", Robot.hotbar[Robot.held_item_indice])
-            if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2:
+            if diff[0]**2+diff[1]**2<=(Robot.range_pickup*LEN_SQUARE+LEN_SQUARE)**2 and not IN_INV:
                 if Robot.hotbar[Robot.held_item_indice] != None and Robot.hotbar[Robot.held_item_indice].can_see == True: # affichage des carrés et voir si on peut utiliser items
 
                     screen_pos=(W/2-(Robot.pos[0]-tile_souris[0]),H/2-(Robot.pos[1]-tile_souris[1]))
@@ -921,10 +953,9 @@ while running:
                                                                 bush[0][0]*64+ 32+ 64*(random.random() *2 -1))])
                 time_for_every_sec = int(time.time())+1
 
-            if time_for_every_30_sec + 30 <= int(time.time()):
+            if time_for_every_30_sec + 20 <= int(time.time()):
                 for machine in List_machines_depollution:
                     if machine.polu_capa < machine.polu_capa_max:
-                        print("ca a change")
                         chng = D.to_remove_bro(Actual_map_pollution,machine.location,machine.range_depo,machine.polu_reduced_per_30_sec,machine.polu_capa_max - machine.polu_capa)
                         machine.polu_capa += chng
                 time_for_every_30_sec = int(time.time()) + 30
@@ -987,12 +1018,9 @@ while running:
     
             Robot.moove_this_frame = has_not_moove
             Robot.pos = (round(Robot.pos[0],5),round(Robot.pos[1],5))
-
-
+        
             last_mvt = [keys[touche_direction_haut],keys[touche_direction_bas],keys[touche_direction_gauche],keys[touche_direction_droite]]   # -----> pour faire les animations mais la jai pas le temps ptdr
             Robot.do_all(keys,screen,last_mvt)
-
-
 
             if fade_alpha > 0 : # permet de faire le fade si yen a a faire dans le current state
                 fade_surface = pygame.Surface((screen.get_width(),screen.get_height()))
@@ -1001,19 +1029,6 @@ while running:
                 screen.blit(fade_surface, (0, 0))
             if see_minimap == True :
                 draw_minimap(screen, Robot, Actual_map_objects_layer, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
-
-            # if keys[pygame.K_h] and not cd_h:
-            #     IN_HOUSE = True
-            #     cd_h = True
-            #     indice_maison = indice_maison
-            #     print(Robot.pos_in_houses)
-
-            # if not keys[pygame.K_h]:
-            #     cd_h = False
-
-
-
-
 
         if IN_HOUSE:
             keys = pygame.key.get_pressed()
@@ -1068,7 +1083,47 @@ while running:
             
             print(indice_maison)
 
+        if keys[touche_affichage_inventaire] and not cd_inv:
+            cd_inv = True
+            IN_INV = not IN_INV
+        if not keys[touche_affichage_inventaire]:
+            cd_inv = False
 
+        if IN_INV:
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_click = pygame.mouse.get_pressed()
+            clique = False
+            changed = False
+            collision = False
+            actual_slot = -1
+            if mouse_click[0] == False:
+                clique = True
+            else:
+                pass
+            screen.blit(inventaire_surface,pos_image_inventaire)
+
+            for i in range(Robot.inventory_size):
+                if List_collision_slots[i].collidepoint(mouse_pos):
+                    collision = True
+                    if picked_slot == -1 and clique:
+                        picked_slot = i
+                        changed = True
+                    else:
+                        changed = False
+                    if not clique:                   
+                        if picked_slot != -1:
+                            pass
+
+                obj = Robot.inventory[i]
+                if obj != None:
+                    new_img = pygame.transform.scale(obj.image,(48,48))
+                    screen.blit(new_img,(pos_image_inventaire[0] + first_slot_pos[0]+(decallage+longueur_slot)*(i%5), pos_image_inventaire[1] + first_slot_pos[1]+(decallage+longueur_slot)*(i//5)))
+            if not collision:
+                if not clique:
+                    picked_slot = -1
+                
+            print(picked_slot,actual_slot)
+            #first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5)
 
         current_time = pygame.time.get_ticks()
         if machine_dialogue_active:
