@@ -20,7 +20,7 @@ Robot_dir = os.path.join(assets_dir,"Robot")
 #         else:
 #             self.background_image = None
 class Humanoid:
-    def __init__(self,pos,pv,base_damage,speed,image,list_images,LEN_SQUARE, hotbar):
+    def __init__(self,pos,pv,base_damage,speed,image,list_images,LEN_SQUARE, hotbar, inv):
         self.vect = pygame.math.Vector2(0,0)
         self.pos = pos
         self.pos_in_houses = (5*64,5*64)
@@ -31,8 +31,8 @@ class Humanoid:
         self.held_item_indice = 0
         self.hotbar = hotbar
         self.hotbar_len = 5
-        self.inventory = []
-        self.inventory_size = 20
+        self.inventory = inv
+        self.inventory_size = 25
         self.range_pickup = 2.5
 
 
@@ -51,23 +51,13 @@ class Humanoid:
                 liste_temp.append(image)
             self.True_list_images.append(liste_temp)
         self.indice_animation_en_cours = time.time()
-
-    def blit_self(self,screen,pos,key_pressed):
-        vrai_pos = pos[0]-32,pos[1]-48
-        if len(key_pressed) < 1:
-
-            screen.blit(self.image,vrai_pos)
-        else:
-            screen.blit(self.True_list_images[0],vrai_pos)
-        # self.blit_center_self(screen,key_pressed)
         
     def blit_center_self(self,screen,mooves):
-        H,W = pygame.Surface.get_height(screen),pygame.Surface.get_width(screen) #self.image_length[1]/2
-        # self.indice_animation_en_cours = (round(time.time()-math.floor(time.time())*16))%4
+        H,W = pygame.Surface.get_height(screen),pygame.Surface.get_width(screen)
         indice_actu = int((time.time() - self.indice_animation_en_cours ) *6) % 4
         new_image = self.image
         
-        if mooves[2] and self.moove_this_frame:             # rajouter que si tu change danimations ca revienne a 0
+        if mooves[2] and self.moove_this_frame:
             new_image = self.True_list_images[3][indice_actu]
             self.last_direction = 3
         if mooves[3] and self.moove_this_frame:
@@ -79,37 +69,24 @@ class Humanoid:
         if mooves[0] and self.moove_this_frame:
             new_image = self.True_list_images[1][indice_actu]
             self.last_direction = 1
-        
         if self.moove_this_frame == False:
-            # print(self.last_direction)
             new_image = self.True_list_images[self.last_direction][2]
 
         if self.True_list_images == []:
             new_image = self.image
         screen.blit(new_image,(W/2-self.image_length[0]/2,H/2-self.image_length[1]/2))
 
-
-    def do_collision_check(self,vect_mvt,pos,Map,LEN_SQUARE):
-        fake_pos = pos + vect_mvt
-        if fake_pos[0] - self.image_length[0]/2 < 0: # Check les collisions pour les bords de la map
-            fake_pos[0] = self.image_length[0]/2
-        if fake_pos[1] - self.image_length[1]/2< 0:
-            fake_pos[1] = self.image_length[1]/2
-        if fake_pos[0] + self.image_length[0]/2 > Map.shape[1] * 64: # 64 et pas LEN SQUARE !!
-            fake_pos[0] = Map.shape[1] * LEN_SQUARE - self.image_length[0]/2
-        if fake_pos[1] + self.image_length[1]/2 > Map.shape[1] * 64:
-            fake_pos[1] = Map.shape[1] * LEN_SQUARE - self.image_length[1]/2
-        self.pos = fake_pos
-
     def pickup(self,obj):
         for i in range(len(self.hotbar)):
             if self.hotbar[i] == None:
                 self.hotbar[i] = obj
                 return True
-        if len(self.inventory) < self.inventory_size - 1:
-            self.inventory.append(obj)
-            return True
-        return False
+        if None in self.inventory:
+            i = self.inventory.index(None)
+            if i >= -1:
+                self.inventory[i] = obj
+                return True
+            return False
 
     def draw_hotbar(self,screen):
         lenght_square = 64
@@ -151,31 +128,3 @@ class Humanoid:
         self.blit_center_self(screen,last_mvt)
 
 
-
-    # def do_movement_by_self(self,keys,dt,screen,Actual_map,LEN_SQUARE):
-    #     self.vect = pygame.math.Vector2(0,0)
-    #     last_key_pressed = []
-    #     if keys[pygame.K_q]:
-    #         self.vect[0] -= self.speed * dt
-    #         last_key_pressed.append("q")
-    #     if keys[pygame.K_d]:
-    #         self.vect[0] += self.speed * dt
-    #         last_key_pressed.append("d")    
-    #     if keys[pygame.K_s]:
-    #         self.vect[1] += self.speed * dt    
-    #         last_key_pressed.append("s")        
-    #     if keys[pygame.K_z]:
-    #         self.vect[1] -= self.speed * dt
-    #         last_key_pressed.append("z")    
-
-    #     if self.vect.length()!= 0: # eviter de faire des calculs pour rien ET ...
-    #         if self.vect.length() / (self.speed *dt + 10 **-10) > 1:
-    #             self.vect = self.vect.normalize() * self.speed *dt
-    #         # if self.pos[0] - 0 < 0: # le -0 sert a faire une collision simple eviter de sortir de la map niveau image du joueur et le nb devrait etre taille image / 2
-    #         #     self.pos[0] = 0 
-    #         # if self.pos[1] - 0 < 0:
-    #         #     self.pos[1] = 0
-    #         self.do_collision_check(self.vect,self.pos,Actual_map,LEN_SQUARE)
-
-    #         self.pos[0],self.pos[1] = round(self.pos[0],2),round(self.pos[1],2)
-    #     self.blit_center_self(screen,self.pos,last_key_pressed)
