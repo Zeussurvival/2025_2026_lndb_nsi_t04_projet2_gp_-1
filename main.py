@@ -62,6 +62,14 @@ SHOW_TEXT_2 = 6
 FADE_TO_DIALOGUE = 7 
 SHOW_DIALOGUE = 8
 GAME_PLAY = 9
+FADE_BLACK_END = 10
+FADE_TO_END_3 = 11
+FADE_TO_END_4 = 12
+FADE_TO_END_5 = 13
+FADE_TO_END_6 = 14
+SHOW_EARTH_END = 15
+END = 16
+
 current_state = FADE_BLACK
 
 earth_timer = 180*60/fps
@@ -69,7 +77,7 @@ fade_alpha = 255
 fade_speed = 1*60/fps
 timer = 70*60/fps
 text_timer = 70*60/fps
-
+end_text_timer = 180*60/fps
 see_minimap = False 
 
 # Variables dialogue
@@ -121,6 +129,14 @@ text_1 = font.render("Cela fait 732 années que les humains ont quitté cette pl
 text_2 = font.render("Ils ont laissé derrière eux… ceci.", 1, (255, 255, 255))
 text_rect_1 = text_1.get_rect(center=(640, 360))
 text_rect_2 = text_2.get_rect(center=(640, 100))
+text_3 = font.render("Une fois la planète entièrement nettoyée, tout semble enfin apaisé.", 1, (255, 255, 255))
+text_4 = font.render("Le joueur a accompli sa mission : rendre la planète de nouveau habitable.", 1, (255, 255, 255))
+text_5 = font.render("Cependant, cet équilibre est de courte durée.", 1, (255, 255, 255))
+text_6 = font.render("La planète, pourtant sauvée, commence à replonger dans le même état critique qu’auparavant.", 1, (255, 255, 255))
+text_rect_3 = text_3.get_rect(center=(640, 100))
+text_rect_4 = text_4.get_rect(center=(640, 100))
+text_rect_5 = text_5.get_rect(center=(640, 100))
+text_rect_6 = text_6.get_rect(center=(640, 100))
 
 dialogue_1 = C_D.Dialogue(640, 600, 894, 200, dialogue_image, police_dialogue_path, 
                           ["Initialisation…", "Unité de nettoyage autonome : Xénia.", 
@@ -148,11 +164,11 @@ for i in range(1, 6):
 
 
 ### VOIR ANIMATIONS
-see_animations = False 
+see_animations = True 
 cooldown_dialogue = False
 
 
-
+see_animation_end = False
 
 
 
@@ -497,7 +513,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
+    if keys[pygame.K_F5]:
+        current_state = FADE_BLACK_END
+        fade_alpha = 255
+        timer = 70*60/fps      # reset le timer du FADE_BLACK_END
+        earth_timer = 180*60/fps  # reset pour SHOW_EARTH_END
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((0,0,0))
     if not see_animations:
@@ -620,7 +640,116 @@ while running:
                     text_sound.stop()
             if not keys[pygame.K_RETURN] and not keys[pygame.K_SPACE]:
                 cooldown_dialogue = False
+        elif current_state == FADE_BLACK_END:
+            if timer > 0:
+                timer -=1
+            else :
+                current_state = FADE_TO_END_3
+                fade_alpha = 255 
+        
+                print("fade1 finis")
+        elif current_state == FADE_TO_END_3:
+            current_frame += animation_speed
+            if current_frame >= len(frames):
+                current_frame = 0
+            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+            screen.blit(frames[int(current_frame)], earth_rect) 
 
+         
+            text_surf = text_3.copy()
+            text_alpha = max(0, 255 - int(fade_alpha))  
+            text_surf.set_alpha(text_alpha)
+            screen.blit(text_surf, text_rect_3)
+
+            if fade_alpha > 0:
+                fade_alpha -= fade_speed
+            elif end_text_timer > 0:
+                end_text_timer -= 1
+            else:
+                end_text_timer = 180*60/fps
+                current_state = FADE_TO_END_4
+                fade_alpha = 255
+
+        elif current_state == FADE_TO_END_4:
+            current_frame += animation_speed
+            if current_frame >= len(frames):
+                current_frame = 0
+            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+            screen.blit(frames[int(current_frame)], earth_rect) 
+
+            # texte avec fade
+            text_surf = text_4.copy()
+            text_alpha = max(0, 255 - int(fade_alpha))  
+            text_surf.set_alpha(text_alpha)
+            screen.blit(text_surf, text_rect_4)
+
+            if fade_alpha > 0:
+                fade_alpha -= fade_speed
+            elif end_text_timer > 0:
+                end_text_timer -= 1
+            else:
+                end_text_timer = 180*60/fps
+                current_state = FADE_TO_END_5
+                fade_alpha = 255
+
+        elif current_state == FADE_TO_END_5:
+            current_frame += animation_speed
+            if current_frame >= len(frames):
+                current_frame = 0
+            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+            screen.blit(frames[int(current_frame)], earth_rect) 
+# mettre ici vaisseau
+            # texte avec fade
+            text_surf = text_5.copy()
+            text_alpha = max(0, 255 - int(fade_alpha))  
+            text_surf.set_alpha(text_alpha)
+            screen.blit(text_surf, text_rect_5)
+
+            if fade_alpha > 0:
+                fade_alpha -= fade_speed
+            elif end_text_timer > 0:
+                end_text_timer -= 1
+            else:
+                end_text_timer = 180*60/fps
+                current_state = FADE_TO_END_6
+                fade_alpha = 255
+
+        elif current_state == FADE_TO_END_6:
+            current_frame += animation_speed
+            if current_frame >= len(frames):
+                current_frame = 0
+            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+            screen.blit(frames[int(current_frame)], earth_rect) 
+
+            # texte avec fade
+            text_surf = text_6.copy()
+            text_alpha = max(0, 255 - int(fade_alpha))  
+            text_surf.set_alpha(text_alpha)
+            screen.blit(text_surf, text_rect_6)
+
+            if fade_alpha > 0:
+                fade_alpha -= fade_speed
+            elif end_text_timer > 0:
+                end_text_timer -= 1
+            else:
+                end_text_timer = 180*60/fps
+                current_state = SHOW_EARTH_END
+                fade_alpha = 255
+        
+        elif current_state == SHOW_EARTH_END:
+            current_frame += animation_speed
+            if current_frame >= len(frames):
+                current_frame = 0
+            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+            screen.blit(frames[int(current_frame)], earth_rect) 
+            current_frame_p += animation_p_speed
+            if current_frame_p >= len(frames_pollution_earth):
+                current_frame_p = 0
+            screen.blit(text_2, text_rect_2)  
+            earth_timer -= 1
+            if earth_timer <=0:
+                current_state = END
+                fade_alpha = 0
 ##-------------------------------------------------------
 ### ------------- CODE EMIL
 ###-------------------------------------------------------  
@@ -940,7 +1069,7 @@ while running:
                 else:
                     counter = speed * len(message)
                     done = True
-    if fade_alpha > 0:
+    if fade_alpha > 0 and current_state not in (FADE_TO_END_4, FADE_TO_END_5, FADE_TO_END_6, SHOW_EARTH_END):
         fade_surface = pygame.Surface((screen.get_width(), screen.get_height()))
         fade_surface.set_alpha(fade_alpha)
         fade_surface.fill((0, 0, 0))
