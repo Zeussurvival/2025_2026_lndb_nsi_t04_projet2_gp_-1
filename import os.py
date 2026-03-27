@@ -79,5 +79,20 @@ main_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # pygame.quit()
 
+# mat = numpy.full((5,5),-1)
+# print(mat)
+
+a = 5
 mat = numpy.full((5,5),-1)
+liste = []
+def change_a():
+    global a
+    liste.append(a)
+    a +=1
+    mat[2,2] += a
+
+
+change_a()
+print(a)
+print(liste)
 print(mat)
