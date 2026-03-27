@@ -449,12 +449,33 @@ inventaire_surface = pygame.Surface((512,512),pygame.SRCALPHA)
 inventaire_surface.blit(background_inventaire,(0,0))
 List_collision_slots = []
 
-# (pos_image_inventaire[0] + first_slot_pos[0]+(decallage+longueur_slot)*(i%5), pos_image_inventaire[1] + first_slot_pos[1]+(decallage+longueur_slot)*(i//5))
-
 for n in range(25):
     inventaire_surface.blit(surfacee,(first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5)))
     List_collision_slots.append(pygame.Rect(pos_image_inventaire[0]+first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5)+longueur_slot,longueur_slot,longueur_slot))
-print(List_collision_slots)
+
+pos_image_craft = (600,100)
+craft_surface = pygame.Surface((512,512),pygame.SRCALPHA)
+inventaire_surface.blit(background_craft,(0,0))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -517,8 +538,14 @@ def ajout_de_linterieur_de_bat(position,indice):
     indice_maison += 1
 ajout_de_linterieur_de_bat((0,0),0)
 ajout_de_linterieur_de_bat((16,20),1)
-ajout_de_linterieur_de_bat((0,15),0)
-ajout_de_linterieur_de_bat((25,29),2)
+
+ajout_de_linterieur_de_bat((70,29),2)
+ajout_de_linterieur_de_bat((30,140),1)
+ajout_de_linterieur_de_bat((25,50),1)
+ajout_de_linterieur_de_bat((100,20),2)
+ajout_de_linterieur_de_bat((15,45),1)
+ajout_de_linterieur_de_bat((75,140),0)
+
 
 List_batiments_zones_collision = [List_batiments_zones_collision,List_collision_house_map]
 List_collision_house_map
@@ -1092,7 +1119,7 @@ while running:
             clique = mouse_click[0]
             collision = False
             screen.blit(inventaire_surface,pos_image_inventaire)
-            print(cd_change)
+            screen.blit(craft_surface,pos_image_craft)
             indice = -1
             for i in range(Robot.inventory_size):
                 if List_collision_slots[i].collidepoint(mouse_pos): #si collision
