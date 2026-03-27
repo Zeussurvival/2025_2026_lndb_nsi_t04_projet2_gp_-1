@@ -256,6 +256,7 @@ LEN_SQUARE = 64
 dt = 0
 construction_dir = os.path.join(assets_dir,"Building_txt")
 tiles_dir = os.path.join(assets_dir,"Tiles")
+image_dir = os.path.join(assets_dir,"Images")
 autres_tiles_dir = os.path.join(tiles_dir,"Autres")
 batiments_tiles_dir = os.path.join(tiles_dir,"Batiment")
 
@@ -316,6 +317,8 @@ bush = Bush_basique
 Ferraille_basique = CO.Consumable("ferraille_v1.png", "Ferraille", "Un tas de ferraille rouillée")
 ferraille = Ferraille_basique
 Liste_bush_on_map = []
+
+
 
 Arial_font = pygame.font.SysFont('Arial', 30)
 Surface_text_pickup = Arial_font.render('Press [E] to pick it up !', False, (255,255,255))
@@ -417,6 +420,12 @@ else:
     Liste_bush_on_map = []
     List_machines_depollution = []
 
+for i in range(200):
+    x = random.randint(0,Actual_map.shape[0]*64)
+    y = random.randint(0,Actual_map.shape[1]*64)
+    print(x//64,y//64)
+    if Actual_map_objects_layer[int(y//64)-1,int(x//64)-1] == -1:
+        List_ground_objets.append((Ferraille_basique,(x,y)))
 
 
 
@@ -442,7 +451,7 @@ ingame_menu_dir = os.path.join(assets_dir,"ingame_menus")
 background_inventaire = pygame.image.load(os.path.join(ingame_menu_dir,"inventaire.png")).convert_alpha()
 background_inventaire = pygame.transform.scale2x(background_inventaire)
 background_craft = pygame.image.load(os.path.join(ingame_menu_dir,"craft.png")).convert_alpha()
-
+background_craft = pygame.transform.scale2x(background_craft    )
 first_slot_pos = (104,136)
 decallage = 16
 longueur_slot = 48
@@ -463,10 +472,20 @@ for n in range(25):
     inventaire_surface.blit(surfacee,(first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5)))
     List_collision_slots.append(pygame.Rect(pos_image_inventaire[0]+first_slot_pos[0]+(decallage+longueur_slot)*(n%5),first_slot_pos[1]+(decallage+longueur_slot)*(n//5)+longueur_slot,longueur_slot,longueur_slot))
 
-pos_image_craft = (600,100)
+pos_image_craft = (600,50)
 craft_surface = pygame.Surface((512,512),pygame.SRCALPHA)
-inventaire_surface.blit(background_craft,(0,0))
 
+craft_surface.blit(background_craft,(0,0))
+craft_surface.blit(tileset[dict_image_bats[os.path.join(autres_tiles_dir,"Depollution_machine_t_1.png")]].image,(280,110))
+image_dir = os.path.join(assets_dir,"Images")
+image_feraille = pygame.image.load(os.path.join(image_dir,'ferraille_v1.png')).convert_alpha()
+image_feraille = pygame.transform.scale_by(image_feraille,1.7)
+craft_surface.blit(image_feraille,(160,110))
+
+texte_de_5 = Arial_font.render("5", True, (255, 255, 255))
+craft_surface.blit(texte_de_5,(210,145))
+liste_collision_craft = [pygame.Rect(pos_image_craft[0]+160,pos_image_craft[1]+130,344-220+64,64)]
+# os.path.join(autres_tiles_dir,"Depollution_machine_t_1.png")
 
 
 
@@ -1156,6 +1175,37 @@ while running:
                 if obj != None:
                     new_img = pygame.transform.scale(obj.image,(48,48))
                     screen.blit(new_img,(pos_image_inventaire[0] + first_slot_pos[0]+(decallage+longueur_slot)*(i%5), pos_image_inventaire[1] + first_slot_pos[1]+(decallage+longueur_slot)*(i//5)))
+
+            if liste_collision_craft[0].collidepoint(mouse_pos) and clique:
+                nb_feraille = 0
+                for item in Robot.hotbar:
+                    if item!= None:
+                        if item.name == "Ferraille":
+                            nb_feraille += 1
+                for obj in Robot.inventory:
+                    if obj != None:
+                        # print(obj.name)
+                        if obj.name == "Ferraille":
+                            nb_feraille += 1
+
+                if nb_feraille >= 5: # si jai assez pour craft
+                    nb_feraille = 5
+                    for i in range(len(Robot.hotbar)):
+                        item = Robot.hotbar[i]
+                        if item != None:
+                            if item.name == "Ferraille":
+                                Robot.hotbar[i] = None
+                                nb_feraille -= 1
+                    for i in range(len(Robot.inventory)):
+                        obj = Robot.inventory[i]
+                        if obj != None:
+                            print(nb_feraille)
+                            if obj.name == "Ferraille" and nb_feraille > 0:
+                                Robot.inventory[i] = None
+                                nb_feraille -= 1
+                    Robot.pickup(machine_depo_1_obj)
+                print(nb_feraille)
+                nb_feraille = 0
             if collision:
                 if picked_slot == -1:
                     if clique:
