@@ -532,6 +532,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+            break
+    if not running:
+        break
+
+
     if keys[pygame.K_F5]:
         current_state = FADE_BLACK_END
         fade_alpha = 255
@@ -639,7 +644,7 @@ while running:
             previous_char = previous_counter // speed
             if current_char == 1 and previous_char == 0 and not done:
                 text_sound.play()
-            dialogue_1.snip = message[0:counter//speed]
+            dialogue_1.snip = message[0:int(counter//speed)]
 
             if keys[pygame.K_RETURN] or keys[pygame.K_SPACE] and cooldown_dialogue == False:
                 cooldown_dialogue = True
