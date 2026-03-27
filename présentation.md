@@ -122,7 +122,7 @@ Pour limiter les erreurs, nous avons :
 - Améliorer les graphismes  
 - Développer une histoire plus approfondie  
 - Ajouter de nouvelles mécaniques de jeu  
-- Intégrer un système de sauvegarde  
+- Intégrer un système de craft 
 
 ---
 

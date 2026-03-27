@@ -155,20 +155,30 @@ message = dialogue_1.dialogue_text[active_message]
 frames = []
 frames_pollution_earth = []
 frames_starship = []
+
+earth_dir = os.path.join(assets_dir, "earth")
+pollution_dir = os.path.join(assets_dir, "pollution_cloud")
+ship_dir = os.path.join(assets_dir, "spaceship_long")
+
+
+
+
+
+
 for i in range(30):
 
-    img = pygame.image.load(f"assets/earth/sprite_{i:02d}.png")
+    img = pygame.image.load(os.path.join(earth_dir, f"sprite_{i:02d}.png"))
     img = pygame.transform.scale(img,(256,256))
     frames.append(img)
 
 for i in range(1, 6):
 
-    img = pygame.image.load(f"assets/pollution_cloud/pollution{i}.png")
+    img = pygame.image.load(os.path.join(pollution_dir, f"pollution{i}.png"))
     img = pygame.transform.scale(img,(256,256))
     frames_pollution_earth.append(img)
 
 for i in range(11):
-    img = pygame.image.load(f"assets/spaceship_long/ship_frame{i:02d}.png")
+    img = pygame.image.load(os.path.join(ship_dir, f"ship_frame{i:02d}.png"))
     img = pygame.transform.scale_by(img, 2)
     frames_starship.append(img)
 
@@ -482,9 +492,9 @@ inventaire_surface.blit(background_craft,(0,0))
 ## Batiments et collisions
 List_batiments_raw = []
 
-for file in os.listdir(os.path.join("assets","Building_txt")): # va enregistrer les lignes du txt en element dans une liste
+for file in os.listdir(os.path.join(assets_dir,"Building_txt")): # va enregistrer les lignes du txt en element dans une liste
     bat_actuel = []
-    with open(os.path.join("assets","Building_txt", file),"r") as f:
+    with open(os.path.join(assets_dir,"Building_txt", file),"r") as f:
         for line in f:
             bat_actuel.append(line.strip())
     List_batiments_raw.append(bat_actuel)

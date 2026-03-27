@@ -10,7 +10,6 @@ Pour bien débuter avec le projet, il est recommandé de comprendre le fonctionn
 
 - Python
 - Un ordinateur capable de faire tourner le projet
-- (optionnel) Connaissances de base en programmation
 
 ## 📦 Installation
 
@@ -42,5 +41,5 @@ Pour bien débuter avec le projet, il est recommandé de comprendre le fonctionn
 - Tristan Bonnière  
 
 ## 📄 License
-- **Code** : GPL v3 (voir `licence.txt`).
-- **Texte** : Creative Commons CC By-Sa.
+
+Ce projet est sous licence XXX - voir le fichier LICENSE pour plus d'informations.  
