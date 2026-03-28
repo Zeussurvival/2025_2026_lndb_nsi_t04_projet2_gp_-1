@@ -375,7 +375,7 @@ if mode == "load" and file_path and os.path.exists(file_path):
 
     for i, machine in enumerate(List_machines_depollution):
         machine.polu_capa = machines_data[i]["polu_capa"]
-        machine.image_path = machines_data[i].get("image_path", "Depollution_machine_t_1.png")  
+        machine.image_path = machines_data[i].get(tiles_dir, "Depollution_machine_t_1.png")  
         for machine in List_machines_depollution:
             x, y = machine.location
             Actual_map_objects_layer[y][x] = dict_image_bats[os.path.join(autres_tiles_dir, machine.image_path)]
