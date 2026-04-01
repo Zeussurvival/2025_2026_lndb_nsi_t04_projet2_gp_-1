@@ -10,9 +10,8 @@ police_dir = os.path.join(assets_dir,"polices")
 
 
 # pygame setup
-pygame.init()
 pygame.font.init()
-pygame.mixer.init()
+pygame.display.init()
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
@@ -25,7 +24,7 @@ done = False
 active_message = 0
 
 
-dialogue_image = pygame.image.load(os.path.join(assets_dir, "dialogue_box.png"))
+dialogue_image = pygame.image.load(os.path.join(assets_dir, "dialogue_box.png")).convert_alpha()
 police_dialogue_path = os.path.join(police_dir, "police_dialogue.ttf")
 dialogue_box_width = 400
 dialogue_box_height = 200
@@ -85,7 +84,7 @@ def open_dialogue_box ():
 def next():
     print("next")
 
-dialogue_1 = Dialogue( 640,600, 894, 200, ["Initialisation…", "Unité de nettoyage autonome : R-0.", "Statut de la planète : inhabitable.", "Mission prioritaire : nettoyer."], next)
+dialogue_1 = Dialogue( 200,600, 894, 200, ["Initialisation…", "Unité de nettoyage autonome : R-0.", "Statut de la planète : inhabitable.", "Mission prioritaire : nettoyer."], next)
 message = dialogue_1.dialogue_text[active_message]
 
 # while running:

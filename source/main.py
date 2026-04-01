@@ -5,7 +5,8 @@ import random
 import webbrowser
 import subprocess
 
-pygame.init()
+pygame.font.init()
+pygame.display.init()
 screen = pygame.display.set_mode((800, 600))
 clock = pygame.time.Clock()
 
@@ -13,18 +14,12 @@ main_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = os.path.split(os.path.abspath(main_dir))[0]
 source_dir = os.path.join(main_dir,"source")
 assets_dir = os.path.join(main_dir,"assets")
-hologram_dir = os.path.join(assets_dir,"1. Free Hologram Interface Wenrexa")
+hologram_dir = os.path.join(assets_dir,"hologram")
 X3_dir = os.path.join(hologram_dir,"Card X3")
 X2_dir = os.path.join(hologram_dir, "Card X2") 
 button_1 = os.path.join(hologram_dir,"Button 1")
 icons = os.path.join(hologram_dir,"Icons")
 robot = os.path.join(assets_dir,"Robot")
-
-
-
-# background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
-# background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
-# background = pygame.transform.scale(background_original,(screen.get_size()))
 
 
 background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()

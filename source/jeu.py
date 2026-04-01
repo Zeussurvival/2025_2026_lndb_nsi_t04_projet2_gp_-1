@@ -36,19 +36,10 @@ police_dir = os.path.join(assets_dir,"polices")
 saves_dir = os.path.join(main_dir, "saves")
 font_1 = os.path.join(police_dir, "test_1.ttf")
 font_2 = os.path.join(police_dir, "test_2.ttf")
-def audio_device_available():
-    # Retourne True si Windows a AU MOINS un périphérique audio fonctionnel.
-    # On lit le registre Windows : s'il n'y a aucun endpoint audio actif,
-    # pygame.mixer ne doit PAS être initialisé.
-    try:
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render")
-        pygame.mixer.init()
-    except: 
-        return False
 
 # pygame setup
-pygame.init()
 pygame.font.init()
+pygame.display.init()
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
@@ -422,7 +413,6 @@ else:
 for i in range(200):
     x = random.randint(0,Actual_map.shape[0]*64)
     y = random.randint(0,Actual_map.shape[1]*64)
-    print(x//64,y//64)
     if Actual_map_objects_layer[int(y//64)-1,int(x//64)-1] == -1:
         List_ground_objets.append((Ferraille_basique,(x,y)))
 
@@ -564,9 +554,9 @@ def ajout_de_linterieur_de_bat(position,indice):
     List_collision_house_map.append(pygame.rect.Rect((List_bats_zones_collision_fix[indice][2]+ pos[0])*64,-64,64,List_bats_zones_collision_fix[indice][3]*64+64))
     List_collision_house_map.append(pygame.rect.Rect(pos[0]*64-64,List_bats_zones_collision_fix[indice][3]*64,List_bats_zones_collision_fix[indice][2]*64+64,64))
     indice_maison += 1
-ajout_de_linterieur_de_bat((0,0),0)
-ajout_de_linterieur_de_bat((16,20),1)
 
+ajout_de_linterieur_de_bat((0,0),0) # malgré le systeme de sauvegarde ca reecris car on a pas reussi a bien se coordonner pour bien le faire
+ajout_de_linterieur_de_bat((16,20),1)
 ajout_de_linterieur_de_bat((70,29),2)
 ajout_de_linterieur_de_bat((30,140),1)
 ajout_de_linterieur_de_bat((25,50),1)
@@ -612,7 +602,6 @@ cd_change = False
 cd_porte = False
 Pos_souris_monde = (0,0)
 
-print("running now")
 while running:
     time_0 = time.time()
     keys = pygame.key.get_pressed()  
@@ -630,7 +619,7 @@ while running:
         fade_alpha = 255
         timer = 70*60/fps      # reset le timer du FADE_BLACK_END
         earth_timer = 180*60/fps  # reset pour SHOW_EARTH_END
-    # fill the screen with a color to wipe away anything from last frame
+
     screen.fill((0,0,0))
     if not see_animations:
         current_state = GAME_PLAY
@@ -643,7 +632,6 @@ while running:
                 current_state = FADE_IN_TEXT_1
                 fade_alpha = 255 
         
-                print("fade1 finis")
 
         elif current_state == FADE_IN_TEXT_1:
 
@@ -652,7 +640,7 @@ while running:
             if fade_alpha <= 0:
                 fade_alpha = 0
                 current_state = SHOW_TEXT_1
-                print("Texte 1 ")
+
         elif current_state == SHOW_TEXT_1:
             screen.blit(text_1, text_rect_1)
             if text_timer > 0:
@@ -666,7 +654,7 @@ while running:
             if fade_alpha >= 255:
                 fade_alpha = 255
                 current_state = FADE_TO_EARTH
-                print("vers la terre")
+
         elif current_state == FADE_TO_EARTH:
             current_frame += animation_speed
             if current_frame >= len(frames):
@@ -683,7 +671,7 @@ while running:
             if fade_alpha <= 0:
                 fade_alpha = 0
                 current_state = SHOW_EARTH
-                print("terre visible")
+
         elif current_state == SHOW_EARTH:
             current_frame += animation_speed
             if current_frame >= len(frames):
@@ -718,7 +706,7 @@ while running:
                 current_state = SHOW_DIALOGUE
                 fade_alpha = 0
                 
-        elif current_state == SHOW_DIALOGUE: 
+        elif current_state == SHOW_DIALOGUE:
             for object in objects:
                 object.process()
                 object.draw(screen)
@@ -727,9 +715,7 @@ while running:
                 counter += dt * 60
             elif counter >= speed * len(message):
                 done = True
-            current_char = counter // speed
-            previous_char = previous_counter // speed
-
+            dialogue_1.snip = message[0:int(counter//speed)]
             if keys[pygame.K_RETURN] or keys[pygame.K_SPACE] and cooldown_dialogue == False:
                 cooldown_dialogue = True
                 if done:
@@ -752,7 +738,36 @@ while running:
                 current_state = FADE_TO_END_3
                 fade_alpha = 255 
         
-                print("fade1 finis")
+        # elif current_state == SHOW_DIALOGUE: 
+        #     for object in objects:
+        #         object.process()
+        #         object.draw(screen)
+        #     previous_counter = counter 
+        #     if counter < speed * len(message) :
+        #         counter +=1
+        #     elif counter >= speed * len(message):
+        #         done = True
+        #     if current_char == 1 and previous_char == 0 and not done:
+        #         text_sound.play()
+        #     dialogue_1.snip = message[0:counter//speed]
+
+        #     if keys[pygame.K_RETURN] or keys[pygame.K_SPACE] and cooldown_dialogue == False:
+        #         cooldown_dialogue = True
+        #         if done:
+        #             if active_message < len(dialogue_1.dialogue_text) - 1:
+        #                 active_message += 1
+        #                 done = False
+        #                 message = dialogue_1.dialogue_text[active_message]
+        #                 counter = 0
+        #             else:  
+        #                 current_state = GAME_PLAY                       
+        #         else:
+        #             counter = speed * len(message)
+        #             done = True
+        #     if not keys[pygame.K_RETURN] and not keys[pygame.K_SPACE]:
+        #         cooldown_dialogue = False
+
+
         elif current_state == FADE_TO_END_3:
             current_frame += animation_speed
             if current_frame >= len(frames):
@@ -1116,8 +1131,6 @@ while running:
             if not keys[touche_utiliser_porte]:
                 cd_porte = False
             
-            print(indice_maison)
-
         if keys[touche_affichage_inventaire] and not cd_inv:
             cd_inv = True
             IN_INV = not IN_INV
@@ -1183,7 +1196,6 @@ while running:
                             nb_feraille += 1
                 for obj in Robot.inventory:
                     if obj != None:
-                        # print(obj.name)
                         if obj.name == "Ferraille":
                             nb_feraille += 1
 

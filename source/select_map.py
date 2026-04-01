@@ -6,7 +6,8 @@ import webbrowser
 import subprocess
 import sys
 
-pygame.init()
+pygame.font.init()
+pygame.display.init()
 screen = pygame.display.set_mode((800, 600))
 clock = pygame.time.Clock()
 
@@ -14,7 +15,7 @@ main_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = os.path.split(os.path.abspath(main_dir))[0]
 source_dir = os.path.join(main_dir,"source")
 assets_dir = os.path.join(main_dir,"assets")
-hologram_dir = os.path.join(assets_dir,"1. Free Hologram Interface Wenrexa")
+hologram_dir = os.path.join(assets_dir,"hologram")
 X3_dir = os.path.join(hologram_dir,"Card X3")
 X2_dir = os.path.join(hologram_dir, "Card X2") 
 button_1 = os.path.join(hologram_dir,"Button 1")
@@ -24,10 +25,6 @@ saves_dir = os.path.join(main_dir, "saves")
 
 Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 200
 pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 140
-
-# background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
-# background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
-# background = pygame.transform.scale(background_original,(screen.get_size()))
 
 
 background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
@@ -45,7 +42,6 @@ new_width = int(img_width * scale)
 new_height = int(img_height * scale)
 
 background_scaled = pygame.transform.scale(background_original, (new_width, new_height))
-
 
 background = pygame.Surface((screen_width, screen_height))
 x_offset = (new_width - screen_width) // 2
@@ -73,7 +69,6 @@ icon_close = pygame.image.load(os.path.join(icons, "close.png"))
 icon_mute = pygame.image.load(os.path.join(icons, "mute.png"))
 
 title_image = pygame.image.load(os.path.join(assets_dir, "title.png"))
-
 
 font = pygame.font.Font(None, 33)
 
