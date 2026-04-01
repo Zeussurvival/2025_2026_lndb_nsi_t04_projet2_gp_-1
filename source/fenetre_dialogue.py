@@ -5,7 +5,7 @@ import os
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = os.path.split(os.path.abspath(main_dir))[0]
-assets_dir = os.path.join(main_dir,"assets")
+assets_dir = os.path.join(main_dir,"data")
 police_dir = os.path.join(assets_dir,"polices")
 
 

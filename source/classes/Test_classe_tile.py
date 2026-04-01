@@ -5,7 +5,7 @@ pygame.display.init()
 pygame.font.init()
 main_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 main_dir = os.path.split(os.path.abspath(main_dir))[0]
-assets_dir = os.path.join(main_dir,"assets") 
+assets_dir = os.path.join(main_dir,"data") 
 img_dir = os.path.join(assets_dir,"Tiles") 
 # bg_image_dir = os.path.join(main_dir,"Tiles/Background_images")
 

@@ -31,7 +31,7 @@ ship_visible = True
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = os.path.split(os.path.abspath(main_dir))[0]
 
-assets_dir = os.path.join(main_dir,"assets")
+assets_dir = os.path.join(main_dir,"data")
 police_dir = os.path.join(assets_dir,"polices")
 saves_dir = os.path.join(main_dir, "saves")
 font_1 = os.path.join(police_dir, "test_1.ttf")
@@ -737,36 +737,6 @@ while running:
             else :
                 current_state = FADE_TO_END_3
                 fade_alpha = 255 
-        
-        # elif current_state == SHOW_DIALOGUE: 
-        #     for object in objects:
-        #         object.process()
-        #         object.draw(screen)
-        #     previous_counter = counter 
-        #     if counter < speed * len(message) :
-        #         counter +=1
-        #     elif counter >= speed * len(message):
-        #         done = True
-        #     if current_char == 1 and previous_char == 0 and not done:
-        #         text_sound.play()
-        #     dialogue_1.snip = message[0:counter//speed]
-
-        #     if keys[pygame.K_RETURN] or keys[pygame.K_SPACE] and cooldown_dialogue == False:
-        #         cooldown_dialogue = True
-        #         if done:
-        #             if active_message < len(dialogue_1.dialogue_text) - 1:
-        #                 active_message += 1
-        #                 done = False
-        #                 message = dialogue_1.dialogue_text[active_message]
-        #                 counter = 0
-        #             else:  
-        #                 current_state = GAME_PLAY                       
-        #         else:
-        #             counter = speed * len(message)
-        #             done = True
-        #     if not keys[pygame.K_RETURN] and not keys[pygame.K_SPACE]:
-        #         cooldown_dialogue = False
-
 
         elif current_state == FADE_TO_END_3:
             current_frame += animation_speed
