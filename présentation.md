@@ -1,5 +1,3 @@
-# Présentation du projet RE:LIFE
-
 ## 1 - Présentation globale du projet
 
 ### ● Naissance de l’idée  
