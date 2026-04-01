@@ -4,9 +4,9 @@ import os
 
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
+main_dir = os.path.split(os.path.abspath(main_dir))[0]
 assets_dir = os.path.join(main_dir,"assets")
 police_dir = os.path.join(assets_dir,"polices")
-sounds_dir = os.path.join(assets_dir, "sounds")
 
 
 # pygame setup
@@ -27,10 +27,6 @@ active_message = 0
 
 dialogue_image = pygame.image.load(os.path.join(assets_dir, "dialogue_box.png"))
 police_dialogue_path = os.path.join(police_dir, "police_dialogue.ttf")
-dialogue_sounds_path = os.path.join(sounds_dir, "typewriter.mp3")
-text_sound = pygame.mixer.Sound(dialogue_sounds_path)
-text_sound.set_volume(1)
-
 dialogue_box_width = 400
 dialogue_box_height = 200
 dialogue_box_x = (screen.get_width() - dialogue_box_width) // 2

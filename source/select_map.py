@@ -349,7 +349,7 @@ class Slider:
 
 def launch_game():
     pygame.quit()
-    main_path = os.path.join(source_dir, "main.py")
+    main_path = os.path.join(source_dir, "jeu.py")
     if mode == "load":
         if selected_file and os.path.exists(selected_file):
             save_base = os.path.basename(selected_file).replace("_map.txt", "")

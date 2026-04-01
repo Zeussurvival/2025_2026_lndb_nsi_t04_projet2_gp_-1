@@ -1,116 +1,108 @@
 # Example file showing a circle moving on screen
 import pygame # python3 -m pip install -U pygame --user
-import os
+import os 
+import classes.classe_dialogue as C_D
+import winreg
+import numpy
 import random
-import webbrowser
-import subprocess
+import time
+import math
+import classes.Test_def as D
+import classes.Test_classe_tile as CT
+import classes.Test_classe_humain as CH
+import classes.Test_classe_objets as CO
+import classes.Test_classe_machines as CM
+import sys
+import json
 
-pygame.init()
-screen = pygame.display.set_mode((800, 600))
-clock = pygame.time.Clock()
+mode = sys.argv[3] if len(sys.argv) > 3 else "new"
+file_path = sys.argv[4] if len(sys.argv) > 4 else None
+objects_path = sys.argv[5] if len(sys.argv) > 5 else None
+pollution_path = sys.argv[6] if len(sys.argv) > 6 else None
+first_machine_placed = False
+machine_dialogue_active = False
+first_craft = False
+craft_dialogue_active = False
+ship_moving = True
+ship_finished = False
+ship_visible = True
 
+# Chemins
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = os.path.split(os.path.abspath(main_dir))[0]
-source_dir = os.path.join(main_dir,"source")
+
 assets_dir = os.path.join(main_dir,"assets")
-hologram_dir = os.path.join(assets_dir,"1. Free Hologram Interface Wenrexa")
-X3_dir = os.path.join(hologram_dir,"Card X3")
-X2_dir = os.path.join(hologram_dir, "Card X2") 
-button_1 = os.path.join(hologram_dir,"Button 1")
-icons = os.path.join(hologram_dir,"Icons")
-robot = os.path.join(assets_dir,"Robot")
-
-
-
-# background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
-# background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
-# background = pygame.transform.scale(background_original,(screen.get_size()))
-
-
-background_original = pygame.image.load(os.path.join(X3_dir,"Card X5.png")).convert_alpha()
-time_to_quit = False
-
-screen_width, screen_height = screen.get_size()
-img_width, img_height = background_original.get_size()
-
-
-scale_x = screen_width / img_width
-scale_y = screen_height / img_height
-scale = max(scale_x, scale_y)  
-
-new_width = int(img_width * scale)
-new_height = int(img_height * scale)
-
-background_scaled = pygame.transform.scale(background_original, (new_width, new_height))
-
-
-background = pygame.Surface((screen_width, screen_height))
-x_offset = (new_width - screen_width) // 2
-y_offset = (new_height - screen_height) // 2
-
-background.blit(background_scaled, (-x_offset, -y_offset))
+police_dir = os.path.join(assets_dir,"polices")
+saves_dir = os.path.join(main_dir, "saves")
+font_1 = os.path.join(police_dir, "test_1.ttf")
+font_2 = os.path.join(police_dir, "test_2.ttf")
+def audio_device_available():
+    # Retourne True si Windows a AU MOINS un périphérique audio fonctionnel.
+    # On lit le registre Windows : s'il n'y a aucun endpoint audio actif,
+    # pygame.mixer ne doit PAS être initialisé.
+    try:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render")
+        pygame.mixer.init()
+    except: 
+        return False
 
 # pygame setup
-
-button_size = (300, 100)
-button_image = pygame.image.load(os.path.join(button_1,"Button Normal.png"))
-button_hover = pygame.image.load(os.path.join(button_1,"Button Hover.png"))
-button_click = pygame.image.load(os.path.join(button_1,"Button Active.png"))
-icon_play = pygame.image.load(os.path.join(icons, "play.png"))
-icon_settings = pygame.image.load(os.path.join(icons,"settings.png"))
-icon_dons = pygame.image.load(os.path.join(icons, "dons.png"))
-icon_discord = pygame.image.load(os.path.join(icons, "discord.png"))
-icon_info = pygame.image.load(os.path.join(icons, "info.png"))
-icon_down = pygame.image.load(os.path.join(icons, "down.png"))
-icon_music = pygame.image.load(os.path.join(icons, "music.png"))
-icon_quit = pygame.image.load(os.path.join(icons, "quit.png"))
-icon_sound = pygame.image.load(os.path.join(icons, "sound.png"))
-icon_up = pygame.image.load(os.path.join(icons, "up.png"))
-icon_close = pygame.image.load(os.path.join(icons, "close.png"))
-icon_mute = pygame.image.load(os.path.join(icons, "mute.png"))
-perso_image = pygame.image.load(os.path.join(robot, "robot_front/front1.png"))
-title_image = pygame.image.load(os.path.join(assets_dir, "title.png"))
-
-settings_panel = pygame.image.load(os.path.join(X2_dir,"Card X2.png"))
-settings_panel_rect = settings_panel.get_rect()
-settings_panel_rect.center = (400, 300)
-
-music_panel = pygame.image.load(os.path.join(X2_dir,"Card X2.png"))
-music_panel_rect = music_panel.get_rect()
-music_panel_rect.center = (400,300)
-
-font = pygame.font.Font(None, 33)
-
-font_difficult = pygame.font.Font(None, 23)
-font_text = pygame.font.Font(None, 30)
-font_map = pygame.font.Font(None, 3)
-# font_title 
-
-
-WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
-DARK_BLUE = (0, 0, 200)
-SEMI_TRANSPARENT = (0,0,0,180)
-
-
-title_image_resize = pygame.transform.scale(title_image,(256, int(92.75)))
-title_image_rect = title_image_resize.get_rect()
-title_image_rect.center = (400, 150)
-
+pygame.init()
+pygame.font.init()
+screen = pygame.display.set_mode((1280, 720))
+clock = pygame.time.Clock()
 running = True
 dt = 0
-mouse_clicked_button = False
-objects = []
-show_settings = False
-show_music = False
-show_difficult = False
-pt_pollution = 30 #pour Emil pour avoir le nombre de pt de pollution
-map_size = 250
-show_pannel_map = False
-show_dons = False
+fps = 240
+
+# Variables ordre
+FADE_BLACK = 0  
+FADE_IN_TEXT_1 = 1
+SHOW_TEXT_1 = 2
+FADE_TEXT_1 = 3    
+FADE_TO_EARTH = 4  
+SHOW_EARTH = 5
+SHOW_TEXT_2 = 6   
+FADE_TO_DIALOGUE = 7 
+SHOW_DIALOGUE = 8
+GAME_PLAY = 9
+FADE_BLACK_END = 10
+FADE_TO_END_3 = 11
+FADE_TO_END_4 = 12
+FADE_TO_END_5 = 13
+FADE_TO_END_6 = 14
+SHOW_EARTH_END = 15
+END = 16
+
+current_state = FADE_BLACK
+
+earth_timer = 180*60/fps
+fade_alpha = 255 
+fade_speed = 1*60/fps
+timer = 70*60/fps
+text_timer = 70*60/fps
+end_text_timer = 180*60/fps
+see_minimap = False 
+
+animation_ship_speed = 0.3*60/fps
+ship_y = 800
+ship_x = 640
+ship_target_y = 500
+ship_speed = 200
+ship_moving = True
+current_frame_ship = 0
+
+# Variables dialogue
+
+counter = 0
+# speed = round(25 * 60/fps)
+speed = 2
+done = False
+active_message = 0
+machine_dialogue_cooldown = 0
+machine_dialogue_cooldown_delay = 200 
 
 
-<<<<<<< Updated upstream
 # Chargement des assets
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
@@ -193,7 +185,7 @@ for i in range(11):
 
 
 ### VOIR ANIMATIONS
-see_animations = True
+see_animations = True 
 cooldown_dialogue = False
 
 
@@ -215,76 +207,174 @@ def draw_minimap(screen, Robot, Actual_map, Actual_map_pollution, tileset_paths,
     minimap_surf = pygame.Surface((minimap_size, minimap_size), pygame.SRCALPHA)
     minimap_surf.fill((0, 0, 0, 150))
 
-=======
-class Button():
-    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False, icon=None, icon_only=False):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.onclickFunction = onclickFunction
-        self.onePress = onePress
-        self.alreadyPressed = False
-        self.icon = icon
-        self.icon_only = icon_only
->>>>>>> Stashed changes
     
-        if not icon_only:
-            self.normal_image = pygame.transform.scale(button_image, (width, height))
-            self.hover_image = pygame.transform.scale(button_hover, (width, height))
-            self.pressed_image = pygame.transform.scale(button_click, (width, height))
+    player_tile_x = int(Robot.pos[0] // LEN_SQUARE)
+    player_tile_y = int(Robot.pos[1] // LEN_SQUARE)
 
-        self.buttonRect = pygame.Rect(0, 0, self.width, self.height)
-        self.buttonRect.center = (x, y)
+    for dy in range(-minimap_range, minimap_range):
+        for dx in range(-minimap_range, minimap_range):
+            tx = player_tile_x + dx
+            ty = player_tile_y + dy
+            if 0 <= tx < Actual_map.shape[0] and 0 <= ty < Actual_map.shape[1]:
+
+                px = (dx + minimap_range) * minimap_scale
+                py = (dy + minimap_range) * minimap_scale
+                tile_indice = Actual_map[ty, tx]
+                if 8 <= tile_indice < len(tileset_paths) - 3:
+                    pygame.draw.rect(minimap_surf, (111, 166, 150), (px, py, minimap_scale, minimap_scale))
+                else:
+                    pygame.draw.rect(minimap_surf, (80, 85, 80), (px, py, minimap_scale, minimap_scale))
+                pollution = Actual_map_pollution[tx, ty]
+                alpha = min(180, int(pollution * 12))
+
+                if alpha > 0:
+                    pollution_tile = pygame.Surface((minimap_scale, minimap_scale), pygame.SRCALPHA)
+                    pollution_tile.fill((255, 255, 0, alpha))
+                    minimap_surf.blit(pollution_tile, (px, py))
+
+    pygame.draw.rect(minimap_surf, (255, 255, 255),
+                     (minimap_range * minimap_scale - 2, minimap_range * minimap_scale - 2, 4, 4))
+
+    screen.blit(minimap_surf, (minimap_x, minimap_y))
+    coords_text = font_coord.render(f"X: {player_tile_x}  Y: {player_tile_y}", True, (255, 255, 255))
+    screen.blit(coords_text, (minimap_x, minimap_y + minimap_size + 5))
+
+
+
+
+###-------------------------------------------------------
+### ------------- CODE EMIL
+###-------------------------------------------------------
+
+### SETUP PYGAME ET IMPORTANTS
+W,H = (1280, 720)
+W_2,H_2 = W/2,H/2
+screen = pygame.display.set_mode((W,H))
+clock = pygame.time.Clock()
+LEN_SQUARE = 64
+dt = 0
+construction_dir = os.path.join(assets_dir,"Building_txt")
+tiles_dir = os.path.join(assets_dir,"Tiles")
+image_dir = os.path.join(assets_dir,"Images")
+autres_tiles_dir = os.path.join(tiles_dir,"Autres")
+batiments_tiles_dir = os.path.join(tiles_dir,"Batiment")
+
+### CREATION MAP
+Taille_map = int(sys.argv[1]) if len(sys.argv) > 1 else 40
+pt_pollution = int(sys.argv[2]) if len(sys.argv) > 2 else 3
+pt_pollution *= 3
+seed = random.seed(time.time()) # creation de la map des settings de la pollu et autres
+
+
+
+
+
+### ENREGISTREMENT DES TILES
+tileset = []
+tileset_paths = []
+tileset_paths += [os.path.join(autres_tiles_dir,"background_1.png"),os.path.join(autres_tiles_dir,"background_2.png"),os.path.join(autres_tiles_dir,"background_3.png"),os.path.join(autres_tiles_dir,"background_4.png")]\
+               + [os.path.join(autres_tiles_dir,"background_5.png"),os.path.join(autres_tiles_dir,"background_6.png"),os.path.join(autres_tiles_dir,"background_7.png"),os.path.join(autres_tiles_dir,"background_8.png")]
+
+
+dict_image_bats = {}
+
+
+
+
+for i in range(len(tileset_paths)):
+    tile = tileset_paths[i]
+    dict_image_bats[tile] = len(tileset_paths)
+    tileset.append(CT.Tile(tile,None,0))
+
+
+
+for img in os.listdir(batiments_tiles_dir):
+    true_img = os.path.join(batiments_tiles_dir,img)
+    dict_image_bats[true_img] = len(tileset_paths)
+    tileset_paths.append(true_img)
+    tileset.append(CT.Tile(true_img,None,0))
+
+temp_list = ["Depollution_machine_t_1.png","plank.png","Bush_tile.png","pollution_texture.png","transparent.png"]
+for tile in temp_list:
+    true_path = os.path.join(autres_tiles_dir,tile)
+    if true_path not in dict_image_bats:
+        dict_image_bats[true_path] = len(tileset)
+        tileset_paths += [true_path]
+        tileset += [CT.Tile(os.path.join(true_path),None,0)]
+
+### AUTRES
+List_machines_depollution = []
+machine_depo_1_obj = CO.Machine_objet("Depollution_machine_t_1_objet.png","MAchine de dépollution","Une machine pour dépolluer les environs",1,"Depollution_machine_t_1.png",dict_image_bats[os.path.join(autres_tiles_dir,"Depollution_machine_t_1.png")])
+
+
+List_ground_objets = []
+Pomme_basique = CO.Consumable("apple.png","Pomme","Une pomme bien délicieuse")
+pomme = Pomme_basique
+List_ground_objets.append((pomme,(1024,2048)))
+Bush_basique = CO.Plant("bush.png","Buisson","Ce buisson permet de cultiver des pommes",tileset[dict_image_bats[os.path.join(autres_tiles_dir,"Bush_tile.png")]],len(tileset)-3)
+bush = Bush_basique
+Ferraille_basique = CO.Consumable("ferraille_v1.png", "Ferraille", "Un tas de ferraille rouillée")
+ferraille = Ferraille_basique
+Liste_bush_on_map = []
+
+
+
+Arial_font = pygame.font.SysFont('Arial', 30)
+Surface_text_pickup = Arial_font.render('Press [E] to pick it up !', False, (255,255,255))
+can_pickup = True
+can_see_pollution = True
+cd_see_pollution = True
+
+hotbar = [bush,machine_depo_1_obj,None,None,None]
+inventory = [None]*25
+inventory[3] = Pomme_basique
+Robot = CH.Humanoid((8*64,8*64),100,5,5,"robot_front/front1.png",[["robot_front/front1.png"],\
+                                                                         ["robot_back/back1.png","robot_back/back2.png","robot_back/back3.png","robot_back/back4.png"],\
+                                                                         ["robot_front/front1.png","robot_front/front2.png","robot_front/front3.png","robot_front/front4.png"],\
+                                                                         ["robot_left/left_0.png","robot_left/left_1.png","robot_left/left_2.png","robot_left/left_3.png"],\
+                                                                         ["robot_right/right_0.png","robot_right/right_1.png","robot_right/right_2.png","robot_right/right_3.png"]], \
+                    64,hotbar,inventory)
+
+
+
+
+### SYSTEME DE SAUVEGARDE
+if mode == "load" and file_path and os.path.exists(file_path):
+    bushes_path = os.path.join(saves_dir, f"{sys.argv[7]}_bushes.json")
+    machines_path = os.path.join(saves_dir, f"{sys.argv[7]}_machines.json")
+    Actual_map = numpy.loadtxt(file_path, dtype=int)
+    Actual_map_objects_layer = numpy.loadtxt(objects_path, dtype=int)
+    Actual_map_pollution = numpy.loadtxt(pollution_path, dtype=float)
+
+    if os.path.exists(bushes_path):
+        with open(bushes_path, "r") as f:
+            Liste_bush_on_map = json.load(f)
         
-        self.buttonSurf = font.render(buttonText, True, WHITE)
-        objects.append(self)
 
-    def process(self):
-        mousePos = pygame.mouse.get_pos()
-
-        if self.buttonRect.collidepoint(mousePos):
-            if not self.icon_only :
-                screen.blit(self.pressed_image, self.buttonRect)
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                if not self.icon_only :
-                    screen.blit(self.pressed_image, self.buttonRect)
-                if self.onePress:
-                    self.onclickFunction()
-                elif not self.alreadyPressed:
-                    self.onclickFunction()
-                    self.alreadyPressed = True
-            else:
-                if not self.icon_only :
-                    screen.blit(self.hover_image, self.buttonRect)
-                self.alreadyPressed = False
-
-        else:
-            if not self.icon_only:
-                screen.blit(self.normal_image, self.buttonRect)
-            self.alreadyPressed = False 
-
-        if self.icon :
-            if self.icon_only:
-                icon_rect = self.icon.get_rect(center=self.buttonRect.center)
-                screen.blit(self.icon, icon_rect)
-            else :    
-                icon_rect = self.icon.get_rect()
-                total_width = self.buttonSurf.get_width() + 15 + icon_rect.width       
-            
-                text_rect = self.buttonSurf.get_rect()
-                text_rect.center = (self.buttonRect.centerx - total_width // 2 + self.buttonSurf.get_width() // 2, self.buttonRect.centery)
-                
-                icon_rect.midleft = (text_rect.right + 15, self.buttonRect.centery)
+    for bush_data in Liste_bush_on_map:
+        # bush_data == [ (y,x), next_time ]
+        pos, next_time = bush_data
+        y, x = pos
+     
+        Actual_map_objects_layer[y, x] = dict_image_bats[os.path.join(autres_tiles_dir, "Bush_tile.png")]
 
 
-                screen.blit(self.buttonSurf, text_rect)
-                screen.blit(self.icon, icon_rect)
+    if os.path.exists(machines_path):
+        with open(machines_path, "r") as f:
+            machines_data = json.load(f)
+    List_machines_depollution = [
+        CM.Depollution(
+            tuple(m["location"]),
+            m["polu_reduced_per_30_sec"],
+            m["range_depo"],
+            1,
+            polu_capa_max=m["polu_capa_max"]
+        ) for m in machines_data
+    ]
 
-<<<<<<< Updated upstream
     for i, machine in enumerate(List_machines_depollution):
         machine.polu_capa = machines_data[i]["polu_capa"]
-        machine.image_path = machines_data[i].get(tiles_dir, "Depollution_machine_t_1.png")  
+        machine.image_path = machines_data[i].get("image_path", "Depollution_machine_t_1.png")  
         for machine in List_machines_depollution:
             x, y = machine.location
             Actual_map_objects_layer[y][x] = dict_image_bats[os.path.join(autres_tiles_dir, machine.image_path)]
@@ -332,6 +422,7 @@ else:
 for i in range(200):
     x = random.randint(0,Actual_map.shape[0]*64)
     y = random.randint(0,Actual_map.shape[1]*64)
+    print(x//64,y//64)
     if Actual_map_objects_layer[int(y//64)-1,int(x//64)-1] == -1:
         List_ground_objets.append((Ferraille_basique,(x,y)))
 
@@ -466,328 +557,53 @@ def ajout_de_linterieur_de_bat(position,indice):
     D.replace_matrice_big_then_small(Map_House,matrice_temp,(0,indice*decallage_houses))
     List_entree_dans_maison += [(1+List_bats_zones_collision_portes_fix[indice][0]+indice*decallage_houses+List_offset_entree[indice][0],1+List_bats_zones_collision_portes_fix[indice][1]+List_offset_entree[indice][1])]
     List_sorti_hors_maison += [(position[0]+List_bats_zones_collision_portes_fix[indice][0]+List_bats_zones_collision_portes_fix[indice][2]+0.5,position[1]+List_bats_zones_collision_portes_fix[indice][1]+List_bats_zones_collision_portes_fix[indice][3])]
-=======
-        else:
-            text_rect = self.buttonSurf.get_rect(center=self.buttonRect.center)
-            screen.blit(self.buttonSurf, text_rect) 
-
-class Settings_Button():
-    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False, icon=None, icon_only=False):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.onclickFunction = onclickFunction
-        self.onePress = onePress
-        self.alreadyPressed = False
-        self.icon = icon
-        self.icon_only = icon_only
->>>>>>> Stashed changes
     
-        if not icon_only:
-            self.normal_image = pygame.transform.scale(button_image, (width, height))
-            self.hover_image = pygame.transform.scale(button_hover, (width, height))
-            self.pressed_image = pygame.transform.scale(button_click, (width, height))
+    pos = indice_maison*decallage_houses,0
+    List_collision_house_map.append(pygame.rect.Rect(pos[0]*64-64,-64,List_bats_zones_collision_fix[indice][2]*64+128,64))
+    List_collision_house_map.append(pygame.rect.Rect(pos[0]*64-64,-64,64,List_bats_zones_collision_fix[indice][3]*64+128))
+    List_collision_house_map.append(pygame.rect.Rect((List_bats_zones_collision_fix[indice][2]+ pos[0])*64,-64,64,List_bats_zones_collision_fix[indice][3]*64+64))
+    List_collision_house_map.append(pygame.rect.Rect(pos[0]*64-64,List_bats_zones_collision_fix[indice][3]*64,List_bats_zones_collision_fix[indice][2]*64+64,64))
+    indice_maison += 1
+ajout_de_linterieur_de_bat((0,0),0)
+ajout_de_linterieur_de_bat((16,20),1)
 
-        self.buttonRect = pygame.Rect(0, 0, self.width, self.height)
-        self.buttonRect.center = (x, y)
-        
-        self.buttonSurf = font_difficult.render(buttonText, True, WHITE)
-    def process(self):
-        mousePos = pygame.mouse.get_pos()
-
-        if self.buttonRect.collidepoint(mousePos):
-            if not self.icon_only :
-                screen.blit(self.pressed_image, self.buttonRect)
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                if not self.icon_only :
-                    screen.blit(self.pressed_image, self.buttonRect)
-                if self.onePress:
-                    self.onclickFunction()
-                elif not self.alreadyPressed:
-                    self.onclickFunction()
-                    self.alreadyPressed = True
-            else:
-                if not self.icon_only :
-                    screen.blit(self.hover_image, self.buttonRect)
-                self.alreadyPressed = False
-
-        else:
-            if not self.icon_only:
-                screen.blit(self.normal_image, self.buttonRect)
-            self.alreadyPressed = False 
-
-        if self.icon :
-            if self.icon_only:
-                icon_rect = self.icon.get_rect(center=self.buttonRect.center)
-                screen.blit(self.icon, icon_rect)
-            else :    
-                icon_rect = self.icon.get_rect()
-                total_width = self.buttonSurf.get_width() + 15 + icon_rect.width       
-            
-                text_rect = self.buttonSurf.get_rect()
-                text_rect.center = (self.buttonRect.centerx - total_width // 2 + self.buttonSurf.get_width() // 2, self.buttonRect.centery)
-                
-                icon_rect.midleft = (text_rect.right + 15, self.buttonRect.centery)
+ajout_de_linterieur_de_bat((70,29),2)
+ajout_de_linterieur_de_bat((30,140),1)
+ajout_de_linterieur_de_bat((25,50),1)
+ajout_de_linterieur_de_bat((100,20),2)
+ajout_de_linterieur_de_bat((15,45),1)
+ajout_de_linterieur_de_bat((75,140),0)
 
 
-                screen.blit(self.buttonSurf, text_rect)
-                screen.blit(self.icon, icon_rect)
-
-        else:
-            text_rect = self.buttonSurf.get_rect(center=self.buttonRect.center)
-            screen.blit(self.buttonSurf, text_rect) 
-
-class Music_Button():
-    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False, icon=None, icon_only=False):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.onclickFunction = onclickFunction
-        self.onePress = onePress
-        self.alreadyPressed = False
-        self.icon = icon
-        self.icon_only = icon_only
-    
-        if not icon_only:
-            self.normal_image = pygame.transform.scale(button_image, (width, height))
-            self.hover_image = pygame.transform.scale(button_hover, (width, height))
-            self.pressed_image = pygame.transform.scale(button_click, (width, height))
-
-        self.buttonRect = pygame.Rect(0, 0, self.width, self.height)
-        self.buttonRect.center = (x, y)
-        
-        self.buttonSurf = font.render(buttonText, True, WHITE)
-    def process(self):
-        mousePos = pygame.mouse.get_pos()
-
-        if self.buttonRect.collidepoint(mousePos):
-            if not self.icon_only :
-                screen.blit(self.pressed_image, self.buttonRect)
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                if not self.icon_only :
-                    screen.blit(self.pressed_image, self.buttonRect)
-                if self.onePress:
-                    self.onclickFunction()
-                elif not self.alreadyPressed:
-                    self.onclickFunction()
-                    self.alreadyPressed = True
-            else:
-                if not self.icon_only :
-                    screen.blit(self.hover_image, self.buttonRect)
-                self.alreadyPressed = False
-
-        else:
-            if not self.icon_only:
-                screen.blit(self.normal_image, self.buttonRect)
-            self.alreadyPressed = False 
-
-        if self.icon :
-            if self.icon_only:
-                icon_rect = self.icon.get_rect(center=self.buttonRect.center)
-                screen.blit(self.icon, icon_rect)
-            else :    
-                icon_rect = self.icon.get_rect()
-                total_width = self.buttonSurf.get_width() + 15 + icon_rect.width       
-            
-                text_rect = self.buttonSurf.get_rect()
-                text_rect.center = (self.buttonRect.centerx - total_width // 2 + self.buttonSurf.get_width() // 2, self.buttonRect.centery)
-                
-                icon_rect.midleft = (text_rect.right + 15, self.buttonRect.centery)
-
-
-                screen.blit(self.buttonSurf, text_rect)
-                screen.blit(self.icon, icon_rect)
-
-        else:
-            text_rect = self.buttonSurf.get_rect(center=self.buttonRect.center)
-            screen.blit(self.buttonSurf, text_rect) 
-
-class Slider:
-    def __init__(self, x, y, width, min_val=0, max_val=100, initial_val=50):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.min_val = min_val
-        self.max_val = max_val
-        self.value = initial_val
-        self.dragging = False
-
-        self.track_rect = pygame.Rect(x, y, width, 6)
-        self.handle_radius = 12
-        self.handle_x = x + int((initial_val - min_val) / (max_val - min_val) * width)
-
-    def process(self, events):
-        mouse_pos = pygame.mouse.get_pos()
-        mouse_pressed = pygame.mouse.get_pressed()[0]
-
-        handle_rect = pygame.Rect(
-            self.handle_x - self.handle_radius,
-            self.y - self.handle_radius,
-            self.handle_radius * 2,
-            self.handle_radius * 2
-        )
-
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if handle_rect.collidepoint(mouse_pos):
-                    self.dragging = True
-            if event.type == pygame.MOUSEBUTTONUP:
-                self.dragging = False
-
-        if self.dragging and mouse_pressed:
-            self.handle_x = max(self.x, min(self.x + self.width, mouse_pos[0]))
-            self.value = int(self.min_val + (self.handle_x - self.x) / self.width * (self.max_val - self.min_val))
-
-        # Dessin
-        pygame.draw.rect(screen, (7, 51, 51), self.track_rect, border_radius=3)
-        pygame.draw.rect(screen, WHITE, pygame.Rect(self.x, self.y, self.handle_x - self.x, 6), border_radius=3)
-        pygame.draw.circle(screen, WHITE, (self.handle_x, self.y + 3), self.handle_radius)
-
-def go_settings():
-    global show_settings
-    show_settings = not show_settings
-    print("settings ouverts/fermés")
-
-def change_volume():
-    print("changement volume")
-
-
-def launch_game():
-    global map_size
-    map_size = map_slider.value
-    pygame.quit()
-    main_path = os.path.join(source_dir, "select_map.py")
-    subprocess.run(["python", main_path, str(map_size), str(pt_pollution)])
-
-def close_music():
-    global show_music
-    show_music = False
-    for btn in settings_buttons:
-        btn.alreadyPressed = True
-    print ("music fermé")
-
-def open_music():
-    global show_music
-    show_music = True
-    print("music ouvert")
-
-def mute():
-    print ("muted")
-
-def up():
-    print("music up")
-
-def down():
-    print("music_down")
-
-def redirect():
-    webbrowser.open("https://discord.gg/Dd9TjkC3")
-
-def quit():
-    global running
-    running = False
-
-def fonction ():
-    print ("à faire")
-
-def go_difficult():
-    global show_difficult
-    show_difficult = not show_difficult
-    print("open_difficult")
-
-def difficult_normal ():
-    global pt_pollution
-    pt_pollution = 50
-    print("difficulté normale")
-
-def difficult_easy ():
-    global pt_pollution
-    pt_pollution = 30
-    print("difficulté facile")
-
-def difficult_hard ():
-    global pt_pollution
-    pt_pollution = 90
-    print("difficulté difficile")
-
-def pollution_up ():
-    global pt_pollution
-    pt_pollution +=1
-    print("pollution up")
-
-def pollution_down ():
-    global pt_pollution
-    if pt_pollution > 25 :
-        pt_pollution -=1
-    print("pollution down")
-
-
-def go_map():
-    global show_pannel_map
-    show_pannel_map = not show_pannel_map
-    print("open map")
-
-def go_dons():
-    global show_dons
-    show_dons = not show_dons
-
-def go_info():
-    webbrowser.open("https://github.com/Zeussurvival/2025_2026_lndb_nsi_t04_projet2_gp_-1?tab=readme-ov-file#relife")
-
-Button(400, 450, 140, 50, 'Jouer', launch_game, icon=icon_play)
-Button(70, 70, 50, 50, '', go_settings, icon=icon_settings, icon_only=True )
-Button(730, 70, 50, 50, "", go_info, icon=icon_info, icon_only=True)
-Button(730, 120, 50, 50, "", redirect, icon=icon_discord, icon_only=True)
-Button(730, 170, 50, 50, "", go_dons, icon=icon_dons, icon_only=True)
-Button(120, 70, 50, 50, "", quit, icon=icon_quit, icon_only=True)
-Button(700, 530, 140, 40, "Difficulté", go_difficult)
-Button(700, 470, 140, 40, "Taille map", go_map)
-
-
-settings_buttons = [
-    Settings_Button(400, 300, 50, 50, '', open_music, icon=icon_sound, icon_only=True),
-    Settings_Button(250, 160, 50, 50, '', go_settings, icon=icon_close, icon_only=True)    
-]
-
-music_buttons = [
-    Music_Button(300, 335, 50, 50, '', mute, icon=icon_mute, icon_only=True),
-    Music_Button(400, 335, 50, 50, '', down, icon=icon_down, icon_only=True),
-    Music_Button(500, 335, 50, 50, '', up, icon=icon_up, icon_only=True),
-    Music_Button(250, 160, 50, 50, '', close_music, icon=icon_close, icon_only=True)
-]
-
-difficult_buttons = [
-    Settings_Button(250, 160, 50, 50, '', go_difficult, icon=icon_close, icon_only=True),
-    Settings_Button(400, 285, 85, 35, "normale", difficult_normal),
-    Settings_Button(300, 285, 85, 35, "facile", difficult_easy),
-    Settings_Button(500, 285, 85, 35, "difficile", difficult_hard),
-    Settings_Button(350, 385, 50, 50, '', pollution_down, icon=icon_down, icon_only=True),
-    Settings_Button(450, 385, 50, 50, '', pollution_up, icon=icon_up, icon_only=True),
-]
-
-map_buttons= [
-    Settings_Button(250, 160, 50, 50, '', go_map, icon=icon_close, icon_only=True),
-]
-map_slider = Slider(300, 320, 200, min_val=200, max_val=500, initial_val=250)
-dons_buttons= [
-    Settings_Button(250, 160, 50, 50, '', go_dons, icon=icon_close, icon_only=True),
-]
+List_batiments_zones_collision = [List_batiments_zones_collision,List_collision_house_map]
+List_collision_house_map
+indice_maison = -1
 
 
 
-perso_image_scaled = pygame.transform.scale(perso_image, (128, 188))        
-perso_image_rect = perso_image_scaled.get_rect ()
-# perso_image_rect = perso_image.get_rect ()
-perso_image_rect.center = (400, 300)
 
-perso_speed_x = random.choice([-200, -150, 150, 200]) 
-perso_speed_y = random.choice([-200, -150, 150, 200])
+# KEYBINDS
+touche_direction_gauche = pygame.K_q
+touche_direction_droite = pygame.K_d
+touche_direction_haut = pygame.K_z
+touche_direction_bas = pygame.K_s
+touche_affichage_pollution = pygame.K_F3
+touche_jet_ditem = pygame.K_n
+touche_recuperation_ditem = pygame.K_e
+touche_utiliser_porte = pygame.K_f
+touche_affichage_inventaire = pygame.K_TAB
+touche_slot1 = pygame.K_1
+touche_slot2 = pygame.K_2
+touche_slot3 = pygame.K_3
+touche_slot4 = pygame.K_4
+touche_slot5 = pygame.K_5
 
 
+# Pollu encore
+pollution_initiale = numpy.sum(Actual_map_pollution)
+pollution_actuelle = pollution_initiale
+pollution_max_possible = pollution_initiale *2
 
-<<<<<<< Updated upstream
 time_for_every_sec = int(time.time())
 time_for_every_30_sec = int(time.time())
 List_ground_objets.append((ferraille, (10*64 + 64//2, 10*64 + 64//2)))
@@ -796,31 +612,25 @@ cd_change = False
 cd_porte = False
 Pos_souris_monde = (0,0)
 
-=======
->>>>>>> Stashed changes
+print("running now")
 while running:
-
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
-    events = pygame.event.get()
-    for event in events:
+    time_0 = time.time()
+    keys = pygame.key.get_pressed()  
+    mouse_pos = pygame.mouse.get_pos()
+    for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE :
-                if show_music:
-                    show_music = False
-                elif show_settings:
-                    show_settings = False
-                elif show_difficult :
-                    show_difficult = False
-                elif show_pannel_map :
-                    show_pannel_map = False
-                elif show_dons :
-                    show_dons = False
+            break
+    if not running:
+        break
 
+
+    if keys[pygame.K_F5]:
+        current_state = FADE_BLACK_END
+        fade_alpha = 255
+        timer = 70*60/fps      # reset le timer du FADE_BLACK_END
+        earth_timer = 180*60/fps  # reset pour SHOW_EARTH_END
     # fill the screen with a color to wipe away anything from last frame
-<<<<<<< Updated upstream
     screen.fill((0,0,0))
     if not see_animations:
         current_state = GAME_PLAY
@@ -833,6 +643,7 @@ while running:
                 current_state = FADE_IN_TEXT_1
                 fade_alpha = 255 
         
+                print("fade1 finis")
 
         elif current_state == FADE_IN_TEXT_1:
 
@@ -841,6 +652,7 @@ while running:
             if fade_alpha <= 0:
                 fade_alpha = 0
                 current_state = SHOW_TEXT_1
+                print("Texte 1 ")
         elif current_state == SHOW_TEXT_1:
             screen.blit(text_1, text_rect_1)
             if text_timer > 0:
@@ -854,6 +666,7 @@ while running:
             if fade_alpha >= 255:
                 fade_alpha = 255
                 current_state = FADE_TO_EARTH
+                print("vers la terre")
         elif current_state == FADE_TO_EARTH:
             current_frame += animation_speed
             if current_frame >= len(frames):
@@ -870,6 +683,7 @@ while running:
             if fade_alpha <= 0:
                 fade_alpha = 0
                 current_state = SHOW_EARTH
+                print("terre visible")
         elif current_state == SHOW_EARTH:
             current_frame += animation_speed
             if current_frame >= len(frames):
@@ -915,7 +729,6 @@ while running:
                 done = True
             current_char = counter // speed
             previous_char = previous_counter // speed
-            dialogue_1.snip = message[0:int(counter//speed)]
 
             if keys[pygame.K_RETURN] or keys[pygame.K_SPACE] and cooldown_dialogue == False:
                 cooldown_dialogue = True
@@ -939,6 +752,7 @@ while running:
                 current_state = FADE_TO_END_3
                 fade_alpha = 255 
         
+                print("fade1 finis")
         elif current_state == FADE_TO_END_3:
             current_frame += animation_speed
             if current_frame >= len(frames):
@@ -967,20 +781,36 @@ while running:
                 current_frame = 0
             earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
             screen.blit(frames[int(current_frame)], earth_rect) 
-=======
-    # screen.fill("purple")
-    mouse_pos = pygame.mouse.get_pos()
->>>>>>> Stashed changes
 
 
-    screen.blit(background,(0,0))
+            text_surf = text_4.copy()
+            text_alpha = max(0, 255 - int(fade_alpha))  
+            text_surf.set_alpha(text_alpha)
+            screen.blit(text_surf, text_rect_4)
+
+            if fade_alpha > 0:
+                fade_alpha -= fade_speed
+            elif end_text_timer > 0:
+                end_text_timer -= 1
+            else:
+                end_text_timer = 180*60/fps
+                current_state = FADE_TO_END_5
+                fade_alpha = 255
+        elif current_state == FADE_TO_END_5:
+
+   
+            current_frame += animation_speed
+            if current_frame >= len(frames):
+                current_frame = 0
+            earth_rect = frames[int(current_frame)].get_rect(center=(640, 360))
+            screen.blit(frames[int(current_frame)], earth_rect)
 
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_SPACE]:
-        pass
+            if ship_moving and not ship_finished:
+                current_frame_ship += animation_ship_speed
+                if current_frame_ship >= len(frames_starship):
+                    current_frame_ship = len(frames_starship) - 1
 
-<<<<<<< Updated upstream
                 ship_y -= ship_speed * dt
                 if ship_y <= ship_target_y:
                     ship_y = ship_target_y
@@ -1008,13 +838,7 @@ while running:
 
         elif current_state == FADE_TO_END_6:
             # fade vers noir
-            text_surf = text_6.copy()
-            text_alpha = max(0, 255 - int(fade_alpha))
-            text_surf.set_alpha(text_alpha)
-            screen.blit(text_surf, text_rect_6)
             fade_alpha += fade_speed
-            if fade_alpha > 0:
-                fade_alpha -= fade_speed
             if fade_alpha >= 255:
                 fade_alpha = 255
                 current_state = SHOW_EARTH_END
@@ -1226,106 +1050,51 @@ while running:
 
                     
                 
-=======
->>>>>>> Stashed changes
     
-
-    perso_image_rect.x += perso_speed_x * dt
-    perso_image_rect.y += perso_speed_y * dt
-
-
-    if perso_image_rect.left <= 0 or perso_image_rect.right >= 800:
-        perso_speed_x = -perso_speed_x
-
-    if perso_image_rect.top <= 0 or perso_image_rect.bottom >= 600:
-        perso_speed_y = -perso_speed_y
-
-    screen.blit(perso_image_scaled, perso_image_rect)
-    # screen.blit(perso_image, perso_image_rect)
-    screen.blit(title_image_resize, title_image_rect)
-
-    for object in objects:
-        object.process()
-
-    if show_difficult :
-        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
-        overlay.fill(SEMI_TRANSPARENT)
-        screen.blit(overlay, (0, 0))
-        screen.blit(settings_panel, settings_panel_rect)
-        difficult_title = font.render("Difficulté", True, WHITE)
-        difficult_title_rect = difficult_title.get_rect(center=(400, 200))
-        screen.blit(difficult_title, difficult_title_rect)
-        pollution_text = font_text.render("points de pollution", True, WHITE)
-        pollution_text_rect = pollution_text.get_rect(center=(400, 340))
-        screen.blit(pollution_text, pollution_text_rect)
-        pollution_pt = font_text.render(str(pt_pollution), True, WHITE)
-        pollution_pt_rect = pollution_pt.get_rect(center=(400, 385))
-        screen.blit(pollution_pt, pollution_pt_rect)
-        for btn in difficult_buttons:
-            btn.process()
-
-    if show_pannel_map :
-        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
-        overlay.fill(SEMI_TRANSPARENT)
-        screen.blit(overlay, (0, 0))
-        screen.blit(settings_panel, settings_panel_rect)
-        map_title = font.render("Taille de la map", True, WHITE)
-        map_title_rect = map_title.get_rect(center=(400, 200))
-        screen.blit(map_title, map_title_rect)
+            Robot.moove_this_frame = has_not_moove
+            Robot.pos = (round(Robot.pos[0],5),round(Robot.pos[1],5))
         
-        for btn in map_buttons:
-            btn.process()
-        map_slider.process(events)  
+            last_mvt = [keys[touche_direction_haut],keys[touche_direction_bas],keys[touche_direction_gauche],keys[touche_direction_droite]]   # -----> pour faire les animations mais la jai pas le temps ptdr
+            Robot.do_all(screen,last_mvt)
 
-        slider_text = font_text.render(str(map_slider.value), True, WHITE)
-        screen.blit(slider_text, slider_text.get_rect(center=(400, 370)))
-        map_size = map_slider.value #pour Emil pour avoir la taille de la map
-                
-    if show_settings and not show_music:
-        # Créer un overlay semi-transparent
-        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
-        overlay.fill(SEMI_TRANSPARENT)
-        screen.blit(overlay, (0, 0))
-        
-        # Dessiner le panneau de réglages
-        # settings_panel = pygame.Rect(200, 150, 400, 300)
-        # pygame.draw.rect(screen, (20, 20, 40), settings_panel)
-        # pygame.draw.rect(screen, WHITE, settings_panel, 3)  # Bordure
-        screen.blit(settings_panel, settings_panel_rect)
-        settings_title = font.render("Réglages", True, WHITE)
-        settings_title_rect = settings_title.get_rect(center=(400, 200))
-        screen.blit(settings_title, settings_title_rect)
-        
+            if fade_alpha > 0 : # permet de faire le fade si yen a a faire dans le current state
+                fade_surface = pygame.Surface((screen.get_width(),screen.get_height()))
+                fade_surface.set_alpha(fade_alpha)
+                fade_surface.fill((0, 0, 0))  
+                screen.blit(fade_surface, (0, 0))
+            if see_minimap == True :
+                draw_minimap(screen, Robot, Actual_map_objects_layer, Actual_map_pollution, tileset_paths, LEN_SQUARE, W, H)
 
-        for btn in settings_buttons:
-            btn.process()
-    if show_dons :
-        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
-        overlay.fill(SEMI_TRANSPARENT)
-        screen.blit(overlay, (0, 0))
-        screen.blit(settings_panel, settings_panel_rect)
-        map_title = font.render("Dons", True, WHITE)
-        map_title_rect = map_title.get_rect(center=(400, 200))
-        screen.blit(map_title, map_title_rect)  
-        for btn in dons_buttons:
-            btn.process()
-        slider_text = font_text.render(str("Ce projet est à but non lucratif"), True, WHITE)
-        screen.blit(slider_text, slider_text.get_rect(center=(400, 325)))
-    
+        if IN_HOUSE:
+            keys = pygame.key.get_pressed()
+            coin_haut = (math.floor((Robot.pos_in_houses[0]-W_2)/LEN_SQUARE),math.floor((Robot.pos_in_houses[1]-H_2)/LEN_SQUARE))
+            coin_bas = (math.ceil((Robot.pos_in_houses[0]+W_2)/LEN_SQUARE),math.ceil((Robot.pos_in_houses[1]+H_2)/LEN_SQUARE))
+
+            for y in range(max(coin_haut[1],0),min(coin_bas[1],Map_House.shape[0])): # montre la map, polution et objet_layer
+                for x in range(max(coin_haut[0],0),min(coin_bas[0],Map_House.shape[1])):
+                    tileset[Map_House[x,y]].blit_self(screen,(x*LEN_SQUARE-Robot.pos_in_houses[0]+W_2, y*LEN_SQUARE-Robot.pos_in_houses[1]+H_2))
 
 
-    elif show_music :
-        overlay = pygame.Surface((800, 600), pygame.SRCALPHA)
-        overlay.fill(SEMI_TRANSPARENT)
-        screen.blit(overlay, (0, 0))
-        
-        screen.blit(music_panel, music_panel_rect)
-        music_title = font.render("Sons", True, WHITE)
-        music_title_rect = music_title.get_rect(center=(400, 200))
-        screen.blit(music_title, music_title_rect)
-        
+            ### Mouvement
+            has_not_moove = True
+            vect_mvt = pygame.math.Vector2(0,0)
+            if keys[touche_direction_gauche]:
+                vect_mvt[0] -= Robot.speed * dt
+            if keys[touche_direction_droite]:
+                vect_mvt[0] += Robot.speed * dt
+            if keys[touche_direction_haut]:
+                vect_mvt[1] -= Robot.speed * dt
+            if keys[touche_direction_bas]:
+                vect_mvt[1] += Robot.speed * dt
+            if vect_mvt.length() != 0:
+                if vect_mvt.length() / (Robot.speed * dt + 0.00001) > 1:
+                    vect_mvt = vect_mvt.normalize() * Robot.speed * dt
+                has_not_moove = True 
+                new_pos = Robot.pos_in_houses + pygame.math.Vector2(vect_mvt[0],0)
+                rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
+                if rect_robot.collidelist(List_batiments_zones_collision[1  ]) == -1: # verif sur laxe x
+                    Robot.pos_in_houses = new_pos
 
-<<<<<<< Updated upstream
                 new_pos = Robot.pos_in_houses + pygame.math.Vector2(0,vect_mvt[1])
                 rect_robot = pygame.rect.Rect(new_pos[0]-Robot.image_length[0]/2,new_pos[1],64,52)
                 if rect_robot.collidelist(List_batiments_zones_collision[1]) == -1: # verif sur laxe y
@@ -1429,12 +1198,10 @@ while running:
                     for i in range(len(Robot.inventory)):
                         obj = Robot.inventory[i]
                         if obj != None:
-                            print(nb_feraille)
                             if obj.name == "Ferraille" and nb_feraille > 0:
                                 Robot.inventory[i] = None
                                 nb_feraille -= 1
                     Robot.pickup(machine_depo_1_obj)
-                print(nb_feraille)
                 nb_feraille = 0
             if collision:
                 if picked_slot == -1:
@@ -1467,7 +1234,7 @@ while running:
             current_char = counter // speed
             previous_char = previous_counter // speed
 
-            dialogue_1.snip = message[0:int(counter//speed)]
+            dialogue_1.snip = message[0:counter//speed]
 
             current_time = pygame.time.get_ticks()
             if (keys[pygame.K_RETURN] or keys[pygame.K_SPACE]) and current_time - machine_dialogue_cooldown > machine_dialogue_cooldown_delay:
@@ -1489,17 +1256,70 @@ while running:
         fade_surface.set_alpha(fade_alpha)
         fade_surface.fill((0, 0, 0))
         screen.blit(fade_surface, (0, 0))
-=======
-        for btn in music_buttons:
-            btn.process()
-    
->>>>>>> Stashed changes
     pygame.display.flip()
+    dt = clock.tick(fps) / 1000
 
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
-    dt = clock.tick(60) / 1000
 
+save_dir = os.path.join(main_dir, "saves")
+os.makedirs(save_dir, exist_ok=True)
+
+current_save = sys.argv[7] if len(sys.argv) > 7 else None
+
+if current_save:
+    save_name = current_save  
+else:
+    save_index = 1
+    while os.path.exists(os.path.join(save_dir, f"save_{save_index}_map.txt")):
+        save_index += 1
+    save_name = f"save_{save_index}"
+
+
+
+
+
+numpy.savetxt(os.path.join(save_dir, f"{save_name}_map.txt"), Actual_map, fmt="%d")
+numpy.savetxt(os.path.join(save_dir, f"{save_name}_objects.txt"), Actual_map_objects_layer, fmt="%d")
+numpy.savetxt(os.path.join(save_dir, f"{save_name}_pollution.txt"), Actual_map_pollution, fmt="%.4f")
+
+
+with open(os.path.join(save_dir, f"{save_name}_bushes.json"), "w") as f:
+    json.dump(Liste_bush_on_map, f)
+
+machines_data = []
+for m in List_machines_depollution:
+    machines_data.append({
+        "location": [int(m.location[0]), int(m.location[1])],  # garder l'ordre que tu utilises partout
+        "polu_reduced_per_30_sec": m.polu_reduced_per_30_sec,
+        "range_depo": m.range_depo,
+        "polu_capa": m.polu_capa,
+        "polu_capa_max": m.polu_capa_max,
+        "image_path": m.image_path if hasattr(m, "image_path") else "Depollution_machine_t_1.png"
+    })
+
+
+for machine, m in zip(List_machines_depollution, machines_data):
+    machine.polu_capa = m["polu_capa"]
+with open(os.path.join(save_dir, f"{save_name}_machines.json"), "w") as f:
+    json.dump(machines_data, f)
+
+inventory_data = []
+for item in Robot.hotbar:
+    if item is None:
+        inventory_data.append(None)
+    else:
+        if isinstance(item, CO.Plant):
+            inventory_data.append({"type":"Plant", "id":"Bush_tile.png"})
+        elif isinstance(item, CO.Machine_objet):
+            inventory_data.append({"type":"Machine_objet", "id":"Depollution_machine_t_1.png"})
+        elif isinstance(item, CO.Consumable):
+            inventory_data.append({"type":"Consumable", "id":"apple.png", "count":1})
+        elif item["type"] == "Consumable" and item.get("id") == "ferraille_v1.png":
+            Robot.hotbar.append(ferraille)
+        else:
+            inventory_data.append({"type":"Unknown"})
+with open(os.path.join(save_dir, f"{save_name}_inventory.json"), "w") as f:
+    json.dump(inventory_data, f)
+    
+print(f"Partie sauvegardée : {save_name}")
 
 pygame.quit()
